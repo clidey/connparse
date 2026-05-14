@@ -11,7 +11,7 @@ function normalizeScheme(scheme) {
 }
 
 export function createRegistry(definitions = builtInDefinitions) {
-  validateDefinitions(definitions, adapters);
+  validateDefinitions(definitions, adapters, { allowDuplicateIds: true });
   const byId = new Map();
   const byScheme = new Map();
 

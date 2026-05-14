@@ -86,12 +86,12 @@ export function validateDefinition(definition, adapters = {}) {
   return definition;
 }
 
-export function validateDefinitions(definitions, adapters = {}) {
+export function validateDefinitions(definitions, adapters = {}, options = {}) {
   assert(Array.isArray(definitions), 'definitions must be an array');
   const ids = new Set();
   for (const definition of definitions) {
     validateDefinition(definition, adapters);
-    assert(!ids.has(definition.id), `duplicate id ${definition.id}`);
+    assert(options.allowDuplicateIds || !ids.has(definition.id), `duplicate id ${definition.id}`);
     ids.add(definition.id);
   }
   return definitions;

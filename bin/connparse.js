@@ -8,9 +8,19 @@ const safeOnly = args.includes('--safe');
 const strict = args.includes('--strict');
 const providerIndex = args.indexOf('--provider');
 const provider = providerIndex === -1 ? undefined : args[providerIndex + 1];
-const input = args
-  .filter((arg, index) => !arg.startsWith('--') && !arg.startsWith('-') && index !== providerIndex + 1)
-  .join(' ');
+const inputParts = [];
+
+for (let index = 0; index < args.length; index += 1) {
+  const arg = args[index];
+  if (['--help', '-h', '--version', '-v', '--safe', '--strict'].includes(arg)) continue;
+  if (arg === '--provider') {
+    index += 1;
+    continue;
+  }
+  inputParts.push(arg);
+}
+
+const input = inputParts.join(' ');
 
 if (help) {
   console.log(`Usage: connparse [options] <address>

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 
@@ -7,6 +7,10 @@ const bin = fileURLToPath(new URL('../bin/connparse.js', import.meta.url));
 
 function run(args) {
   return execFileSync(process.execPath, [bin, ...args], { encoding: 'utf8' }).trim();
+}
+
+function runResult(args) {
+  return spawnSync(process.execPath, [bin, ...args], { encoding: 'utf8' });
 }
 
 test('CLI prints help', () => {
@@ -29,4 +33,21 @@ test('CLI supports provider hints', () => {
 
 test('CLI prints safe output', () => {
   assert.equal(run(['--safe', 'postgres://user:pass@localhost/app']), 'postgres://user:***@localhost/app');
+});
+
+test('CLI exits nonzero for invalid input', () => {
+  const result = runResult(['postgres://localhost/app?sslmode=invalid']);
+  assert.equal(result.status, 1);
+  const payload = JSON.parse(result.stderr);
+  assert.equal(payload.errors[0].code, 'INVALID_QUERY_PARAMETER_VALUE');
+});
+
+test('CLI exits with usage error for missing input or provider value', () => {
+  const missingInput = runResult([]);
+  assert.equal(missingInput.status, 2);
+  assert.match(missingInput.stderr, /Usage: connparse/);
+
+  const missingProvider = runResult(['--provider']);
+  assert.equal(missingProvider.status, 2);
+  assert.match(missingProvider.stderr, /Missing value for --provider/);
 });
