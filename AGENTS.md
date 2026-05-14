@@ -26,10 +26,12 @@ Keep implementation-specific code inside its package. Keep reusable specs and fi
 Run commands from the repository root unless noted:
 
 - `pnpm install`: install workspace dependencies.
+- `pnpm generate:definitions`: regenerate JS and Go built-in definitions from CPDS YAML.
+- `pnpm check:generated`: verify generated definitions are current.
 - `pnpm test`: run JS and Go test suites.
 - `pnpm test:js`: run the JS package test suite.
 - `pnpm test:go`: run the Go package test suite.
-- `pnpm run check`: syntax-check JS source and run Go tests.
+- `pnpm run check`: verify generated definitions, syntax-check JS source, and run Go tests.
 - `pnpm --filter connparse test`: run tests from the package scope.
 
 For CLI smoke tests:
@@ -46,9 +48,11 @@ Use `gofmt` for Go. Keep Go files in package `connparse`, use exported names for
 
 CPDS definition IDs and YAML filenames should match provider IDs, such as `postgres.yaml` and `yugabytedb.yaml`.
 
+Do not edit generated built-ins directly. Update `specs/definitions/*.yaml`, then run `pnpm generate:definitions`.
+
 ## Testing Guidelines
 
-Tests use Node’s built-in `node:test` and `node:assert/strict` for JS and Go’s standard `testing` package for Go. Add or update fixtures in `specs/fixtures/v1.json` for any behavior that should be stable across implementations. Package tests must consume shared fixtures and definitions from `specs/`, not package-local copies.
+Tests use Node’s built-in `node:test` and `node:assert/strict` for JS and Go’s standard `testing` package for Go. Add or update fixtures in `specs/fixtures/v1.json` for any behavior that should be stable across implementations. Package tests must consume shared fixtures and definitions from `specs/`, not package-local copies. Generator drift is checked by `pnpm check:generated` and by package tests.
 
 Before finishing changes, run:
 

@@ -32,6 +32,10 @@ query_parameters:
   sslmode:
     type: string
     allowed: [disable, allow, prefer, require, verify-ca, verify-full]
+  sslcert:
+    type: string
+  sslkey:
+    type: string
   sslrootcert:
     type: string
 validation:
@@ -39,3 +43,5 @@ validation:
   port_range:
     min: 1
     max: 65535
+options:
+  compatible_with: postgres

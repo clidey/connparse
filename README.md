@@ -35,6 +35,7 @@ For local development in this repo:
 
 ```bash
 pnpm install
+pnpm generate:definitions
 pnpm test
 pnpm test:go
 ```
@@ -271,6 +272,18 @@ allowed values, and basic validation.
 Provider-specific structural parsing still lives in adapters where real-world
 formats need it, such as MongoDB SRV URLs, PostgreSQL-compatible conninfo,
 QuestDB ILP config strings, JDBC URLs, and SQLite/DuckDB memory databases.
+
+Built-in definitions are generated from `specs/definitions/*.yaml`:
+
+```bash
+pnpm generate:definitions
+pnpm check:generated
+```
+
+Do not edit generated files directly:
+
+- `packages/js/src/builtin-definitions.js`
+- `packages/go/builtin_definitions.go`
 
 ## Fixtures
 

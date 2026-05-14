@@ -24,12 +24,26 @@ query_parameters:
   auto_flush:
     type: string
     allowed: [on, off]
+  auto_flush_interval:
+    type: number
   auto_flush_rows:
+    type: number
+  init_buf_size:
+    type: number
+  max_buf_size:
     type: number
   protocol_version:
     type: string
+  request_min_throughput:
+    type: number
+  request_timeout:
+    type: number
   retry_timeout:
     type: number
+  tls_roots:
+    type: string
+  tls_roots_password:
+    type: string
   tls_verify:
     type: string
     allowed: [on, unsafe_off]

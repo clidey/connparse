@@ -23,14 +23,32 @@ credentials:
 query_parameters:
   authSource:
     type: string
+  authMechanism:
+    type: string
+  authMechanismProperties:
+    type: string
+  connectTimeoutMS:
+    type: number
+  directConnection:
+    type: boolean
   replicaSet:
     type: string
   retryWrites:
     type: boolean
+  serverSelectionTimeoutMS:
+    type: number
   tls:
+    type: boolean
+  tlsCAFile:
+    type: string
+  tlsCertificateKeyFile:
+    type: string
+  tlsInsecure:
     type: boolean
   ssl:
     type: boolean
+  w:
+    type: string
 validation:
   require_host: true
   port_range:

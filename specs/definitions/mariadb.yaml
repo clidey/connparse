@@ -23,6 +23,8 @@ query_parameters:
   sslMode:
     type: string
     allowed: [disable, trust, verify-ca, verify-full]
+  ssl:
+    type: string
   user:
     type: string
   password:

@@ -27,9 +27,15 @@ query_parameters:
     type: boolean
   sslmode:
     type: string
+  user:
+    type: string
+  password:
+    type: string
   readonly:
     type: number
   debug:
+    type: boolean
+  createDatabaseIfNotExist:
     type: boolean
 validation:
   require_host: true

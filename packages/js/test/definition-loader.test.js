@@ -1,26 +1,15 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { readFileSync, readdirSync } from 'node:fs';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { getBuiltInDefinitions, parse, parseDefinition, validateDefinition } from '../src/index.js';
 import { adapters } from '../src/adapters/index.js';
 
-const definitionFiles = [
-  'clickhouse.yaml',
-  'cockroachdb.yaml',
-  'duckdb.yaml',
-  'elasticsearch.yaml',
-  'file.yaml',
-  'mariadb.yaml',
-  'memcached.yaml',
-  'mongodb.yaml',
-  'mysql.yaml',
-  'postgres.yaml',
-  'questdb.yaml',
-  'redis.yaml',
-  's3.yaml',
-  'sqlite.yaml',
-  'yugabytedb.yaml'
-];
+const repoRoot = new URL('../../..', import.meta.url);
+const repoRootPath = fileURLToPath(repoRoot);
+const definitionsRoot = new URL('specs/definitions/', repoRoot);
+const definitionFiles = readdirSync(definitionsRoot).filter((file) => file.endsWith('.yaml')).sort();
 
 test('loads YAML CPDS definitions', () => {
   const text = readFileSync(new URL('../../../specs/definitions/postgres.yaml', import.meta.url), 'utf8');
@@ -118,20 +107,27 @@ test('YAML definition examples stay aligned with built-in definitions', () => {
   const yamlIds = new Set();
 
   for (const file of definitionFiles) {
-    const text = readFileSync(new URL(`../../../specs/definitions/${file}`, import.meta.url), 'utf8');
+    const text = readFileSync(new URL(file, definitionsRoot), 'utf8');
     const definition = parseDefinition(text, 'yaml');
     yamlIds.add(definition.id);
 
     const builtIn = builtInsById.get(definition.id);
     assert.ok(builtIn, `${definition.id} has no built-in definition`);
-    assert.equal(definition.adapter || 'generic-uri', builtIn.adapter || 'generic-uri', `${definition.id} adapter drift`);
-    assert.deepEqual(definition.schemes, builtIn.schemes, `${definition.id} scheme drift`);
-    assert.equal(definition.type, builtIn.type, `${definition.id} type drift`);
+    assert.deepEqual(builtIn, definition, `${definition.id} built-in drift`);
   }
 
   for (const id of builtInsById.keys()) {
     assert.equal(yamlIds.has(id), true, `${id} has no YAML definition example`);
   }
+});
+
+test('generated definition files are current', () => {
+  assert.doesNotThrow(() => {
+    execFileSync('node', ['tools/generate-definitions.mjs', '--check'], {
+      cwd: repoRootPath,
+      stdio: 'pipe'
+    });
+  });
 });
 
 test('YAML examples parse like built-ins for representative inputs', () => {
@@ -155,7 +151,7 @@ test('YAML examples parse like built-ins for representative inputs', () => {
 
   for (const item of cases) {
     const yamlDefinition = parseDefinition(
-      readFileSync(new URL(`../../../specs/definitions/${item.file}`, import.meta.url), 'utf8'),
+      readFileSync(new URL(item.file, definitionsRoot), 'utf8'),
       'yaml'
     );
     const builtInResult = parse(item.input, { provider: ['file', 'sqlite'].includes(item.id) ? item.id : undefined });

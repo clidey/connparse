@@ -28,12 +28,30 @@ query_parameters:
     type: boolean
   ssl:
     type: string
+  ssl-ca:
+    type: string
+  ssl-capath:
+    type: string
+  ssl-cert:
+    type: string
+  ssl-cipher:
+    type: string
+  ssl-crl:
+    type: string
+  ssl-crlpath:
+    type: string
+  ssl-key:
+    type: string
   ssl-mode:
     type: string
     allowed: [DISABLED, PREFERRED, REQUIRED, VERIFY_CA, VERIFY_IDENTITY]
   charset:
     type: string
+  schema:
+    type: string
   tls-version:
+    type: string
+  tls-versions:
     type: string
 validation:
   require_host: true

@@ -126,6 +126,9 @@ func TestYAMLDefinitionsStayAlignedWithBuiltIns(t *testing.T) {
 		if builtin.Type != yamlDef.Type || builtin.Adapter != yamlDef.Adapter || !reflect.DeepEqual(builtin.Schemes, yamlDef.Schemes) {
 			t.Fatalf("%s built-in drifted from YAML definition", yamlDef.ID)
 		}
+		if !reflect.DeepEqual(canonicalDefinition(t, builtin), canonicalDefinition(t, yamlDef)) {
+			t.Fatalf("%s built-in definition does not match YAML definition", yamlDef.ID)
+		}
 	}
 }
 
@@ -167,6 +170,19 @@ func loadFixtures(t *testing.T) []fixture {
 func addressMap(t *testing.T, address *Address) map[string]any {
 	t.Helper()
 	data, err := json.Marshal(address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var value map[string]any
+	if err := json.Unmarshal(data, &value); err != nil {
+		t.Fatal(err)
+	}
+	return value
+}
+
+func canonicalDefinition(t *testing.T, definition Definition) map[string]any {
+	t.Helper()
+	data, err := json.Marshal(definition)
 	if err != nil {
 		t.Fatal(err)
 	}

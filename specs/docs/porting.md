@@ -39,8 +39,26 @@ should read `specs/definitions/*.yaml` and emit package-local built-ins such as
 JavaScript objects or Go structs. It should not generate adapter parsing logic:
 real connection-string formats still need hand-written adapter code.
 
-When generated definitions exist, ports should add a drift check that compares
-generated output to committed package-local definitions.
+The current generator is:
+
+```bash
+pnpm generate:definitions
+```
+
+It writes:
+
+- `packages/js/src/builtin-definitions.js`
+- `packages/go/builtin_definitions.go`
+
+The drift check is:
+
+```bash
+pnpm check:generated
+```
+
+Ports should add their generated built-in definition file to this generator.
+Generated files must be committed, and package tests should fail if generated
+definitions drift from CPDS YAML.
 
 ## Adding a Port
 
@@ -49,4 +67,5 @@ generated output to committed package-local definitions.
 3. Load or embed built-in CPDS definitions.
 4. Implement adapters required by the definitions.
 5. Add a shared fixture runner.
-6. Wire the package into root `pnpm test` and `pnpm run check`.
+6. Add generated built-ins to `tools/generate-definitions.mjs`.
+7. Wire the package into root `pnpm test` and `pnpm run check`.

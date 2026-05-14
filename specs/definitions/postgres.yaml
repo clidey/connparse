@@ -37,7 +37,13 @@ query_parameters:
     type: string
   options:
     type: string
+  passfile:
+    type: string
   password:
+    type: string
+  port:
+    type: string
+  require_auth:
     type: string
   service:
     type: string
