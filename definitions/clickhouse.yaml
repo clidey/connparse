@@ -1,0 +1,38 @@
+id: clickhouse
+name: ClickHouse
+type: database
+schemes:
+  - clickhouse
+  - ch
+adapter: clickhouse
+defaults:
+  port: 9000
+authority:
+  host: true
+  port: true
+  multi_host: true
+resource:
+  type: database
+  required: false
+path:
+  type: object_path
+  required: false
+credentials:
+  username: true
+  password: true
+query_parameters:
+  database:
+    type: string
+  ssl:
+    type: boolean
+  sslmode:
+    type: string
+  readonly:
+    type: number
+  debug:
+    type: boolean
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535

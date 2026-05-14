@@ -81,9 +81,9 @@ model:
 
 | Key | Type | Used by | Meaning |
 | --- | --- | --- | --- |
-| `host` | `string` | Postgres, MySQL, MongoDB, Redis, unknown URLs | Primary host. |
-| `port` | `number \| null` | Postgres, MySQL, MongoDB, Redis, unknown URLs | Primary port, with defaults applied where configured. |
-| `hosts` | `{ host: string; port: number \| null }[]` | Postgres, MongoDB | Multi-host list when the input contains more than one host. |
+| `host` | `string` | Most network providers | Primary host for single-endpoint addresses. |
+| `port` | `number \| null` | Most network providers | Primary port, with defaults applied where configured. |
+| `hosts` | `{ host: string; port: number \| null }[]` | Multi-host providers | Multi-host list when the input contains more than one host. |
 | `bucket` | `string` | S3 | Object storage bucket name. |
 | `region` | `string` | S3 | Region parsed from virtual-host URLs or query/default data. |
 | `project` | `string` | Reserved | Project identifier for future analytics/cloud definitions. |
@@ -119,8 +119,10 @@ Current built-in resource types:
 
 | Value | Used by | Meaning |
 | --- | --- | --- |
-| `database` | Postgres, MySQL, MongoDB, SQLite | Database name or file-backed database identifier. |
+| `database` | SQL/document/file-backed databases | Database name or file-backed database identifier. |
 | `database_index` | Redis | Redis database index from the path. |
+| `endpoint` | QuestDB ILP config strings | Network ingestion endpoint. |
+| `index` | Elasticsearch | Elasticsearch index name parsed from the first path segment. |
 | `bucket` | S3 | Object storage bucket. |
 | `none` | File | No logical resource container. |
 
@@ -158,10 +160,16 @@ Current built-in query parameters:
 
 | Provider | Keys |
 | --- | --- |
-| Postgres | `sslmode`, `target_session_attrs`, `application_name` |
-| MySQL/MariaDB | `ssl`, `charset` |
-| MongoDB | `authSource`, `replicaSet`, `retryWrites`, `tls`, `ssl` |
-| Redis | `protocol` |
+| Postgres | `sslmode`, `target_session_attrs`, `application_name`, `connect_timeout`, `options`, SSL certificate keys |
+| MySQL | `auth-method`, `get-server-public-key`, `ssl-mode`, `ssl-*`, `charset`, `tls-version` |
+| MariaDB | `sslMode`, `user`, `password` |
+| MongoDB | `authSource`, `authMechanism`, `connectTimeoutMS`, `directConnection`, `replicaSet`, `retryWrites`, `serverSelectionTimeoutMS`, `tls*`, `ssl`, `w` |
+| Redis | `protocol`; StackExchange.Redis config values are placed in `options` when parsed with `provider: 'redis'` |
+| ClickHouse | `database`, `ssl`, `sslmode`, `readonly`, `debug`, `createDatabaseIfNotExist` |
+| Elasticsearch | `api_key`, `apiKey`, `token` |
+| CockroachDB | `application_name`, `options`, `password`, `results_buffer_size`, `sslmode`, SSL certificate keys |
+| QuestDB | `auto_flush`, `auto_flush_rows`, `protocol_version`, `retry_timeout`, `tls_verify`, buffer/timeout keys |
+| YugabyteDB | `loadBalance`, `ssl`, `sslmode`, `sslrootcert`, `topologyKeys`, `ybServersRefreshInterval` |
 | S3 | `versionId`, `region` |
 | SQLite | `mode`, `cache` |
 | File | none |
@@ -174,6 +182,7 @@ Current built-in query parameters:
 | --- | --- | --- |
 | `username` | `string` | Username or user identifier from URI user info. |
 | `password` | `string` | Password from URI user info. |
+| `api_key` | `string` | API key from provider-specific query/config fields. |
 | `access_key` | `string` | Reserved for providers that encode access keys. |
 | `secret_key` | `string` | Reserved for providers that encode secret keys. |
 | `token` | `string` | Reserved for providers that encode tokens. |
@@ -193,9 +202,15 @@ Current built-in keys:
 | Key | Type | Used by | Meaning |
 | --- | --- | --- | --- |
 | `srv` | `boolean` | MongoDB | `true` for `mongodb+srv` inputs. |
-| `tls` | `boolean` | Redis | `true` for `rediss` inputs. |
+| `tls` | `boolean` | Redis, Memcached, Elasticsearch, QuestDB | Derived TLS flag. |
+| `jdbc` | `boolean` | JDBC-backed adapters | `true` when the input was a JDBC URL. |
+| `mode` | `string` | MariaDB JDBC | Failover/load-balancing mode such as `sequential`. |
+| `protocol` | `string` | ClickHouse, Elasticsearch, QuestDB | Transport protocol such as `http`, `https`, `tcp`, or `native`. |
+| `conninfo` | `boolean` | PostgreSQL-compatible adapters | `true` when a keyword/value conninfo string was parsed. |
+| `compatible_with` | `string` | CockroachDB, QuestDB, YugabyteDB | Compatibility family, currently `postgres`. |
+| `ingestion` | `boolean` | QuestDB | `true` for QuestDB ILP ingestion config strings. |
 | `source_scheme` | `string` | S3 HTTPS URLs | Original source scheme, such as `https`, when normalized to `s3`. |
-| `memory` | `boolean` | SQLite | `true` for SQLite in-memory databases. |
+| `memory` | `boolean` | SQLite, DuckDB | `true` for in-memory databases. |
 
 Definitions and future adapters may add additional option keys.
 
@@ -243,6 +258,7 @@ Current diagnostic codes:
 ```ts
 type ParseOptions = {
   definitions?: ConnparseDefinition[];
+  provider?: string;
   strict?: boolean;
 };
 ```
@@ -252,6 +268,7 @@ Keys:
 | Key | Type | Meaning |
 | --- | --- | --- |
 | `definitions` | `ConnparseDefinition[]` | Extra CPDS definitions merged with built-ins for this parse call. |
+| `provider` | `string` | Forces parsing with a provider definition for ambiguous strings, such as plain HTTP URLs or keyword/value conninfo. |
 | `strict` | `boolean` | Turns unknown query parameter warnings into errors. |
 
 Custom definitions are merged after built-ins. If a custom definition uses an
@@ -286,8 +303,16 @@ Built-in adapter names:
 | Adapter | Meaning |
 | --- | --- |
 | `generic-uri` | Standard hierarchical URI parser for host/resource/path style addresses. |
+| `postgres-compatible` | PostgreSQL URI, JDBC, and keyword/value conninfo parser. |
+| `mysql-compatible` | MySQL/MariaDB URI-like parser with JDBC support. |
+| `jdbc` | Shared JDBC URL parser for supported JDBC providers. |
+| `clickhouse` | ClickHouse URI/JDBC/HTTP parser. |
+| `duckdb` | DuckDB path, URI, and memory parser. |
+| `elasticsearch` | Elasticsearch explicit scheme and provider-hinted HTTP(S) parser. |
+| `memcached` | Memcached URI and provider-hinted host-list parser. |
 | `mongodb` | MongoDB parser with SRV and multi-host handling. |
-| `redis` | Redis parser with `rediss` TLS derivation. |
+| `questdb` | QuestDB ILP config string and PostgreSQL-wire parser. |
+| `redis` | Redis URL and provider-hinted StackExchange.Redis parser. |
 | `s3` | S3 URI and common S3 HTTPS URL parser. |
 | `file` | File URI and local path parser. |
 | `sqlite` | SQLite file and memory database parser. |

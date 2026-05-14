@@ -1,5 +1,8 @@
 import { adapters } from './adapters/index.js';
 import { extractScheme } from './adapters/common.js';
+import { isClickHouseJdbc } from './adapters/clickhouse.js';
+import { looksLikeDuckDbPath } from './adapters/duckdb.js';
+import { isQuestDbConfig } from './adapters/questdb.js';
 import { isS3HttpUrl } from './adapters/s3.js';
 import { diagnostic, fail } from './diagnostics.js';
 import { looksLikeFilePath } from './path.js';
@@ -26,7 +29,39 @@ function normalizeInput(input) {
   return { raw: input };
 }
 
-function inferDefinition(raw, registry) {
+function inferDefinition(raw, registry, options = {}) {
+  if (options.provider) {
+    const provider = String(options.provider).toLowerCase();
+    return {
+      scheme: provider,
+      definition: registry.getById(provider) || registry.getByScheme(provider)
+    };
+  }
+
+  if (isClickHouseJdbc(raw)) {
+    return { scheme: 'jdbc:clickhouse', definition: registry.getByScheme('clickhouse') };
+  }
+
+  if (/^jdbc:postgresql:\/\//i.test(raw)) {
+    return { scheme: 'jdbc:postgresql', definition: registry.getByScheme('postgres') };
+  }
+
+  if (/^jdbc:mysql:\/\//i.test(raw)) {
+    return { scheme: 'jdbc:mysql', definition: registry.getByScheme('mysql') };
+  }
+
+  if (/^jdbc:mariadb(?::[a-z-]+)?:\/\//i.test(raw)) {
+    return { scheme: 'jdbc:mariadb', definition: registry.getByScheme('mariadb') };
+  }
+
+  if (isQuestDbConfig(raw)) {
+    return { scheme: 'questdb', definition: registry.getByScheme('questdb') };
+  }
+
+  if (looksLikeDuckDbPath(raw)) {
+    return { scheme: 'duckdb', definition: registry.getByScheme('duckdb') };
+  }
+
   if (isS3HttpUrl(raw)) {
     return { scheme: 's3', definition: registry.getByScheme('s3') };
   }
@@ -85,7 +120,7 @@ export function parse(input, options = {}) {
   const registry = options.definitions
     ? createRegistry([...getBuiltInDefinitions(), ...options.definitions])
     : defaultRegistry;
-  const { scheme, definition } = inferDefinition(raw, registry);
+  const { scheme, definition } = inferDefinition(raw, registry, options);
 
   if (!scheme) {
     return fail('MISSING_SCHEME', 'Input must include a scheme or look like a file path', 'scheme');

@@ -1,0 +1,28 @@
+id: memcached
+name: Memcached
+type: cache
+schemes:
+  - memcached
+  - memcacheds
+adapter: memcached
+defaults:
+  port: 11211
+authority:
+  host: true
+  port: true
+  multi_host: true
+resource:
+  type: none
+  required: false
+path:
+  type: none
+  required: false
+credentials:
+  username: true
+  password: true
+query_parameters: {}
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535

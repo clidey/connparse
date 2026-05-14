@@ -25,19 +25,19 @@ The v1 target providers are:
 
 | Provider | Status | Likely v1 approach |
 | --- | --- | --- |
-| PostgreSQL | Implemented, needs deeper parameter coverage | `postgres://` and `postgresql://` URI support. Multi-host support is in scope. |
-| MySQL | Implemented, needs deeper parameter coverage | `mysql://` URI support. |
-| MariaDB | Implemented as MySQL-compatible scheme | `mariadb://` URI support using MySQL-compatible parsing unless docs show a separate grammar. |
-| SQLite | Implemented, needs fixture expansion | `sqlite:` URLs, local database files, and `sqlite::memory:`. |
-| DuckDB | Not implemented | Likely file-oriented adapter plus `duckdb:`/driver-specific URL handling after doc review. |
-| ClickHouse | Not implemented | Likely URI-style adapter for native and/or HTTP connection URLs after doc review. |
-| Memcached | Not implemented | Likely cache endpoint parser; may need multi-server support depending on documented formats. |
-| Redis | Implemented, needs deeper parameter coverage | `redis://` and `rediss://` URI support. |
-| Elasticsearch | Not implemented | Likely HTTP(S) endpoint parser with credentials and cloud/API-key handling after doc review. |
-| MongoDB | Implemented, needs deeper parameter coverage | `mongodb://` and `mongodb+srv://` URI support. Multi-host and SRV are in scope. |
-| CockroachDB | Not implemented | PostgreSQL-compatible URI parser with Cockroach-specific options and defaults after doc review. |
-| QuestDB | Not implemented | Likely PostgreSQL-compatible endpoint plus QuestDB-specific connection formats after doc review. |
-| YugabyteDB | Not implemented | PostgreSQL-compatible URI parser with Yugabyte-specific options and defaults after doc review. |
+| PostgreSQL | Implemented | URI, JDBC URL, multi-host URI, and provider-hinted libpq conninfo. |
+| MySQL | Implemented | URI-like strings, MySQL X schemes, JDBC URL, and provider-hinted schemeless URI-like strings. |
+| MariaDB | Implemented | MariaDB URI and Connector/J JDBC strings, including multi-host modes. |
+| SQLite | Implemented | SQLite URI/file forms and in-memory databases. |
+| DuckDB | Implemented | DuckDB URI forms, in-memory database, and `.duckdb`/`.ddb` paths. |
+| ClickHouse | Implemented | JDBC URL, `clickhouse://`/`ch://`, and provider-hinted HTTP(S) URLs. |
+| Memcached | Implemented with caveat | Connparse `memcached://` convention and provider-hinted host lists; no official universal connection-string syntax found. |
+| Redis | Implemented | Redis URLs and provider-hinted StackExchange.Redis comma configuration. |
+| Elasticsearch | Implemented with caveat | Connparse explicit schemes and provider-hinted HTTP(S) endpoint URLs; Elastic Cloud ID is deferred. |
+| MongoDB | Implemented | Standard and SRV MongoDB connection strings. |
+| CockroachDB | Implemented | Connparse explicit schemes and provider-hinted PostgreSQL-compatible URLs/conninfo. |
+| QuestDB | Implemented | QuestDB ILP config strings and Connparse `questdb://` PostgreSQL-wire URLs. |
+| YugabyteDB | Implemented | Connparse explicit schemes and provider-hinted PostgreSQL-compatible URLs/conninfo. |
 
 ## Release-Ready Criteria
 
@@ -70,6 +70,9 @@ V1 should prefer URI-style and file-style formats. JDBC, ODBC, and
 keyword-value syntaxes can be added if they are central to a requested provider,
 but they should be modeled as explicit adapter behavior rather than hidden in
 generic URI parsing.
+
+The current included/excluded format matrix is documented in
+[v1-provider-formats.md](v1-provider-formats.md).
 
 ## Current Decisions
 

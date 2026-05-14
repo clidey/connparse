@@ -1,0 +1,18 @@
+id: duckdb
+name: DuckDB
+type: database
+schemes:
+  - duckdb
+adapter: duckdb
+authority: {}
+resource:
+  type: database
+  required: true
+path:
+  type: filesystem_path
+  required: true
+credentials: {}
+query_parameters:
+  access_mode:
+    type: string
+validation: {}

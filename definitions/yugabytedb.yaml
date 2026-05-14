@@ -1,16 +1,16 @@
-id: mysql
-name: MySQL
+id: yugabytedb
+name: YugabyteDB
 type: database
 schemes:
-  - mysql
-  - mysqlx
-  - mysqlx+srv
-adapter: mysql-compatible
+  - yugabyte
+  - yugabytedb
+adapter: postgres-compatible
 defaults:
-  port: 3306
+  port: 5433
 authority:
   host: true
   port: true
+  multi_host: true
 resource:
   type: database
   required: false
@@ -21,20 +21,19 @@ credentials:
   username: true
   password: true
 query_parameters:
-  auth-method:
+  loadBalance:
     type: string
-    allowed: [AUTO, MYSQL41, SHA256_MEMORY, FROM_CAPABILITIES, FALLBACK, PLAIN]
-  get-server-public-key:
-    type: boolean
   ssl:
+    type: boolean
+  sslmode:
     type: string
-  ssl-mode:
+    allowed: [disable, allow, prefer, require, verify-ca, verify-full]
+  sslrootcert:
     type: string
-    allowed: [DISABLED, PREFERRED, REQUIRED, VERIFY_CA, VERIFY_IDENTITY]
-  charset:
+  topologyKeys:
     type: string
-  tls-version:
-    type: string
+  ybServersRefreshInterval:
+    type: number
 validation:
   require_host: true
   port_range:

@@ -4,7 +4,7 @@ export const builtInDefinitions = [
     name: 'PostgreSQL',
     type: 'database',
     schemes: ['postgres', 'postgresql'],
-    adapter: 'generic-uri',
+    adapter: 'postgres-compatible',
     defaults: { port: 5432 },
     authority: { host: true, port: true, multi_host: true },
     resource: { type: 'database', required: true },
@@ -19,7 +19,19 @@ export const builtInDefinitions = [
         type: 'string',
         allowed: ['any', 'read-write', 'read-only', 'primary', 'standby', 'prefer-standby']
       },
-      application_name: { type: 'string' }
+      application_name: { type: 'string' },
+      connect_timeout: { type: 'number' },
+      host: { type: 'string' },
+      hostaddr: { type: 'string' },
+      options: { type: 'string' },
+      passfile: { type: 'string' },
+      password: { type: 'string' },
+      port: { type: 'string' },
+      require_auth: { type: 'string' },
+      service: { type: 'string' },
+      sslcert: { type: 'string' },
+      sslkey: { type: 'string' },
+      sslrootcert: { type: 'string' }
     },
     validation: { require_host: true, port_range: { min: 1, max: 65535 } }
   },
@@ -27,16 +39,57 @@ export const builtInDefinitions = [
     id: 'mysql',
     name: 'MySQL',
     type: 'database',
-    schemes: ['mysql', 'mariadb'],
-    adapter: 'generic-uri',
+    schemes: ['mysql', 'mysqlx', 'mysqlx+srv'],
+    adapter: 'mysql-compatible',
     defaults: { port: 3306 },
     authority: { host: true, port: true },
     resource: { type: 'database', required: false },
     path: { type: 'object_path', required: false },
     credentials: { username: true, password: true },
     query_parameters: {
+      'auth-method': {
+        type: 'string',
+        allowed: ['AUTO', 'MYSQL41', 'SHA256_MEMORY', 'FROM_CAPABILITIES', 'FALLBACK', 'PLAIN']
+      },
+      'get-server-public-key': { type: 'boolean' },
       ssl: { type: 'string' },
-      charset: { type: 'string' }
+      'ssl-ca': { type: 'string' },
+      'ssl-capath': { type: 'string' },
+      'ssl-cert': { type: 'string' },
+      'ssl-cipher': { type: 'string' },
+      'ssl-crl': { type: 'string' },
+      'ssl-crlpath': { type: 'string' },
+      'ssl-key': { type: 'string' },
+      'ssl-mode': {
+        type: 'string',
+        allowed: ['DISABLED', 'PREFERRED', 'REQUIRED', 'VERIFY_CA', 'VERIFY_IDENTITY']
+      },
+      charset: { type: 'string' },
+      schema: { type: 'string' },
+      'tls-version': { type: 'string' },
+      'tls-versions': { type: 'string' }
+    },
+    validation: { require_host: true, port_range: { min: 1, max: 65535 } }
+  },
+  {
+    id: 'mariadb',
+    name: 'MariaDB',
+    type: 'database',
+    schemes: ['mariadb'],
+    adapter: 'mysql-compatible',
+    defaults: { port: 3306 },
+    authority: { host: true, port: true, multi_host: true },
+    resource: { type: 'database', required: false },
+    path: { type: 'object_path', required: false },
+    credentials: { username: true, password: true },
+    query_parameters: {
+      sslMode: {
+        type: 'string',
+        allowed: ['disable', 'trust', 'verify-ca', 'verify-full']
+      },
+      ssl: { type: 'string' },
+      user: { type: 'string' },
+      password: { type: 'string' }
     },
     validation: { require_host: true, port_range: { min: 1, max: 65535 } }
   },
@@ -53,12 +106,170 @@ export const builtInDefinitions = [
     credentials: { username: true, password: true },
     query_parameters: {
       authSource: { type: 'string' },
+      authMechanism: { type: 'string' },
+      authMechanismProperties: { type: 'string' },
+      connectTimeoutMS: { type: 'number' },
+      directConnection: { type: 'boolean' },
       replicaSet: { type: 'string' },
       retryWrites: { type: 'boolean' },
+      serverSelectionTimeoutMS: { type: 'number' },
       tls: { type: 'boolean' },
-      ssl: { type: 'boolean' }
+      tlsCAFile: { type: 'string' },
+      tlsCertificateKeyFile: { type: 'string' },
+      tlsInsecure: { type: 'boolean' },
+      ssl: { type: 'boolean' },
+      w: { type: 'string' }
     },
     validation: { require_host: true, port_range: { min: 1, max: 65535 } }
+  },
+  {
+    id: 'duckdb',
+    name: 'DuckDB',
+    type: 'database',
+    schemes: ['duckdb'],
+    adapter: 'duckdb',
+    authority: {},
+    resource: { type: 'database', required: true },
+    path: { type: 'filesystem_path', required: true },
+    credentials: {},
+    query_parameters: {
+      access_mode: { type: 'string' }
+    },
+    validation: {}
+  },
+  {
+    id: 'clickhouse',
+    name: 'ClickHouse',
+    type: 'database',
+    schemes: ['clickhouse', 'ch'],
+    adapter: 'clickhouse',
+    defaults: { port: 9000 },
+    authority: { host: true, port: true, multi_host: true },
+    resource: { type: 'database', required: false },
+    path: { type: 'object_path', required: false },
+    credentials: { username: true, password: true },
+    query_parameters: {
+      database: { type: 'string' },
+      ssl: { type: 'boolean' },
+      sslmode: { type: 'string' },
+      user: { type: 'string' },
+      password: { type: 'string' },
+      readonly: { type: 'number' },
+      debug: { type: 'boolean' },
+      createDatabaseIfNotExist: { type: 'boolean' }
+    },
+    validation: { require_host: true, port_range: { min: 1, max: 65535 } }
+  },
+  {
+    id: 'memcached',
+    name: 'Memcached',
+    type: 'cache',
+    schemes: ['memcached', 'memcacheds'],
+    adapter: 'memcached',
+    defaults: { port: 11211 },
+    authority: { host: true, port: true, multi_host: true },
+    resource: { type: 'none', required: false },
+    path: { type: 'none', required: false },
+    credentials: { username: true, password: true },
+    query_parameters: {},
+    validation: { require_host: true, port_range: { min: 1, max: 65535 } }
+  },
+  {
+    id: 'elasticsearch',
+    name: 'Elasticsearch',
+    type: 'api',
+    schemes: ['elasticsearch', 'elastic', 'elasticsearch+http', 'elasticsearch+https'],
+    adapter: 'elasticsearch',
+    defaults: { port: 9200 },
+    authority: { host: true, port: true },
+    resource: { type: 'index', required: false },
+    path: { type: 'api_path', required: false },
+    credentials: { username: true, password: true, api_key: true, token: true },
+    query_parameters: {
+      api_key: { type: 'string' },
+      apiKey: { type: 'string' },
+      token: { type: 'string' }
+    },
+    validation: { require_host: true, port_range: { min: 1, max: 65535 } }
+  },
+  {
+    id: 'cockroachdb',
+    name: 'CockroachDB',
+    type: 'database',
+    schemes: ['cockroach', 'cockroachdb'],
+    adapter: 'postgres-compatible',
+    defaults: { port: 26257 },
+    authority: { host: true, port: true, multi_host: true },
+    resource: { type: 'database', required: false },
+    path: { type: 'object_path', required: false },
+    credentials: { username: true, password: true },
+    query_parameters: {
+      application_name: { type: 'string' },
+      options: { type: 'string' },
+      password: { type: 'string' },
+      results_buffer_size: { type: 'string' },
+      sslcert: { type: 'string' },
+      sslkey: { type: 'string' },
+      sslmode: {
+        type: 'string',
+        allowed: ['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full']
+      },
+      sslrootcert: { type: 'string' }
+    },
+    validation: { require_host: true, port_range: { min: 1, max: 65535 } },
+    options: { compatible_with: 'postgres' }
+  },
+  {
+    id: 'questdb',
+    name: 'QuestDB',
+    type: 'database',
+    schemes: ['questdb'],
+    adapter: 'questdb',
+    defaults: { port: 8812 },
+    authority: { host: true, port: true, multi_host: true },
+    resource: { type: 'database', required: false },
+    path: { type: 'object_path', required: false },
+    credentials: { username: true, password: true, token: true },
+    query_parameters: {
+      auto_flush: { type: 'string', allowed: ['on', 'off'] },
+      auto_flush_interval: { type: 'number' },
+      auto_flush_rows: { type: 'number' },
+      init_buf_size: { type: 'number' },
+      max_buf_size: { type: 'number' },
+      protocol_version: { type: 'string' },
+      request_min_throughput: { type: 'number' },
+      request_timeout: { type: 'number' },
+      retry_timeout: { type: 'number' },
+      tls_roots: { type: 'string' },
+      tls_roots_password: { type: 'string' },
+      tls_verify: { type: 'string', allowed: ['on', 'unsafe_off'] }
+    },
+    validation: { require_host: true, port_range: { min: 1, max: 65535 } }
+  },
+  {
+    id: 'yugabytedb',
+    name: 'YugabyteDB',
+    type: 'database',
+    schemes: ['yugabyte', 'yugabytedb'],
+    adapter: 'postgres-compatible',
+    defaults: { port: 5433 },
+    authority: { host: true, port: true, multi_host: true },
+    resource: { type: 'database', required: false },
+    path: { type: 'object_path', required: false },
+    credentials: { username: true, password: true },
+    query_parameters: {
+      loadBalance: { type: 'string' },
+      ssl: { type: 'boolean' },
+      sslmode: {
+        type: 'string',
+        allowed: ['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full']
+      },
+      sslrootcert: { type: 'string' },
+      topologyKeys: { type: 'string' },
+      ybServersRefreshInterval: { type: 'number' }
+    },
+    validation: { require_host: true, port_range: { min: 1, max: 65535 } },
+    options: { compatible_with: 'postgres' }
   },
   {
     id: 'redis',

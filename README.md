@@ -20,7 +20,8 @@ npm install connparse
 For local development in this repo:
 
 ```bash
-npm test
+pnpm install
+pnpm test
 ```
 
 ## Quick Start
@@ -68,18 +69,25 @@ Output:
 
 ## Supported in v1
 
-Current built-in providers:
+Current v1 target providers:
 
 - PostgreSQL: `postgres`, `postgresql`
-- MySQL/MariaDB: `mysql`, `mariadb`
-- MongoDB: `mongodb`, `mongodb+srv`
+- MySQL: `mysql`, `mysqlx`, `mysqlx+srv`
+- MariaDB: `mariadb`
+- SQLite: `sqlite`
+- DuckDB: `duckdb`
+- ClickHouse: `clickhouse`, `ch`, `jdbc:clickhouse`, `jdbc:ch`
+- Memcached: `memcached`, `memcacheds`
 - Redis: `redis`, `rediss`
-- Amazon S3: `s3`, plus common S3 HTTPS virtual-host/path-style URLs
-- File paths: `file:///tmp/data.csv`, `/tmp/data.csv`, `./data.csv`
-- SQLite: `sqlite:///tmp/app.db`, `sqlite::memory:`
+- Elasticsearch: `elasticsearch`, `elasticsearch+http`, `elasticsearch+https`
+- MongoDB: `mongodb`, `mongodb+srv`
+- CockroachDB: `cockroach`, `cockroachdb`
+- QuestDB: `questdb`, plus ILP config strings such as `http::addr=localhost:9000;`
+- YugabyteDB: `yugabyte`, `yugabytedb`
 
 The target provider set for the first stable v1 release is tracked in
-[docs/v1-scope.md](docs/v1-scope.md).
+[docs/v1-scope.md](docs/v1-scope.md). The included/excluded connection-string
+formats are tracked in [docs/v1-provider-formats.md](docs/v1-provider-formats.md).
 
 ## API
 
@@ -101,6 +109,15 @@ Use strict mode to turn them into errors:
 
 ```js
 parse('postgres://localhost/app?unexpected=1', { strict: true });
+```
+
+Some common formats require a provider hint because they do not identify their
+provider:
+
+```js
+parse('host=db.example.com dbname=app user=alice', { provider: 'postgres' });
+parse('https://es.example.com:9200/logs', { provider: 'elasticsearch' });
+parse('https://clickhouse.example.com:8443/default', { provider: 'clickhouse' });
 ```
 
 ### `parseOrThrow(input, options?)`
@@ -234,8 +251,8 @@ type, adapter selection, defaults, resource/path rules, query parameter typing,
 allowed values, and basic validation.
 
 Provider-specific structural parsing still lives in adapters where real-world
-formats need it, such as S3 HTTPS virtual-host URLs, MongoDB SRV URLs, file
-paths, and SQLite memory databases.
+formats need it, such as MongoDB SRV URLs, PostgreSQL-compatible conninfo,
+QuestDB ILP config strings, JDBC URLs, and SQLite/DuckDB memory databases.
 
 ## Fixtures
 
@@ -263,7 +280,7 @@ Fixture example:
 Run the fixture suite:
 
 ```bash
-npm test
+pnpm test
 ```
 
 ## CLI
@@ -272,6 +289,7 @@ npm test
 connparse 's3://my-bucket/path/to/file.csv'
 connparse --safe 'postgres://user:pass@localhost/app'
 connparse --strict 'postgres://localhost/app?unknown=1'
+connparse --provider postgres 'host=db.example.com dbname=app user=alice'
 ```
 
 ## V1 Boundaries

@@ -22,11 +22,23 @@ export function parseSqlite(input, definition, context) {
   if (raw === 'sqlite::memory:' || raw === 'sqlite:///:memory:') {
     path = ':memory:';
     options = { memory: true };
-  } else if (/^sqlite:\/\//i.test(raw)) {
-    const url = fromUrl(new URL(raw), raw);
-    path = safeDecode(url.pathname);
-    query = url.query;
-    fragment = url.fragment;
+  } else if (/^(sqlite|file):/i.test(raw) && !/^sqlite::memory:$/i.test(raw)) {
+    const source = raw.replace(/^sqlite:file:/i, 'file:');
+    if (/^file:[^/]/i.test(source)) {
+      const stripped = stripQueryAndFragment(source.replace(/^file:/i, ''));
+      path = stripped.body;
+      fragment = stripped.fragment;
+      const question = path.indexOf('?');
+      if (question !== -1) {
+        query = Object.fromEntries(new URLSearchParams(path.slice(question + 1)));
+        path = path.slice(0, question);
+      }
+    } else {
+      const parsedUrl = fromUrl(new URL(source), raw);
+      path = safeDecode(parsedUrl.pathname);
+      query = parsedUrl.query;
+      fragment = parsedUrl.fragment;
+    }
   } else {
     const stripped = stripQueryAndFragment(raw.replace(/^sqlite:/i, ''));
     path = stripped.body;

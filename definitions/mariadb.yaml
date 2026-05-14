@@ -1,16 +1,15 @@
-id: mysql
-name: MySQL
+id: mariadb
+name: MariaDB
 type: database
 schemes:
-  - mysql
-  - mysqlx
-  - mysqlx+srv
+  - mariadb
 adapter: mysql-compatible
 defaults:
   port: 3306
 authority:
   host: true
   port: true
+  multi_host: true
 resource:
   type: database
   required: false
@@ -21,19 +20,12 @@ credentials:
   username: true
   password: true
 query_parameters:
-  auth-method:
+  sslMode:
     type: string
-    allowed: [AUTO, MYSQL41, SHA256_MEMORY, FROM_CAPABILITIES, FALLBACK, PLAIN]
-  get-server-public-key:
-    type: boolean
-  ssl:
+    allowed: [disable, trust, verify-ca, verify-full]
+  user:
     type: string
-  ssl-mode:
-    type: string
-    allowed: [DISABLED, PREFERRED, REQUIRED, VERIFY_CA, VERIFY_IDENTITY]
-  charset:
-    type: string
-  tls-version:
+  password:
     type: string
 validation:
   require_host: true

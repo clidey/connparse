@@ -4,7 +4,7 @@ type: database
 schemes:
   - postgres
   - postgresql
-adapter: generic-uri
+adapter: postgres-compatible
 defaults:
   port: 5432
 authority:
@@ -28,6 +28,24 @@ query_parameters:
     type: string
     allowed: [any, read-write, read-only, primary, standby, prefer-standby]
   application_name:
+    type: string
+  connect_timeout:
+    type: number
+  host:
+    type: string
+  hostaddr:
+    type: string
+  options:
+    type: string
+  password:
+    type: string
+  service:
+    type: string
+  sslcert:
+    type: string
+  sslkey:
+    type: string
+  sslrootcert:
     type: string
 validation:
   require_host: true

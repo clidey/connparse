@@ -1,0 +1,40 @@
+id: questdb
+name: QuestDB
+type: database
+schemes:
+  - questdb
+adapter: questdb
+defaults:
+  port: 8812
+authority:
+  host: true
+  port: true
+  multi_host: true
+resource:
+  type: database
+  required: false
+path:
+  type: object_path
+  required: false
+credentials:
+  username: true
+  password: true
+  token: true
+query_parameters:
+  auto_flush:
+    type: string
+    allowed: [on, off]
+  auto_flush_rows:
+    type: number
+  protocol_version:
+    type: string
+  retry_timeout:
+    type: number
+  tls_verify:
+    type: string
+    allowed: [on, unsafe_off]
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535

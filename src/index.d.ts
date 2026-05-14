@@ -44,6 +44,7 @@ export type ConnparseDefinition = Record<string, unknown>;
 
 export type ParseOptions = {
   definitions?: ConnparseDefinition[];
+  provider?: string;
   strict?: boolean;
 };
 

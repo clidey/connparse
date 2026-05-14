@@ -1,16 +1,16 @@
-id: mysql
-name: MySQL
+id: cockroachdb
+name: CockroachDB
 type: database
 schemes:
-  - mysql
-  - mysqlx
-  - mysqlx+srv
-adapter: mysql-compatible
+  - cockroach
+  - cockroachdb
+adapter: postgres-compatible
 defaults:
-  port: 3306
+  port: 26257
 authority:
   host: true
   port: true
+  multi_host: true
 resource:
   type: database
   required: false
@@ -21,19 +21,18 @@ credentials:
   username: true
   password: true
 query_parameters:
-  auth-method:
+  application_name:
     type: string
-    allowed: [AUTO, MYSQL41, SHA256_MEMORY, FROM_CAPABILITIES, FALLBACK, PLAIN]
-  get-server-public-key:
-    type: boolean
-  ssl:
+  options:
     type: string
-  ssl-mode:
+  password:
     type: string
-    allowed: [DISABLED, PREFERRED, REQUIRED, VERIFY_CA, VERIFY_IDENTITY]
-  charset:
+  results_buffer_size:
     type: string
-  tls-version:
+  sslmode:
+    type: string
+    allowed: [disable, allow, prefer, require, verify-ca, verify-full]
+  sslrootcert:
     type: string
 validation:
   require_host: true

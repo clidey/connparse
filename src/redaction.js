@@ -2,6 +2,8 @@ const SENSITIVE_QUERY_KEYS = new Set([
   'access_key',
   'accesskey',
   'access_key_id',
+  'api_key',
+  'apikey',
   'aws_access_key_id',
   'password',
   'secret',
@@ -39,6 +41,13 @@ function maskSensitiveQuery(value) {
   });
 }
 
+function maskSensitiveKeyValues(value) {
+  return value.replace(/(^|[;,&\s])([^=;,&\s]+)=([^;,&\s]*)/g, (match, prefix, rawKey) => {
+    const key = rawKey.trim().toLowerCase();
+    return SENSITIVE_QUERY_KEYS.has(key) ? `${prefix}${rawKey}=***` : match;
+  });
+}
+
 export function mask(input) {
-  return maskSensitiveQuery(maskUserInfo(String(input)));
+  return maskSensitiveKeyValues(maskSensitiveQuery(maskUserInfo(String(input))));
 }

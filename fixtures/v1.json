@@ -53,6 +53,18 @@
     }
   },
   {
+    "name": "postgres jdbc url",
+    "input": "jdbc:postgresql://db.example.com:5432/app?sslmode=verify-full",
+    "expected": {
+      "scheme": "jdbc:postgresql",
+      "authority.host": "db.example.com",
+      "authority.port": 5432,
+      "resource.name": "app",
+      "query.sslmode": "verify-full",
+      "options.jdbc": true
+    }
+  },
+  {
     "name": "mysql database",
     "input": "mysql://root:secret@127.0.0.1/shop?charset=utf8mb4",
     "expected": {
@@ -63,6 +75,88 @@
       "resource.name": "shop",
       "query.charset": "utf8mb4",
       "safe": "mysql://root:***@127.0.0.1/shop?charset=utf8mb4"
+    }
+  },
+  {
+    "name": "mysql jdbc url",
+    "input": "jdbc:mysql://mysql.example.com:3306/shop?ssl-mode=REQUIRED",
+    "expected": {
+      "scheme": "jdbc:mysql",
+      "authority.host": "mysql.example.com",
+      "authority.port": 3306,
+      "resource.name": "shop",
+      "query.ssl-mode": "REQUIRED",
+      "options.jdbc": true
+    }
+  },
+  {
+    "name": "mysql x protocol srv",
+    "input": "mysqlx+srv://user:pass@mysql.example.com/main?auth-method=AUTO",
+    "expected": {
+      "scheme": "mysqlx+srv",
+      "authority.host": "mysql.example.com",
+      "authority.port": 3306,
+      "resource.name": "main",
+      "credentials.username": "user",
+      "credentials.password": "pass",
+      "query.auth-method": "AUTO"
+    }
+  },
+  {
+    "name": "postgres keyword value conninfo with provider hint",
+    "provider": "postgres",
+    "input": "host=db.example.com port=5432 dbname=app user=alice password=secret sslmode=require",
+    "expected": {
+      "scheme": "postgres",
+      "authority.host": "db.example.com",
+      "authority.port": 5432,
+      "resource.name": "app",
+      "credentials.username": "alice",
+      "credentials.password": "secret",
+      "query.sslmode": "require",
+      "options.conninfo": true,
+      "safe": "host=db.example.com port=5432 dbname=app user=alice password=*** sslmode=require"
+    }
+  },
+  {
+    "name": "mysql shell uri-like string with provider hint",
+    "provider": "mysql",
+    "input": "myuser:pass@example.com:3306/main-schema?ssl-mode=VERIFY_IDENTITY",
+    "expected": {
+      "scheme": "mysql",
+      "authority.host": "example.com",
+      "authority.port": 3306,
+      "resource.name": "main-schema",
+      "credentials.username": "myuser",
+      "credentials.password": "pass",
+      "query.ssl-mode": "VERIFY_IDENTITY"
+    }
+  },
+  {
+    "name": "mariadb jdbc sequential multi host",
+    "input": "jdbc:mariadb:sequential://host1:3306,host2:3307/app?sslMode=verify-full",
+    "expected": {
+      "scheme": "jdbc:mariadb",
+      "authority.hosts.0.host": "host1",
+      "authority.hosts.0.port": 3306,
+      "authority.hosts.1.host": "host2",
+      "authority.hosts.1.port": 3307,
+      "resource.name": "app",
+      "query.sslMode": "verify-full",
+      "options.jdbc": true,
+      "options.mode": "sequential"
+    }
+  },
+  {
+    "name": "mariadb uri",
+    "input": "mariadb://root:secret@mariadb.example.com:3306/app",
+    "expected": {
+      "scheme": "mariadb",
+      "authority.host": "mariadb.example.com",
+      "authority.port": 3306,
+      "resource.name": "app",
+      "credentials.username": "root",
+      "credentials.password": "secret"
     }
   },
   {
@@ -80,6 +174,22 @@
     }
   },
   {
+    "name": "mongodb standard multi host",
+    "input": "mongodb://user:pass@mongo1.example.com:27017,mongo2.example.com:27018/app?replicaSet=rs0&tls=true",
+    "expected": {
+      "scheme": "mongodb",
+      "authority.hosts.0.host": "mongo1.example.com",
+      "authority.hosts.0.port": 27017,
+      "authority.hosts.1.host": "mongo2.example.com",
+      "authority.hosts.1.port": 27018,
+      "resource.name": "app",
+      "query.replicaSet": "rs0",
+      "query.tls": "true",
+      "credentials.username": "user",
+      "credentials.password": "pass"
+    }
+  },
+  {
     "name": "redis tls",
     "input": "rediss://:pass@cache.example.com/0",
     "expected": {
@@ -91,6 +201,252 @@
       "resource.name": "0",
       "credentials.password": "pass",
       "options.tls": true
+    }
+  },
+  {
+    "name": "redis stackexchange config with provider hint",
+    "provider": "redis",
+    "input": "localhost:6379,password=secret,ssl=True,defaultDatabase=2",
+    "expected": {
+      "scheme": "redis",
+      "authority.host": "localhost",
+      "authority.port": 6379,
+      "resource.name": "2",
+      "credentials.password": "secret",
+      "options.ssl": "True",
+      "options.tls": true,
+      "safe": "localhost:6379,password=***,ssl=True,defaultDatabase=2"
+    }
+  },
+  {
+    "name": "duckdb file path",
+    "input": "./warehouse.duckdb",
+    "expected": {
+      "scheme": "duckdb",
+      "type": "database",
+      "resource.name": "./warehouse.duckdb",
+      "path": "./warehouse.duckdb"
+    }
+  },
+  {
+    "name": "duckdb memory",
+    "input": "duckdb::memory:",
+    "expected": {
+      "scheme": "duckdb",
+      "resource.name": ":memory:",
+      "path": ":memory:",
+      "options.memory": true
+    }
+  },
+  {
+    "name": "duckdb uri",
+    "input": "duckdb:///tmp/analytics.duckdb?access_mode=read_only",
+    "expected": {
+      "scheme": "duckdb",
+      "path": "/tmp/analytics.duckdb",
+      "query.access_mode": "read_only"
+    }
+  },
+  {
+    "name": "clickhouse jdbc http",
+    "input": "jdbc:clickhouse:http://localhost:8123/analytics?ssl=false",
+    "expected": {
+      "scheme": "jdbc:clickhouse",
+      "type": "database",
+      "authority.host": "localhost",
+      "authority.port": 8123,
+      "resource.name": "analytics",
+      "query.ssl": "false",
+      "options.jdbc": true,
+      "options.protocol": "http"
+    }
+  },
+  {
+    "name": "clickhouse jdbc ch grpc",
+    "input": "jdbc:ch:grpc://clickhouse.example.com/default",
+    "expected": {
+      "scheme": "jdbc:ch",
+      "authority.host": "clickhouse.example.com",
+      "authority.port": 9100,
+      "resource.name": "default",
+      "options.jdbc": true,
+      "options.protocol": "grpc"
+    }
+  },
+  {
+    "name": "clickhouse js http url with provider hint",
+    "provider": "clickhouse",
+    "input": "https://clickhouse.example.com:8443/default?readonly=1",
+    "expected": {
+      "scheme": "https",
+      "authority.host": "clickhouse.example.com",
+      "authority.port": 8443,
+      "resource.name": "default",
+      "query.readonly": "1",
+      "options.protocol": "https"
+    }
+  },
+  {
+    "name": "memcached explicit uri",
+    "input": "memcached://cache.example.com",
+    "expected": {
+      "scheme": "memcached",
+      "type": "cache",
+      "authority.host": "cache.example.com",
+      "authority.port": 11211
+    }
+  },
+  {
+    "name": "memcached tls uri",
+    "input": "memcacheds://cache.example.com:11212",
+    "expected": {
+      "scheme": "memcached",
+      "authority.host": "cache.example.com",
+      "authority.port": 11212,
+      "options.tls": true
+    }
+  },
+  {
+    "name": "memcached host list with provider hint",
+    "provider": "memcached",
+    "input": "cache1.example.com:11211,cache2.example.com",
+    "expected": {
+      "scheme": "memcached",
+      "authority.hosts.0.host": "cache1.example.com",
+      "authority.hosts.0.port": 11211,
+      "authority.hosts.1.host": "cache2.example.com",
+      "authority.hosts.1.port": 11211
+    }
+  },
+  {
+    "name": "elasticsearch explicit https uri",
+    "input": "elasticsearch+https://elastic:secret@es.example.com:9243/logs?api_key=abc",
+    "expected": {
+      "scheme": "elasticsearch",
+      "type": "api",
+      "authority.host": "es.example.com",
+      "authority.port": 9243,
+      "resource.type": "index",
+      "resource.name": "logs",
+      "credentials.username": "elastic",
+      "credentials.password": "secret",
+      "credentials.api_key": "abc",
+      "options.protocol": "https",
+      "options.tls": true,
+      "safe": "elasticsearch+https://elastic:***@es.example.com:9243/logs?api_key=***"
+    }
+  },
+  {
+    "name": "elasticsearch plain https with provider hint",
+    "provider": "elasticsearch",
+    "input": "https://elastic:secret@es.example.com:9200/logs",
+    "expected": {
+      "scheme": "elasticsearch",
+      "authority.host": "es.example.com",
+      "authority.port": 9200,
+      "resource.name": "logs",
+      "options.protocol": "https",
+      "options.tls": true,
+      "safe": "https://elastic:***@es.example.com:9200/logs"
+    }
+  },
+  {
+    "name": "cockroachdb postgres compatible uri",
+    "input": "cockroach://root@servername:26257/mydb?sslmode=disable",
+    "expected": {
+      "scheme": "cockroach",
+      "type": "database",
+      "authority.host": "servername",
+      "authority.port": 26257,
+      "resource.name": "mydb",
+      "query.sslmode": "disable",
+      "options.compatible_with": "postgres"
+    }
+  },
+  {
+    "name": "cockroachdb conninfo with provider hint",
+    "provider": "cockroachdb",
+    "input": "host=servername port=26257 dbname=mydb user=root sslmode=verify-full",
+    "expected": {
+      "scheme": "cockroach",
+      "authority.host": "servername",
+      "authority.port": 26257,
+      "resource.name": "mydb",
+      "credentials.username": "root",
+      "query.sslmode": "verify-full",
+      "options.conninfo": true
+    }
+  },
+  {
+    "name": "questdb ilp config string",
+    "input": "https::addr=questdb.example.com:9000;username=admin;password=quest;auto_flush_rows=5000;",
+    "expected": {
+      "scheme": "questdb",
+      "authority.host": "questdb.example.com",
+      "authority.port": 9000,
+      "credentials.username": "admin",
+      "credentials.password": "quest",
+      "query.auto_flush_rows": "5000",
+      "options.ingestion": true,
+      "options.protocol": "https",
+      "options.tls": true,
+      "safe": "https::addr=questdb.example.com:9000;username=admin;password=***;auto_flush_rows=5000;"
+    }
+  },
+  {
+    "name": "questdb ilp multi addr tcp",
+    "input": "tcp::addr=quest1.example.com:9009;addr=quest2.example.com;protocol_version=2;",
+    "expected": {
+      "scheme": "questdb",
+      "authority.hosts.0.host": "quest1.example.com",
+      "authority.hosts.0.port": 9009,
+      "authority.hosts.1.host": "quest2.example.com",
+      "authority.hosts.1.port": 9009,
+      "query.protocol_version": "2",
+      "options.protocol": "tcp",
+      "options.tls": false
+    }
+  },
+  {
+    "name": "questdb postgres wire uri",
+    "input": "questdb://admin:quest@questdb.example.com:8812/qdb",
+    "expected": {
+      "scheme": "questdb",
+      "authority.host": "questdb.example.com",
+      "authority.port": 8812,
+      "resource.name": "qdb",
+      "credentials.username": "admin",
+      "credentials.password": "quest",
+      "options.compatible_with": "postgres"
+    }
+  },
+  {
+    "name": "yugabytedb smart driver uri",
+    "input": "yugabyte://yugabyte:yugabyte@localhost:5433/yugabyte?loadBalance=any&topologyKeys=cloud.region.zone",
+    "expected": {
+      "scheme": "yugabyte",
+      "authority.host": "localhost",
+      "authority.port": 5433,
+      "resource.name": "yugabyte",
+      "query.loadBalance": "any",
+      "query.topologyKeys": "cloud.region.zone",
+      "options.compatible_with": "postgres"
+    }
+  },
+  {
+    "name": "yugabytedb conninfo with provider hint",
+    "provider": "yugabytedb",
+    "input": "host=localhost port=5433 dbname=yugabyte user=yugabyte password=yugabyte loadBalance=any ybServersRefreshInterval=5",
+    "expected": {
+      "scheme": "yugabyte",
+      "authority.host": "localhost",
+      "authority.port": 5433,
+      "resource.name": "yugabyte",
+      "credentials.username": "yugabyte",
+      "credentials.password": "yugabyte",
+      "query.loadBalance": "any",
+      "query.ybServersRefreshInterval": "5",
+      "options.conninfo": true
     }
   },
   {
@@ -147,6 +503,44 @@
       "resource.name": ":memory:",
       "path": ":memory:",
       "options.memory": true
+    }
+  },
+  {
+    "name": "sqlite file uri with provider hint",
+    "provider": "sqlite",
+    "input": "file:data.db?mode=ro&cache=private",
+    "expected": {
+      "scheme": "sqlite",
+      "path": "data.db",
+      "query.mode": "ro",
+      "query.cache": "private"
+    }
+  },
+  {
+    "name": "cockroachdb official postgres url with provider hint",
+    "provider": "cockroachdb",
+    "input": "postgres://root@servername:26257/mydb?sslmode=disable",
+    "expected": {
+      "scheme": "postgres",
+      "authority.host": "servername",
+      "authority.port": 26257,
+      "resource.name": "mydb",
+      "query.sslmode": "disable",
+      "options.compatible_with": "postgres"
+    }
+  },
+  {
+    "name": "yugabytedb official postgresql url with provider hint",
+    "provider": "yugabytedb",
+    "input": "postgresql://admin:qwerty@cluster.aws.yugabyte.cloud:5433/yugabyte?ssl=true&sslmode=verify-full&sslrootcert=~/.postgresql/root.crt",
+    "expected": {
+      "scheme": "postgresql",
+      "authority.host": "cluster.aws.yugabyte.cloud",
+      "authority.port": 5433,
+      "resource.name": "yugabyte",
+      "query.ssl": "true",
+      "query.sslmode": "verify-full",
+      "query.sslrootcert": "~/.postgresql/root.crt"
     }
   }
 ]
