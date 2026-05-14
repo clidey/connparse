@@ -1,4 +1,6 @@
 import { builtInDefinitions } from './builtin-definitions.js';
+import { adapters } from './adapters/index.js';
+import { validateDefinition, validateDefinitions } from './definitions/validate.js';
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -9,6 +11,7 @@ function normalizeScheme(scheme) {
 }
 
 export function createRegistry(definitions = builtInDefinitions) {
+  validateDefinitions(definitions, adapters);
   const byId = new Map();
   const byScheme = new Map();
 
@@ -31,6 +34,7 @@ export function createRegistry(definitions = builtInDefinitions) {
       return Array.from(byId.values()).map(clone);
     },
     register(definition) {
+      validateDefinition(definition, adapters);
       const copy = clone(definition);
       byId.set(copy.id, copy);
       for (const scheme of copy.schemes || []) {

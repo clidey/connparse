@@ -41,6 +41,8 @@ Self-identifying strings still parse without a provider hint.
 | CockroachDB | `cockroach://`, `cockroachdb://`, PostgreSQL URL/conninfo with `provider: 'cockroachdb'` | Official CockroachDB URLs are PostgreSQL URLs, so provider hints are needed to classify them as CockroachDB. |
 | QuestDB | QuestDB ILP config strings like `http::addr=host:9000;`, `https::`, `tcp::`, `tcps::`, plus `questdb://` for PostgreSQL-wire connections | The supplied QuestDB doc is for ingestion clients; SQL connections are PostgreSQL-compatible and use `questdb://` as the Connparse self-identifying form. |
 | YugabyteDB | `yugabyte://`, `yugabytedb://`, PostgreSQL URL/conninfo with `provider: 'yugabytedb'` | Official YSQL URLs are PostgreSQL-compatible, so provider hints are needed to classify them as YugabyteDB. |
+| Amazon S3 | `s3://bucket/key`, common S3 HTTPS virtual-host/path-style URLs | HTTPS S3 URLs are detected only for recognizable S3 hostnames. |
+| File paths | `file://`, absolute paths, relative paths, home-relative paths | File path inference is intentionally limited to path-looking strings. |
 
 ## Excluded or Deferred Formats
 
@@ -51,7 +53,6 @@ Self-identifying strings still parse without a provider hint.
 | ClickHouse | Plain HTTP(S) URL without `provider: 'clickhouse'` | Ambiguous with Elasticsearch and generic APIs. |
 | Elasticsearch | Plain HTTP(S) URL without `provider: 'elasticsearch'` | Ambiguous with ClickHouse and generic APIs. |
 | Memcached | Official universal connection-string syntax | No official universal syntax found; official/server docs describe host/port endpoints and client libraries vary. |
-| S3 and file paths | Existing helper support | Not part of the requested v1 provider target for now. |
 
 ## Source Notes
 
@@ -66,3 +67,4 @@ Self-identifying strings still parse without a provider hint.
 - QuestDB docs cover ILP configuration strings with `<protocol>::<key>=<value>;...;`.
 - CockroachDB docs state that most clients use PostgreSQL connection URLs and document Cockroach-specific defaults/options.
 - YugabyteDB docs state that YSQL is PostgreSQL-compatible and show PostgreSQL connection strings, including smart-driver parameters.
+- S3 and file paths remain in v1 because they were part of the original data-source address scope and are already covered by fixtures.

@@ -1,11 +1,12 @@
 import { parse as parseYaml } from 'yaml';
+import { validateDefinition } from './validate.js';
 
 export function parseYamlDefinition(input) {
-  return parseYaml(String(input));
+  return validateDefinition(parseYaml(String(input)));
 }
 
 export function parseJsonDefinition(input) {
-  return JSON.parse(String(input));
+  return validateDefinition(JSON.parse(String(input)));
 }
 
 export function parseDefinition(input, format) {

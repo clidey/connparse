@@ -17,6 +17,7 @@
   "files": [
     "bin",
     "definitions",
+    "docs",
     "fixtures",
     "src",
     "README.md",
@@ -28,6 +29,9 @@
   },
   "keywords": [
     "connection-string",
+    "connparse",
+    "cpds",
+    "datasource",
     "parser",
     "database",
     "s3",

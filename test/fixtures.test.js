@@ -55,7 +55,11 @@ const REQUIRED_FIXTURE_NAMES = [
   'questdb postgres wire uri',
   'yugabytedb smart driver uri',
   'yugabytedb official postgresql url with provider hint',
-  'yugabytedb conninfo with provider hint'
+  'yugabytedb conninfo with provider hint',
+  's3 uri',
+  's3 virtual host',
+  'file uri',
+  'relative file'
 ];
 
 function getPath(value, path) {

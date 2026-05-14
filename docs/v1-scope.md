@@ -20,6 +20,8 @@ The v1 target providers are:
 - CockroachDB
 - QuestDB
 - YugabyteDB
+- Amazon S3
+- File paths
 
 ## Support Matrix
 
@@ -38,6 +40,8 @@ The v1 target providers are:
 | CockroachDB | Implemented | Connparse explicit schemes and provider-hinted PostgreSQL-compatible URLs/conninfo. |
 | QuestDB | Implemented | QuestDB ILP config strings and Connparse `questdb://` PostgreSQL-wire URLs. |
 | YugabyteDB | Implemented | Connparse explicit schemes and provider-hinted PostgreSQL-compatible URLs/conninfo. |
+| Amazon S3 | Implemented | `s3://` URIs and common S3 HTTPS virtual-host/path-style URLs. |
+| File paths | Implemented | `file://` URIs and local relative/absolute paths. |
 
 ## Release-Ready Criteria
 

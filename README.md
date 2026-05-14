@@ -84,6 +84,8 @@ Current v1 target providers:
 - CockroachDB: `cockroach`, `cockroachdb`
 - QuestDB: `questdb`, plus ILP config strings such as `http::addr=localhost:9000;`
 - YugabyteDB: `yugabyte`, `yugabytedb`
+- Amazon S3: `s3`, plus common S3 HTTPS virtual-host/path-style URLs
+- File paths: `file:///tmp/data.csv`, `/tmp/data.csv`, `./data.csv`
 
 The target provider set for the first stable v1 release is tracked in
 [docs/v1-scope.md](docs/v1-scope.md). The included/excluded connection-string

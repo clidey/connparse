@@ -54,6 +54,8 @@ export function mask(input: string): string;
 export function parseDefinition(input: string, format?: 'json' | 'yaml'): ConnparseDefinition;
 export function parseJsonDefinition(input: string): ConnparseDefinition;
 export function parseYamlDefinition(input: string): ConnparseDefinition;
+export function validateDefinition(definition: ConnparseDefinition, adapters?: Record<string, unknown>): ConnparseDefinition;
+export function validateDefinitions(definitions: ConnparseDefinition[], adapters?: Record<string, unknown>): ConnparseDefinition[];
 export function createRegistry(definitions?: ConnparseDefinition[]): unknown;
 export const defaultRegistry: unknown;
 export function getBuiltInDefinitions(): ConnparseDefinition[];
