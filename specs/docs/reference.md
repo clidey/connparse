@@ -3,6 +3,9 @@
 This document lists the v1 keys used by Connparse addresses, parse results,
 diagnostics, CPDS definitions, built-in adapters, and fixtures.
 
+For cross-language implementation rules, see
+[porting.md](porting.md).
+
 ## Parse Result
 
 `parse(input, options?)` returns:

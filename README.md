@@ -4,9 +4,9 @@ Connparse is a definition-driven parser for data source connection strings and
 addresses. It turns database URLs, object storage URIs, file paths, and similar
 source identifiers into one safe, normalized object.
 
-This repository currently contains the v1 JavaScript reference implementation
-and the shared fixture format that future TypeScript, Go, Rust, or other
-implementations can follow.
+This repository currently contains the v1 JavaScript reference implementation,
+a Go implementation, and the shared fixture format that future ports must
+follow.
 
 ## Repository Layout
 
@@ -18,12 +18,14 @@ specs/
 
 packages/
   js/            JavaScript/npm implementation
+  go/            Go implementation
 ```
 
 ## Install
 
-This package has one runtime dependency: `yaml`, used to load CPDS definition
-files.
+The JavaScript package has one runtime dependency: `yaml`, used to load CPDS
+definition files. The Go package uses `gopkg.in/yaml.v3` for the same CPDS
+loader API.
 
 ```bash
 npm install connparse
@@ -34,6 +36,7 @@ For local development in this repo:
 ```bash
 pnpm install
 pnpm test
+pnpm test:go
 ```
 
 ## Quick Start
@@ -297,6 +300,10 @@ Run the fixture suite:
 ```bash
 pnpm test
 ```
+
+The Go package also reads this same fixture file. See
+[specs/docs/porting.md](specs/docs/porting.md) for the porting contract and the
+generator boundary used to keep language implementations aligned.
 
 ## CLI
 
