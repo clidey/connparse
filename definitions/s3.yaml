@@ -1,0 +1,22 @@
+id: s3
+name: Amazon S3
+type: object_storage
+schemes:
+  - s3
+adapter: s3
+authority:
+  bucket: true
+  region: true
+resource:
+  type: bucket
+  required: true
+path:
+  type: object_key
+  required: false
+credentials: {}
+query_parameters:
+  versionId:
+    type: string
+  region:
+    type: string
+validation: {}

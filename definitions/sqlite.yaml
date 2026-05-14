@@ -1,0 +1,20 @@
+id: sqlite
+name: SQLite
+type: database
+schemes:
+  - sqlite
+adapter: sqlite
+authority: {}
+resource:
+  type: database
+  required: true
+path:
+  type: filesystem_path
+  required: true
+credentials: {}
+query_parameters:
+  mode:
+    type: string
+  cache:
+    type: string
+validation: {}

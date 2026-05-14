@@ -68,7 +68,7 @@ Output:
 
 ## Supported in v1
 
-Built-in providers:
+Current built-in providers:
 
 - PostgreSQL: `postgres`, `postgresql`
 - MySQL/MariaDB: `mysql`, `mariadb`
@@ -77,6 +77,9 @@ Built-in providers:
 - Amazon S3: `s3`, plus common S3 HTTPS virtual-host/path-style URLs
 - File paths: `file:///tmp/data.csv`, `/tmp/data.csv`, `./data.csv`
 - SQLite: `sqlite:///tmp/app.db`, `sqlite::memory:`
+
+The target provider set for the first stable v1 release is tracked in
+[docs/v1-scope.md](docs/v1-scope.md).
 
 ## API
 

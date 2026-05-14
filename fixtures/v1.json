@@ -1,0 +1,152 @@
+[
+  {
+    "name": "postgres basic auth",
+    "input": "postgres://user:pass@localhost:5432/app?sslmode=require",
+    "expected": {
+      "scheme": "postgres",
+      "type": "database",
+      "authority.host": "localhost",
+      "authority.port": 5432,
+      "resource.type": "database",
+      "resource.name": "app",
+      "credentials.username": "user",
+      "credentials.password": "pass",
+      "query.sslmode": "require",
+      "safe": "postgres://user:***@localhost:5432/app?sslmode=require"
+    }
+  },
+  {
+    "name": "postgres default port and encoded credentials",
+    "input": "postgres://u%40example:p%40ss@db.example.com/app",
+    "expected": {
+      "authority.host": "db.example.com",
+      "authority.port": 5432,
+      "credentials.username": "u@example",
+      "credentials.password": "p@ss",
+      "resource.name": "app"
+    }
+  },
+  {
+    "name": "postgres multi host",
+    "input": "postgres://host1:5432,host2:5433/app",
+    "expected": {
+      "authority.hosts.0.host": "host1",
+      "authority.hosts.0.port": 5432,
+      "authority.hosts.1.host": "host2",
+      "authority.hosts.1.port": 5433,
+      "resource.name": "app"
+    }
+  },
+  {
+    "name": "postgres multi host target session attributes",
+    "input": "postgresql://host1:123,host2:456/somedb?target_session_attrs=any&application_name=myapp",
+    "expected": {
+      "scheme": "postgresql",
+      "type": "database",
+      "authority.hosts.0.host": "host1",
+      "authority.hosts.0.port": 123,
+      "authority.hosts.1.host": "host2",
+      "authority.hosts.1.port": 456,
+      "resource.name": "somedb",
+      "query.target_session_attrs": "any",
+      "query.application_name": "myapp"
+    }
+  },
+  {
+    "name": "mysql database",
+    "input": "mysql://root:secret@127.0.0.1/shop?charset=utf8mb4",
+    "expected": {
+      "scheme": "mysql",
+      "type": "database",
+      "authority.host": "127.0.0.1",
+      "authority.port": 3306,
+      "resource.name": "shop",
+      "query.charset": "utf8mb4",
+      "safe": "mysql://root:***@127.0.0.1/shop?charset=utf8mb4"
+    }
+  },
+  {
+    "name": "mongodb srv",
+    "input": "mongodb+srv://user:pass@cluster.mongodb.net/app?retryWrites=true",
+    "expected": {
+      "scheme": "mongodb+srv",
+      "type": "database",
+      "authority.host": "cluster.mongodb.net",
+      "authority.port": null,
+      "resource.name": "app",
+      "options.srv": true,
+      "query.retryWrites": "true",
+      "safe": "mongodb+srv://user:***@cluster.mongodb.net/app?retryWrites=true"
+    }
+  },
+  {
+    "name": "redis tls",
+    "input": "rediss://:pass@cache.example.com/0",
+    "expected": {
+      "scheme": "rediss",
+      "type": "cache",
+      "authority.host": "cache.example.com",
+      "authority.port": 6379,
+      "resource.type": "database_index",
+      "resource.name": "0",
+      "credentials.password": "pass",
+      "options.tls": true
+    }
+  },
+  {
+    "name": "s3 uri",
+    "input": "s3://my-bucket/path/to/file.csv?versionId=123",
+    "expected": {
+      "scheme": "s3",
+      "type": "object_storage",
+      "authority.bucket": "my-bucket",
+      "resource.type": "bucket",
+      "resource.name": "my-bucket",
+      "path": "path/to/file.csv",
+      "query.versionId": "123"
+    }
+  },
+  {
+    "name": "s3 virtual host",
+    "input": "https://reports.s3.us-west-2.amazonaws.com/2026/file.csv",
+    "expected": {
+      "scheme": "s3",
+      "authority.bucket": "reports",
+      "authority.region": "us-west-2",
+      "resource.name": "reports",
+      "path": "2026/file.csv",
+      "options.source_scheme": "https"
+    }
+  },
+  {
+    "name": "file uri",
+    "input": "file:///tmp/data.csv#header",
+    "expected": {
+      "scheme": "file",
+      "type": "file",
+      "resource.type": "none",
+      "resource.name": null,
+      "path": "/tmp/data.csv",
+      "fragment": "header"
+    }
+  },
+  {
+    "name": "relative file",
+    "input": "./data/report.csv",
+    "expected": {
+      "scheme": "file",
+      "path": "./data/report.csv"
+    }
+  },
+  {
+    "name": "sqlite memory",
+    "input": "sqlite::memory:",
+    "expected": {
+      "scheme": "sqlite",
+      "type": "database",
+      "resource.name": ":memory:",
+      "path": ":memory:",
+      "options.memory": true
+    }
+  }
+]

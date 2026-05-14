@@ -1,0 +1,29 @@
+id: redis
+name: Redis
+type: cache
+schemes:
+  - redis
+  - rediss
+adapter: redis
+defaults:
+  port: 6379
+authority:
+  host: true
+  port: true
+resource:
+  type: database_index
+  required: false
+path:
+  type: none
+  required: false
+credentials:
+  username: true
+  password: true
+query_parameters:
+  protocol:
+    type: number
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535

@@ -1,0 +1,38 @@
+id: mongodb
+name: MongoDB
+type: database
+schemes:
+  - mongodb
+  - mongodb+srv
+adapter: mongodb
+defaults:
+  port: 27017
+authority:
+  host: true
+  port: true
+  multi_host: true
+resource:
+  type: database
+  required: false
+path:
+  type: collection
+  required: false
+credentials:
+  username: true
+  password: true
+query_parameters:
+  authSource:
+    type: string
+  replicaSet:
+    type: string
+  retryWrites:
+    type: boolean
+  tls:
+    type: boolean
+  ssl:
+    type: boolean
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535

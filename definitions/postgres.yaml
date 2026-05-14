@@ -1,0 +1,36 @@
+id: postgres
+name: PostgreSQL
+type: database
+schemes:
+  - postgres
+  - postgresql
+adapter: generic-uri
+defaults:
+  port: 5432
+authority:
+  host: true
+  port: true
+  multi_host: true
+resource:
+  type: database
+  required: true
+path:
+  type: object_path
+  required: false
+credentials:
+  username: true
+  password: true
+query_parameters:
+  sslmode:
+    type: string
+    allowed: [disable, allow, prefer, require, verify-ca, verify-full]
+  target_session_attrs:
+    type: string
+    allowed: [any, read-write, read-only, primary, standby, prefer-standby]
+  application_name:
+    type: string
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535

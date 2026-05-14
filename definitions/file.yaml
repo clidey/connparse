@@ -1,0 +1,17 @@
+id: file
+name: File
+type: file
+schemes:
+  - file
+adapter: file
+authority:
+  host: false
+resource:
+  type: none
+  required: false
+path:
+  type: filesystem_path
+  required: true
+credentials: {}
+query_parameters: {}
+validation: {}
