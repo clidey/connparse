@@ -6,7 +6,9 @@ settings:
 
 importers:
 
-  .:
+  .: {}
+
+  packages/js:
     dependencies:
       yaml:
         specifier: ^2.9.0

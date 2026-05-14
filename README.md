@@ -8,6 +8,18 @@ This repository currently contains the v1 JavaScript reference implementation
 and the shared fixture format that future TypeScript, Go, Rust, or other
 implementations can follow.
 
+## Repository Layout
+
+```text
+specs/
+  definitions/   Shared CPDS YAML definitions
+  fixtures/      Cross-implementation compatibility fixtures
+  docs/          V1 reference and provider-format docs
+
+packages/
+  js/            JavaScript/npm implementation
+```
+
 ## Install
 
 This package has one runtime dependency: `yaml`, used to load CPDS definition
@@ -88,8 +100,9 @@ Current v1 target providers:
 - File paths: `file:///tmp/data.csv`, `/tmp/data.csv`, `./data.csv`
 
 The target provider set for the first stable v1 release is tracked in
-[docs/v1-scope.md](docs/v1-scope.md). The included/excluded connection-string
-formats are tracked in [docs/v1-provider-formats.md](docs/v1-provider-formats.md).
+[specs/docs/v1-scope.md](specs/docs/v1-scope.md). The included/excluded
+connection-string formats are tracked in
+[specs/docs/v1-provider-formats.md](specs/docs/v1-provider-formats.md).
 
 ## API
 
@@ -205,7 +218,7 @@ Credentials are intentionally separated from `authority` and the `safe` field is
 intended for logs and UI. Do not log `credentials` by default.
 
 For the full list of v1 keys, provider-specific fields, diagnostics, CPDS keys,
-adapter names, and fixture format, see [docs/reference.md](docs/reference.md).
+adapter names, and fixture format, see [specs/docs/reference.md](specs/docs/reference.md).
 
 ## CPDS Definitions
 
@@ -258,7 +271,7 @@ QuestDB ILP config strings, JDBC URLs, and SQLite/DuckDB memory databases.
 
 ## Fixtures
 
-The shared compatibility contract lives in `fixtures/v1.json`.
+The shared compatibility contract lives in `specs/fixtures/v1.json`.
 
 The fixtures are used by the test suite, but they are not only test data. They
 are the portable behavior contract future implementations should share. A Go or

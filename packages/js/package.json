@@ -1,0 +1,41 @@
+{
+  "name": "connparse",
+  "version": "0.1.0",
+  "description": "Definition-driven parser for data source connection strings and addresses.",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "bin": {
+    "connparse": "./bin/connparse.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/*.js bin/connparse.js"
+  },
+  "keywords": [
+    "connection-string",
+    "connparse",
+    "cpds",
+    "datasource",
+    "parser",
+    "database",
+    "s3",
+    "dsn",
+    "uri"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "yaml": "^2.9.0"
+  }
+}

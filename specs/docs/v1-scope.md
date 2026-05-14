@@ -47,10 +47,10 @@ The v1 target providers are:
 
 Each v1 provider should have:
 
-- A built-in CPDS definition in `src/builtin-definitions.js`.
-- A YAML CPDS example in `definitions/`.
+- A built-in CPDS definition in `packages/js/src/builtin-definitions.js`.
+- A YAML CPDS example in `specs/definitions/`.
 - An adapter only when generic URI parsing is not enough.
-- Valid fixtures in `fixtures/v1.json`.
+- Valid fixtures in `specs/fixtures/v1.json`.
 - Negative fixtures or focused tests for invalid values where validation is
   meaningful.
 - Reference documentation for provider-specific authority, resource, query,

@@ -23,7 +23,7 @@ const definitionFiles = [
 ];
 
 test('loads YAML CPDS definitions', () => {
-  const text = readFileSync(new URL('../definitions/postgres.yaml', import.meta.url), 'utf8');
+  const text = readFileSync(new URL('../../../specs/definitions/postgres.yaml', import.meta.url), 'utf8');
   const definition = parseDefinition(text, 'yaml');
   assert.equal(definition.id, 'postgres');
   assert.deepEqual(definition.schemes, ['postgres', 'postgresql']);
@@ -118,7 +118,7 @@ test('YAML definition examples stay aligned with built-in definitions', () => {
   const yamlIds = new Set();
 
   for (const file of definitionFiles) {
-    const text = readFileSync(new URL(`../definitions/${file}`, import.meta.url), 'utf8');
+    const text = readFileSync(new URL(`../../../specs/definitions/${file}`, import.meta.url), 'utf8');
     const definition = parseDefinition(text, 'yaml');
     yamlIds.add(definition.id);
 
@@ -155,7 +155,7 @@ test('YAML examples parse like built-ins for representative inputs', () => {
 
   for (const item of cases) {
     const yamlDefinition = parseDefinition(
-      readFileSync(new URL(`../definitions/${item.file}`, import.meta.url), 'utf8'),
+      readFileSync(new URL(`../../../specs/definitions/${item.file}`, import.meta.url), 'utf8'),
       'yaml'
     );
     const builtInResult = parse(item.input, { provider: ['file', 'sqlite'].includes(item.id) ? item.id : undefined });

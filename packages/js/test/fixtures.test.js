@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { parse } from '../src/index.js';
 
-const fixtures = JSON.parse(readFileSync(new URL('../fixtures/v1.json', import.meta.url), 'utf8'));
+const fixtures = JSON.parse(readFileSync(new URL('../../../specs/fixtures/v1.json', import.meta.url), 'utf8'));
 const TOP_LEVEL_KEYS = [
   'authority',
   'credentials',
