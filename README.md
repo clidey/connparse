@@ -321,11 +321,16 @@ generator boundary used to keep language implementations aligned.
 ## CLI
 
 ```bash
-connparse 's3://my-bucket/path/to/file.csv'
+connparse 'postgres://user:pass@localhost/app'
 connparse --safe 'postgres://user:pass@localhost/app'
+connparse --include-secrets 'postgres://user:pass@localhost/app'
 connparse --strict 'postgres://localhost/app?unknown=1'
 connparse --provider postgres 'host=db.example.com dbname=app user=alice'
 ```
+
+The CLI redacts JSON output by default: `credentials` is emptied and `raw` is
+replaced with `safe`. Use `--include-secrets` only when you intentionally need
+the full parse result.
 
 ## V1 Boundaries
 

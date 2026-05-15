@@ -10,9 +10,9 @@ const require = createRequire(new URL('../packages/js/package.json', import.meta
 const { parse: parseYaml } = require('yaml');
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
-const definitionsDir = join(root, 'specs/definitions');
-const jsOutput = join(root, 'packages/js/src/builtin-definitions.js');
-const goOutput = join(root, 'packages/go/builtin_definitions.go');
+const definitionsDir = optionValue('--definitions-dir') || join(root, 'specs/definitions');
+const jsOutput = optionValue('--js-output') || join(root, 'packages/js/src/builtin-definitions.js');
+const goOutput = optionValue('--go-output') || join(root, 'packages/go/builtin_definitions.go');
 const check = process.argv.includes('--check');
 
 const files = (await readdir(definitionsDir)).filter((file) => file.endsWith('.yaml')).sort();
@@ -105,6 +105,16 @@ function validateDefinition(definition, file, seenSchemes) {
 
 function relative(path) {
   return path.replace(`${root}/`, '');
+}
+
+function optionValue(name) {
+  const index = process.argv.indexOf(name);
+  if (index === -1) return null;
+  const value = process.argv[index + 1];
+  if (!value || value.startsWith('--')) {
+    throw new Error(`${name} requires a value`);
+  }
+  return value;
 }
 
 function renderGoDefinition(definition) {

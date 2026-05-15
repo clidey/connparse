@@ -19,10 +19,10 @@ func Mask(input string) string {
 
 func maskUserInfo(value string) string {
 	marker := strings.Index(value, "://")
-	if marker == -1 {
-		return value
+	start := 0
+	if marker != -1 {
+		start = marker + 3
 	}
-	start := marker + 3
 	end := len(value)
 	for _, ch := range []string{"/", "?", "#"} {
 		if idx := strings.Index(value[start:], ch); idx != -1 && start+idx < end {
@@ -35,6 +35,9 @@ func maskUserInfo(value string) string {
 		return value
 	}
 	userInfo := authority[:at]
+	if marker == -1 && !strings.Contains(userInfo, ":") {
+		return value
+	}
 	host := authority[at+1:]
 	colon := strings.Index(userInfo, ":")
 	if colon == -1 {

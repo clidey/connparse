@@ -14,9 +14,7 @@ const SENSITIVE_QUERY_KEYS = new Set([
 
 function maskUserInfo(value) {
   const schemeMarker = value.indexOf('://');
-  if (schemeMarker === -1) return value;
-
-  const authorityStart = schemeMarker + 3;
+  const authorityStart = schemeMarker === -1 ? 0 : schemeMarker + 3;
   const authorityEndCandidates = ['/', '?', '#']
     .map((char) => {
       const index = value.indexOf(char, authorityStart);
@@ -28,6 +26,7 @@ function maskUserInfo(value) {
   if (at === -1) return value;
 
   const userInfo = authority.slice(0, at);
+  if (schemeMarker === -1 && !userInfo.includes(':')) return value;
   const host = authority.slice(at + 1);
   const colon = userInfo.indexOf(':');
   const maskedUserInfo = colon === -1 ? userInfo : `${userInfo.slice(0, colon)}:***`;

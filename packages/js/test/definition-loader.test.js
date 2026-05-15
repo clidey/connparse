@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync, readdirSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { getBuiltInDefinitions, parse, parseDefinition, validateDefinition } from '../src/index.js';
@@ -130,6 +132,60 @@ test('generated definition files are current', () => {
   });
 });
 
+test('generated outputs use typed/native definitions', () => {
+  const jsOutput = readFileSync(new URL('packages/js/src/builtin-definitions.js', repoRoot), 'utf8');
+  assert.match(jsOutput, /@type \{ReadonlyArray<import\('\.\/index\.js'\)\.ConnparseDefinition>\}/);
+  assert.match(jsOutput, /Object\.freeze/);
+
+  const goOutput = readFileSync(new URL('packages/go/builtin_definitions.go', repoRoot), 'utf8');
+  assert.match(goOutput, /func BuiltInDefinitions\(\) \[\]Definition/);
+  assert.match(goOutput, /Definition\{/);
+  assert.doesNotMatch(goOutput, /encoding\/json|builtInDefinitionsJSON|json\.Unmarshal/);
+});
+
+test('generator rejects invalid CPDS inputs before writing outputs', () => {
+  assertGeneratorFails(
+    {
+      'one.yaml': minimalDefinition({ id: 'one', schemes: ['dup'] }),
+      'two.yaml': minimalDefinition({ id: 'two', schemes: ['dup'] })
+    },
+    /scheme dup already declared/
+  );
+
+  assertGeneratorFails(
+    {
+      'bad-query.yaml': minimalDefinition({
+        id: 'bad-query',
+        schemes: ['bad-query'],
+        query_parameters: { x: { type: 'object' } }
+      })
+    },
+    /query_parameters\.x\.type/
+  );
+
+  assertGeneratorFails(
+    {
+      'bad-port.yaml': minimalDefinition({
+        id: 'bad-port',
+        schemes: ['bad-port'],
+        defaults: { port: 70000 }
+      })
+    },
+    /defaults\.port/
+  );
+
+  assertGeneratorFails(
+    {
+      'bad-range.yaml': minimalDefinition({
+        id: 'bad-range',
+        schemes: ['bad-range'],
+        validation: { port_range: { min: 100, max: 10 } }
+      })
+    },
+    /validation\.port_range/
+  );
+});
+
 test('YAML examples parse like built-ins for representative inputs', () => {
   const cases = [
     { id: 'postgres', file: 'postgres.yaml', input: 'postgres://user:pass@localhost/app?sslmode=require' },
@@ -167,6 +223,53 @@ test('YAML examples parse like built-ins for representative inputs', () => {
     assert.deepEqual(yamlResult.value.resource, builtInResult.value.resource, `${item.id} resource mismatch`);
   }
 });
+
+function assertGeneratorFails(files, pattern) {
+  const dir = mkdtempSync(join(tmpdir(), 'connparse-generator-'));
+  const definitionsDir = join(dir, 'definitions');
+  mkdirSync(definitionsDir);
+  for (const [name, text] of Object.entries(files)) {
+    writeFileSync(join(definitionsDir, name), text);
+  }
+
+  let error;
+  try {
+    execFileSync(
+      'node',
+      [
+        'tools/generate-definitions.mjs',
+        '--definitions-dir',
+        definitionsDir,
+        '--js-output',
+        join(dir, 'builtin-definitions.js'),
+        '--go-output',
+        join(dir, 'builtin_definitions.go')
+      ],
+      { cwd: repoRootPath, stdio: 'pipe' }
+    );
+  } catch (caught) {
+    error = caught;
+  }
+
+  assert.ok(error, 'generator should fail');
+  assert.match(String(error.stderr), pattern);
+}
+
+function minimalDefinition(overrides = {}) {
+  const definition = {
+    id: 'sample',
+    name: 'Sample',
+    type: 'database',
+    schemes: ['sample'],
+    adapter: 'generic-uri',
+    resource: { type: 'database', required: false },
+    path: { type: 'object_path', required: false },
+    query_parameters: {},
+    validation: {},
+    ...overrides
+  };
+  return JSON.stringify(definition);
+}
 
 test('rejects invalid CPDS definitions', () => {
   assert.throws(

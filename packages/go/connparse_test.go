@@ -31,6 +31,24 @@ var topLevelKeys = []string{
 	"type",
 }
 
+var requiredProviderIDs = []string{
+	"clickhouse",
+	"cockroachdb",
+	"duckdb",
+	"elasticsearch",
+	"file",
+	"mariadb",
+	"memcached",
+	"mongodb",
+	"mysql",
+	"postgres",
+	"questdb",
+	"redis",
+	"s3",
+	"sqlite",
+	"yugabytedb",
+}
+
 func TestSharedFixtures(t *testing.T) {
 	fixtures := loadFixtures(t)
 	for _, item := range fixtures {
@@ -60,6 +78,7 @@ func TestSharedFixtures(t *testing.T) {
 			if value["raw"] != item.Input {
 				t.Fatalf("raw must preserve original input")
 			}
+			assertNoSensitiveSafeLeak(t, result.Value, item.Name)
 
 			for path, expected := range item.Expected {
 				if actual := getPath(value, path); !reflect.DeepEqual(actual, expected) {
@@ -76,6 +95,50 @@ func TestSharedFixtures(t *testing.T) {
 				t.Fatalf("strict fixtures must not produce warnings: %+v", strict.Warnings)
 			}
 		})
+	}
+}
+
+func TestFixtureMetadata(t *testing.T) {
+	names := map[string]bool{}
+	for _, item := range loadFixtures(t) {
+		if item.Name == "" {
+			t.Fatal("fixture name must be non-empty")
+		}
+		if names[item.Name] {
+			t.Fatalf("duplicate fixture name: %s", item.Name)
+		}
+		names[item.Name] = true
+		if item.Input == "" {
+			t.Fatalf("%s input must be non-empty", item.Name)
+		}
+		if len(item.Expected) == 0 {
+			t.Fatalf("%s must assert at least one field", item.Name)
+		}
+	}
+}
+
+func TestFixturesCoverEveryProviderID(t *testing.T) {
+	fixtures := loadFixtures(t)
+	for _, id := range requiredProviderIDs {
+		covered := false
+		for _, item := range fixtures {
+			if item.Provider == id {
+				covered = true
+				break
+			}
+			options := Options{}
+			if item.Provider != "" {
+				options.Provider = item.Provider
+			}
+			result := Parse(item.Input, options)
+			if result.OK && result.Value.Scheme == id {
+				covered = true
+				break
+			}
+		}
+		if !covered {
+			t.Fatalf("missing fixture coverage for provider id: %s", id)
+		}
 	}
 }
 
@@ -96,6 +159,22 @@ func TestMultiHostAuthorityNeverDuplicatesHostOrPort(t *testing.T) {
 			if _, exists := result.Value.Authority["port"]; exists {
 				t.Fatalf("%s duplicated authority.port", item.Name)
 			}
+		}
+	}
+}
+
+func TestGeneratedDefinitionsAreNativeStructLiterals(t *testing.T) {
+	data, err := os.ReadFile("builtin_definitions.go")
+	if err != nil {
+		t.Fatal(err)
+	}
+	source := string(data)
+	if !strings.Contains(source, "Definition{") {
+		t.Fatal("generated Go definitions should use struct literals")
+	}
+	for _, disallowed := range []string{"encoding/json", "builtInDefinitionsJSON", "json.Unmarshal"} {
+		if strings.Contains(source, disallowed) {
+			t.Fatalf("generated Go definitions should not contain %s", disallowed)
 		}
 	}
 }
@@ -152,6 +231,65 @@ func TestValidation(t *testing.T) {
 	if mongodb.OK || mongodb.Errors[0].Code != "INVALID_QUERY_PARAMETER_TYPE" {
 		t.Fatalf("expected mongodb boolean validation, got %+v", mongodb)
 	}
+
+	badPort := Parse("postgres://localhost:70000/app")
+	if badPort.OK || badPort.Errors[0].Code != "INVALID_PORT" {
+		t.Fatalf("expected invalid port, got %+v", badPort)
+	}
+
+	missingResource := Parse("postgres://localhost")
+	if missingResource.OK || missingResource.Errors[0].Code != "MISSING_RESOURCE" {
+		t.Fatalf("expected missing resource, got %+v", missingResource)
+	}
+}
+
+func TestUnknownSchemesAndCustomDefinitions(t *testing.T) {
+	permissive := Parse("unknown+db://user:pass@example.com/main?token=secret")
+	if !permissive.OK || permissive.Value.Type != "unknown" || permissive.Warnings[0].Code != "UNKNOWN_SCHEME" {
+		t.Fatalf("expected permissive unknown parse, got %+v", permissive)
+	}
+	if strings.Contains(permissive.Value.Safe, "pass") || strings.Contains(permissive.Value.Safe, "token=secret") {
+		t.Fatalf("unknown safe output leaked secrets: %s", permissive.Value.Safe)
+	}
+
+	strict := Parse("unknown+db://example.com/main", Options{Strict: true})
+	if strict.OK || strict.Errors[0].Code != "UNKNOWN_SCHEME" {
+		t.Fatalf("expected strict unknown failure, got %+v", strict)
+	}
+
+	custom := Definition{
+		ID:           "postgres-override",
+		Name:         "Postgres Override",
+		Type:         "api",
+		Schemes:      []string{"postgres"},
+		Adapter:      "generic-uri",
+		ResourceRule: Rule{Type: "endpoint", Required: true},
+		Validation:   ValidationRule{RequireHost: true},
+	}
+	overridden := Parse("postgres://example.com/endpoint", Options{Definitions: []Definition{custom}})
+	if !overridden.OK || overridden.Value.Type != "api" || overridden.Value.Resource.Type != "endpoint" {
+		t.Fatalf("expected custom definition override, got %+v", overridden)
+	}
+
+	normal := Parse("postgres://example.com/app")
+	if !normal.OK || normal.Value.Type != "database" || normal.Value.Resource.Type != "database" {
+		t.Fatalf("expected built-in definition after override call, got %+v", normal)
+	}
+}
+
+func TestMaskRedactsSensitiveForms(t *testing.T) {
+	cases := map[string]string{
+		"postgres://user:pass@localhost/app":     "postgres://user:***@localhost/app",
+		"user:pass@localhost/app":                "user:***@localhost/app",
+		"https://example.com?api_key=secret&x=1": "https://example.com?api_key=***&x=1",
+		"host=db password=secret token=abc":      "host=db password=*** token=***",
+		"https::addr=localhost;password=secret;": "https::addr=localhost;password=***;",
+	}
+	for input, expected := range cases {
+		if actual := Mask(input); actual != expected {
+			t.Fatalf("Mask(%q)\nwant %q\ngot  %q", input, expected, actual)
+		}
+	}
 }
 
 func loadFixtures(t *testing.T) []fixture {
@@ -191,6 +329,37 @@ func canonicalDefinition(t *testing.T, definition Definition) map[string]any {
 		t.Fatal(err)
 	}
 	return value
+}
+
+func assertNoSensitiveSafeLeak(t *testing.T, address *Address, name string) {
+	t.Helper()
+	for key, secret := range address.Credentials {
+		if secret == "" || key == "username" {
+			continue
+		}
+		if strings.Contains(address.Safe, ":"+secret+"@") || strings.Contains(address.Safe, key+"="+secret) {
+			t.Fatalf("%s safe leaked credentials.%s", name, key)
+		}
+		if key == "password" && strings.Contains(address.Safe, "password="+secret) {
+			t.Fatalf("%s safe leaked credentials.%s", name, key)
+		}
+	}
+	for key, secret := range address.Query {
+		lower := strings.ToLower(key)
+		if !strings.Contains(lower, "password") &&
+			!strings.Contains(lower, "token") &&
+			!strings.Contains(lower, "secret") &&
+			!strings.Contains(lower, "api_key") &&
+			!strings.Contains(lower, "apikey") {
+			continue
+		}
+		for _, item := range valuesFor(secret) {
+			text := toString(item)
+			if text != "" && strings.Contains(address.Safe, key+"="+text) {
+				t.Fatalf("%s safe leaked query.%s", name, key)
+			}
+		}
+	}
 }
 
 func getPath(value any, path string) any {

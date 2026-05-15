@@ -31,6 +31,7 @@ test('parseOrThrow returns value or throws useful error', () => {
 
 test('mask redacts URI credentials, query secrets, and key-value secrets', () => {
   assert.equal(api.mask('postgres://user:pass@localhost/app'), 'postgres://user:***@localhost/app');
+  assert.equal(api.mask('user:pass@localhost/app'), 'user:***@localhost/app');
   assert.equal(api.mask('https://example.com?api_key=secret&x=1'), 'https://example.com?api_key=***&x=1');
   assert.equal(api.mask('host=db password=secret token=abc'), 'host=db password=*** token=***');
 });

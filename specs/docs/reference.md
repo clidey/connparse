@@ -195,6 +195,9 @@ Security rules:
 - Do not log `credentials` by default.
 - Use `safe` or `mask(input)` for logs and UI.
 - `safe` redacts URI passwords and known sensitive query parameters.
+- The CLI redacts JSON output by default. It clears `credentials` and replaces
+  `raw` with `safe`; `--include-secrets` is required to print the full parse
+  result.
 
 ## Options Keys
 

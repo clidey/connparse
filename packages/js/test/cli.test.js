@@ -17,6 +17,7 @@ test('CLI prints help', () => {
   const output = run(['--help']);
   assert.match(output, /Usage: connparse/);
   assert.match(output, /--provider <name>/);
+  assert.match(output, /--include-secrets/);
 });
 
 test('CLI prints version', () => {
@@ -24,15 +25,31 @@ test('CLI prints version', () => {
 });
 
 test('CLI supports provider hints', () => {
-  const output = JSON.parse(run(['--provider', 'postgres', 'host=db.example.com dbname=app user=alice']));
+  const output = JSON.parse(run(['--provider', 'postgres', 'host=db.example.com dbname=app user=alice password=secret']));
   assert.equal(output.scheme, 'postgres');
   assert.equal(output.authority.host, 'db.example.com');
   assert.equal(output.resource.name, 'app');
   assert.equal(output.options.conninfo, true);
+  assert.deepEqual(output.credentials, {});
+  assert.equal(output.raw.includes('password=secret'), false);
+  assert.equal(output.safe.includes('password=secret'), false);
 });
 
 test('CLI prints safe output', () => {
   assert.equal(run(['--safe', 'postgres://user:pass@localhost/app']), 'postgres://user:***@localhost/app');
+});
+
+test('CLI requires an explicit flag to print secrets', () => {
+  const safeDefault = JSON.parse(run(['postgres://user:pass@localhost/app']));
+  assert.deepEqual(safeDefault.credentials, {});
+  assert.equal(safeDefault.raw, 'postgres://user:***@localhost/app');
+  assert.equal(safeDefault.safe, 'postgres://user:***@localhost/app');
+  assert.equal(JSON.stringify(safeDefault).includes('pass'), false);
+
+  const full = JSON.parse(run(['--include-secrets', 'postgres://user:pass@localhost/app']));
+  assert.equal(full.credentials.password, 'pass');
+  assert.equal(full.raw, 'postgres://user:pass@localhost/app');
+  assert.equal(full.safe, 'postgres://user:***@localhost/app');
 });
 
 test('CLI exits nonzero for invalid input', () => {
@@ -50,4 +67,8 @@ test('CLI exits with usage error for missing input or provider value', () => {
   const missingProvider = runResult(['--provider']);
   assert.equal(missingProvider.status, 2);
   assert.match(missingProvider.stderr, /Missing value for --provider/);
+
+  const conflictingOutputModes = runResult(['--safe', '--include-secrets', 'postgres://localhost/app']);
+  assert.equal(conflictingOutputModes.status, 2);
+  assert.match(conflictingOutputModes.stderr, /Use either --safe or --include-secrets/);
 });

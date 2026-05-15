@@ -62,6 +62,24 @@ const REQUIRED_FIXTURE_NAMES = [
   'relative file'
 ];
 
+const REQUIRED_PROVIDER_IDS = [
+  'clickhouse',
+  'cockroachdb',
+  'duckdb',
+  'elasticsearch',
+  'file',
+  'mariadb',
+  'memcached',
+  'mongodb',
+  'mysql',
+  'postgres',
+  'questdb',
+  'redis',
+  's3',
+  'sqlite',
+  'yugabytedb'
+];
+
 function getPath(value, path) {
   return path.split('.').reduce((current, part) => {
     if (current == null) return undefined;
@@ -88,8 +106,10 @@ for (const fixture of fixtures) {
     assert.equal(typeof result.value.query, 'object', 'query must always be an object');
     assert.equal(typeof result.value.credentials, 'object', 'credentials must always be an object');
     assert.equal(typeof result.value.options, 'object', 'options must always be an object');
+    assertNoSensitiveSafeLeak(result.value, fixture.name);
 
     for (const [path, expected] of Object.entries(fixture.expected)) {
+      assert.notEqual(expected, undefined, `${fixture.name} fixture cannot expect undefined`);
       assert.deepEqual(getPath(result.value, path), expected, path);
     }
 
@@ -99,10 +119,34 @@ for (const fixture of fixtures) {
   });
 }
 
+test('fixture metadata is unique and complete', () => {
+  const names = new Set();
+  for (const fixture of fixtures) {
+    assert.equal(typeof fixture.name, 'string');
+    assert.equal(names.has(fixture.name), false, `duplicate fixture name: ${fixture.name}`);
+    names.add(fixture.name);
+    assert.equal(typeof fixture.input, 'string', `${fixture.name} input must be a string`);
+    assert.equal(fixture.input.length > 0, true, `${fixture.name} input must be non-empty`);
+    assert.equal(typeof fixture.expected, 'object', `${fixture.name} expected must be an object`);
+    assert.equal(Object.keys(fixture.expected).length > 0, true, `${fixture.name} must assert at least one field`);
+  }
+});
+
 test('fixture contract covers every documented v1 provider format', () => {
   const names = new Set(fixtures.map((fixture) => fixture.name));
   for (const name of REQUIRED_FIXTURE_NAMES) {
     assert.equal(names.has(name), true, `missing fixture: ${name}`);
+  }
+});
+
+test('fixtures cover every v1 provider id', () => {
+  for (const id of REQUIRED_PROVIDER_IDS) {
+    const covered = fixtures.some((fixture) => {
+      if (fixture.provider === id) return true;
+      const result = parse(fixture.input, fixture.provider ? { provider: fixture.provider } : undefined);
+      return result.ok && result.value.scheme === id;
+    });
+    assert.equal(covered, true, `missing fixture coverage for provider id: ${id}`);
   }
 });
 
@@ -181,3 +225,48 @@ test('provider-specific allowed values are enforced', () => {
   assert.equal(mongodb.ok, false);
   assert.equal(mongodb.errors[0].code, 'INVALID_QUERY_PARAMETER_TYPE');
 });
+
+test('invalid ports and missing required resources are rejected', () => {
+  const badPort = parse('postgres://localhost:70000/app');
+  assert.equal(badPort.ok, false);
+  assert.equal(badPort.errors[0].code, 'INVALID_PORT');
+
+  const missingPostgresDatabase = parse('postgres://localhost');
+  assert.equal(missingPostgresDatabase.ok, false);
+  assert.equal(missingPostgresDatabase.errors[0].code, 'MISSING_RESOURCE');
+
+  const missingDuckDBPath = parse('duckdb:');
+  assert.equal(missingDuckDBPath.ok, false);
+  assert.equal(missingDuckDBPath.errors[0].code, 'MISSING_RESOURCE');
+});
+
+test('unknown schemes are permissive by default and rejected in strict mode', () => {
+  const permissive = parse('unknown+db://user:pass@example.com/main?token=secret');
+  assert.equal(permissive.ok, true, JSON.stringify(permissive.errors));
+  assert.equal(permissive.value.type, 'unknown');
+  assert.equal(permissive.warnings[0].code, 'UNKNOWN_SCHEME');
+  assert.equal(permissive.value.safe.includes('pass'), false);
+  assert.equal(permissive.value.safe.includes('token=secret'), false);
+
+  const strict = parse('unknown+db://example.com/main', { strict: true });
+  assert.equal(strict.ok, false);
+  assert.equal(strict.errors[0].code, 'UNKNOWN_SCHEME');
+});
+
+function assertNoSensitiveSafeLeak(value, name) {
+  for (const [key, secret] of Object.entries(value.credentials)) {
+    if (!secret || key === 'username') continue;
+    assert.equal(value.safe.includes(`:${secret}@`), false, `${name} safe leaked credentials.${key}`);
+    assert.equal(value.safe.includes(`${key}=${secret}`), false, `${name} safe leaked credentials.${key}`);
+    if (key === 'password') {
+      assert.equal(value.safe.includes(`password=${secret}`), false, `${name} safe leaked credentials.${key}`);
+    }
+  }
+  for (const [key, secret] of Object.entries(value.query)) {
+    if (!/password|token|secret|api[_-]?key/i.test(key)) continue;
+    const values = Array.isArray(secret) ? secret : [secret];
+    for (const item of values) {
+      assert.equal(value.safe.includes(`${key}=${String(item)}`), false, `${name} safe leaked query.${key}`);
+    }
+  }
+}
