@@ -63,6 +63,14 @@ export const builtInDefinitions = Object.freeze([
         "min": 1,
         "max": 65535
       }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
     }
   },
   {
@@ -137,6 +145,17 @@ export const builtInDefinitions = Object.freeze([
     },
     "options": {
       "compatible_with": "postgres"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "sslcert",
+        "sslkey",
+        "sslrootcert"
+      ]
     }
   },
   {
@@ -213,6 +232,17 @@ export const builtInDefinitions = Object.freeze([
         "min": 1,
         "max": 65535
       }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "api_key",
+        "apiKey",
+        "token"
+      ]
     }
   },
   {
@@ -292,6 +322,14 @@ export const builtInDefinitions = Object.freeze([
         "min": 1,
         "max": 65535
       }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
     }
   },
   {
@@ -330,6 +368,14 @@ export const builtInDefinitions = Object.freeze([
         "min": 1,
         "max": 65535
       }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
     }
   },
   {
@@ -411,6 +457,16 @@ export const builtInDefinitions = Object.freeze([
         "min": 1,
         "max": 65535
       }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "tlsCAFile",
+        "tlsCertificateKeyFile"
+      ]
     }
   },
   {
@@ -510,6 +566,21 @@ export const builtInDefinitions = Object.freeze([
         "min": 1,
         "max": 65535
       }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "ssl-ca",
+        "ssl-capath",
+        "ssl-cert",
+        "ssl-cipher",
+        "ssl-crl",
+        "ssl-crlpath",
+        "ssl-key"
+      ]
     }
   },
   {
@@ -610,6 +681,18 @@ export const builtInDefinitions = Object.freeze([
         "min": 1,
         "max": 65535
       }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "passfile",
+        "sslcert",
+        "sslkey",
+        "sslrootcert"
+      ]
     }
   },
   {
@@ -693,6 +776,16 @@ export const builtInDefinitions = Object.freeze([
         "min": 1,
         "max": 65535
       }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "token",
+        "tls_roots_password"
+      ]
     }
   },
   {
@@ -734,6 +827,14 @@ export const builtInDefinitions = Object.freeze([
         "min": 1,
         "max": 65535
       }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
     }
   },
   {
@@ -861,6 +962,15 @@ export const builtInDefinitions = Object.freeze([
     },
     "options": {
       "compatible_with": "postgres"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "sslrootcert"
+      ]
     }
   }
 ]);

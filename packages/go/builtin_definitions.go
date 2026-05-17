@@ -61,6 +61,10 @@ func BuiltInDefinitions() []Definition {
 					Max: 65535,
 				},
 			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
 		},
 		Definition{
 			ID:      "cockroachdb",
@@ -122,6 +126,10 @@ func BuiltInDefinitions() []Definition {
 			},
 			Options: map[string]any{
 				"compatible_with": "postgres",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "sslcert", "sslkey", "sslrootcert"},
 			},
 		},
 		Definition{
@@ -190,6 +198,10 @@ func BuiltInDefinitions() []Definition {
 					Max: 65535,
 				},
 			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "api_key", "apiKey", "token"},
+			},
 		},
 		Definition{
 			ID:      "file",
@@ -257,6 +269,10 @@ func BuiltInDefinitions() []Definition {
 					Max: 65535,
 				},
 			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
 		},
 		Definition{
 			ID:      "memcached",
@@ -289,6 +305,10 @@ func BuiltInDefinitions() []Definition {
 					Min: 1,
 					Max: 65535,
 				},
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
 			},
 		},
 		Definition{
@@ -365,6 +385,10 @@ func BuiltInDefinitions() []Definition {
 					Min: 1,
 					Max: 65535,
 				},
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "tlsCAFile", "tlsCertificateKeyFile"},
 			},
 		},
 		Definition{
@@ -445,6 +469,10 @@ func BuiltInDefinitions() []Definition {
 					Min: 1,
 					Max: 65535,
 				},
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "ssl-ca", "ssl-capath", "ssl-cert", "ssl-cipher", "ssl-crl", "ssl-crlpath", "ssl-key"},
 			},
 		},
 		Definition{
@@ -528,6 +556,10 @@ func BuiltInDefinitions() []Definition {
 					Max: 65535,
 				},
 			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "passfile", "sslcert", "sslkey", "sslrootcert"},
+			},
 		},
 		Definition{
 			ID:      "questdb",
@@ -601,6 +633,10 @@ func BuiltInDefinitions() []Definition {
 					Max: 65535,
 				},
 			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "token", "tls_roots_password"},
+			},
 		},
 		Definition{
 			ID:      "redis",
@@ -636,6 +672,10 @@ func BuiltInDefinitions() []Definition {
 					Min: 1,
 					Max: 65535,
 				},
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
 			},
 		},
 		Definition{
@@ -746,6 +786,10 @@ func BuiltInDefinitions() []Definition {
 			},
 			Options: map[string]any{
 				"compatible_with": "postgres",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "sslrootcert"},
 			},
 		},
 	}

@@ -185,7 +185,7 @@ func parseConninfo(input string, def Definition, raw string) (*Address, error) {
 		options[key] = value
 	}
 
-	return baseAddress(def, def.Schemes[0], raw, Mask(raw), authority, Resource{Type: resType(def, "database"), Name: nullable(fields["dbname"])}, "", query, nil, credentials, options), nil
+	return baseAddress(def, def.Schemes[0], raw, Mask(raw, def), authority, Resource{Type: resType(def, "database"), Name: nullable(fields["dbname"])}, "", query, nil, credentials, options), nil
 }
 
 func splitConninfo(input string) map[string]string {

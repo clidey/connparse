@@ -139,7 +139,7 @@ export function parse(input, options = {}) {
   try {
     const value = adapter(raw, definition, {
       raw,
-      safe: mask(raw)
+      safe: mask(raw, definition)
     });
     const validation = validateAddress(value, definition, options);
     return ok(value, validation.errors, validation.warnings);

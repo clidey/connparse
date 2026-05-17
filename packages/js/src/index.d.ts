@@ -50,7 +50,8 @@ export type ParseOptions = {
 
 export function parse(input: string, options?: ParseOptions): ParseResult;
 export function parseOrThrow(input: string, options?: ParseOptions): ConnparseAddress;
-export function mask(input: string): string;
+export function mask(input: string, definition?: ConnparseDefinition): string;
+export function sanitize(address: ConnparseAddress, definition?: ConnparseDefinition): ConnparseAddress;
 export function parseDefinition(input: string, format?: 'json' | 'yaml'): ConnparseDefinition;
 export function parseJsonDefinition(input: string): ConnparseDefinition;
 export function parseYamlDefinition(input: string): ConnparseDefinition;

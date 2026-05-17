@@ -30,7 +30,7 @@ test('CLI supports provider hints', () => {
   assert.equal(output.authority.host, 'db.example.com');
   assert.equal(output.resource.name, 'app');
   assert.equal(output.options.conninfo, true);
-  assert.deepEqual(output.credentials, {});
+  assert.deepEqual(output.credentials, { username: 'alice', password: '***' });
   assert.equal(output.raw.includes('password=secret'), false);
   assert.equal(output.safe.includes('password=secret'), false);
 });
@@ -41,15 +41,22 @@ test('CLI prints safe output', () => {
 
 test('CLI requires an explicit flag to print secrets', () => {
   const safeDefault = JSON.parse(run(['postgres://user:pass@localhost/app']));
-  assert.deepEqual(safeDefault.credentials, {});
+  assert.deepEqual(safeDefault.credentials, { username: 'user', password: '***' });
   assert.equal(safeDefault.raw, 'postgres://user:***@localhost/app');
   assert.equal(safeDefault.safe, 'postgres://user:***@localhost/app');
-  assert.equal(JSON.stringify(safeDefault).includes('pass'), false);
+  assert.equal(JSON.stringify(safeDefault).includes(':pass@'), false);
 
   const full = JSON.parse(run(['--include-secrets', 'postgres://user:pass@localhost/app']));
   assert.equal(full.credentials.password, 'pass');
   assert.equal(full.raw, 'postgres://user:pass@localhost/app');
   assert.equal(full.safe, 'postgres://user:***@localhost/app');
+});
+
+test('CLI redacts spec-defined query keys in default JSON output', () => {
+  const output = JSON.parse(run(['postgres://user:pass@localhost/app?sslkey=/tmp/key.pem']));
+  assert.equal(output.query.sslkey, '***');
+  assert.equal(output.raw.includes('/tmp/key.pem'), false);
+  assert.equal(output.safe.includes('/tmp/key.pem'), false);
 });
 
 test('CLI exits nonzero for invalid input', () => {

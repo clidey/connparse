@@ -143,14 +143,24 @@ parse('https://clickhouse.example.com:8443/default', { provider: 'clickhouse' })
 
 Returns a `ConnparseAddress` or throws an `Error`.
 
-### `mask(input)`
+### `mask(input, definition?)`
 
-Redacts credentials from a raw connection string:
+Redacts URI userinfo passwords from a raw connection string. Query parameters
+and key/value fields are redacted only when the matched CPDS definition declares
+them in `redaction.sensitive_keys`.
 
 ```js
-mask('mysql://root:secret@localhost/shop');
+const mysql = defaultRegistry.getById('mysql');
+
+mask('mysql://root:secret@localhost/shop', mysql);
 // mysql://root:***@localhost/shop
+
+mask('mysql://root:secret@localhost/shop?ssl-key=/tmp/client.key', mysql);
+// mysql://root:***@localhost/shop?ssl-key=***
 ```
+
+The CLI uses this same spec-driven rule for `safe` output. It does not guess
+that arbitrary query keys are secret unless the provider definition says so.
 
 ### `parseDefinition(input, format?)`
 
@@ -263,11 +273,14 @@ validation:
   port_range:
     min: 1
     max: 65535
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, sslkey, sslcert, sslrootcert]
 ```
 
 The v1 definition language is intentionally small. It handles schemes, provider
 type, adapter selection, defaults, resource/path rules, query parameter typing,
-allowed values, and basic validation.
+allowed values, basic validation, and provider-specific redaction keys.
 
 Provider-specific structural parsing still lives in adapters where real-world
 formats need it, such as MongoDB SRV URLs, PostgreSQL-compatible conninfo,
@@ -328,9 +341,10 @@ connparse --strict 'postgres://localhost/app?unknown=1'
 connparse --provider postgres 'host=db.example.com dbname=app user=alice'
 ```
 
-The CLI redacts JSON output by default: `credentials` is emptied and `raw` is
-replaced with `safe`. Use `--include-secrets` only when you intentionally need
-the full parse result.
+The CLI redacts JSON output by default: credential presence is preserved, but
+sensitive credential/query/option values declared by the provider CPDS file are
+replaced with `***`, and `raw` is replaced with `safe`. Use `--include-secrets`
+only when you intentionally need the full parse result.
 
 ## V1 Boundaries
 

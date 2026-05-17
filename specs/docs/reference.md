@@ -194,8 +194,9 @@ Security rules:
 
 - Do not log `credentials` by default.
 - Use `safe` or `mask(input)` for logs and UI.
-- `safe` redacts URI passwords and known sensitive query parameters.
-- The CLI redacts JSON output by default. It clears `credentials` and replaces
+- `safe` redacts URI passwords and CPDS-declared sensitive keys.
+- The CLI redacts JSON output by default. It preserves credential presence, but
+  replaces sensitive credential/query/option values with `***` and replaces
   `raw` with `safe`; `--include-secrets` is required to print the full parse
   result.
 
@@ -301,6 +302,7 @@ Top-level keys:
 | `credentials` | `object` | no | Declares supported credential fields. |
 | `query_parameters` | `object` | no | Declares allowed/typed query parameters. |
 | `validation` | `object` | no | Declares validation rules. |
+| `redaction` | `object` | no | Declares provider-specific safe-output redaction rules. |
 
 ### `adapter`
 
@@ -399,6 +401,25 @@ Keys:
 | --- | --- | --- |
 | `require_host` | `boolean` | Requires either `authority.host` or `authority.hosts`. |
 | `port_range` | `{ min: number; max: number }` | Validates parsed ports. |
+
+### `redaction`
+
+Redaction rules are exact key names declared by the CPDS definition. Connparse
+does not guess which query, option, or key/value fields are sensitive when a
+definition omits them.
+
+```yaml
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, sslkey, tls_roots_password]
+```
+
+Keys:
+
+| Key | Type | Meaning |
+| --- | --- | --- |
+| `safe_credentials` | `string[]` | Credential fields that may be shown in sanitized output, usually `username`. |
+| `sensitive_keys` | `string[]` | Credential, query, key/value config, or option keys to mask in `safe` and sanitized output. |
 
 ## Fixture Format
 

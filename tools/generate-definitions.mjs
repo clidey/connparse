@@ -101,6 +101,20 @@ function validateDefinition(definition, file, seenSchemes) {
       throw new Error(`${file}: validation.port_range must be within 1..65535`);
     }
   }
+  if (definition.redaction) {
+    for (const key of ['safe_credentials', 'sensitive_keys']) {
+      if (definition.redaction[key] != null) {
+        if (!Array.isArray(definition.redaction[key])) {
+          throw new Error(`${file}: redaction.${key} must be an array`);
+        }
+        for (const item of definition.redaction[key]) {
+          if (typeof item !== 'string' || !item) {
+            throw new Error(`${file}: redaction.${key} must contain non-empty strings`);
+          }
+        }
+      }
+    }
+  }
 }
 
 function relative(path) {
@@ -132,6 +146,7 @@ function renderGoDefinition(definition) {
   field(lines, 'QueryParameters', goQueryRules(definition.query_parameters));
   field(lines, 'Validation', goValidation(definition.validation));
   if ('options' in definition) field(lines, 'Options', goAnyMap(definition.options));
+  if ('redaction' in definition) field(lines, 'Redaction', goRedaction(definition.redaction));
   lines.push('}');
   return lines.join('\n');
 }
@@ -182,6 +197,18 @@ function goQueryRule(rule = {}) {
   if (rule.type) lines.push(`\tType: ${goString(rule.type)},`);
   if (Array.isArray(rule.allowed) && rule.allowed.length > 0) {
     lines.push(`\tAllowed: ${goAnySlice(rule.allowed)},`);
+  }
+  lines.push('}');
+  return lines.join('\n');
+}
+
+function goRedaction(redaction = {}) {
+  const lines = ['RedactionRule{'];
+  if (Array.isArray(redaction.safe_credentials)) {
+    lines.push(`\tSafeCredentials: ${goStringSlice(redaction.safe_credentials)},`);
+  }
+  if (Array.isArray(redaction.sensitive_keys)) {
+    lines.push(`\tSensitiveKeys: ${goStringSlice(redaction.sensitive_keys)},`);
   }
   lines.push('}');
   return lines.join('\n');

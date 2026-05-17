@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { parse } from '../src/index.js';
+import { defaultRegistry, parse, sanitize } from '../src/index.js';
 
 const args = process.argv.slice(2);
 const help = args.includes('--help') || args.includes('-h');
@@ -63,13 +63,16 @@ if (!result.ok) {
   process.exit(1);
 }
 
-const output = includeSecrets ? result.value : sanitizeForOutput(result.value);
+const output = includeSecrets ? result.value : sanitize(result.value, definitionForOutput(result.value));
 console.log(safeOnly ? result.value.safe : JSON.stringify(output, null, 2));
 
-function sanitizeForOutput(value) {
-  return {
-    ...value,
-    credentials: {},
-    raw: value.safe
-  };
+function definitionForOutput(value) {
+  if (provider) {
+    return defaultRegistry.getById(provider) || defaultRegistry.getByScheme(provider) || undefined;
+  }
+  if (value.scheme === 'jdbc:postgresql') return defaultRegistry.getById('postgres') || undefined;
+  if (value.scheme === 'jdbc:mysql') return defaultRegistry.getById('mysql') || undefined;
+  if (value.scheme === 'jdbc:mariadb') return defaultRegistry.getById('mariadb') || undefined;
+  if (value.scheme === 'jdbc:clickhouse' || value.scheme === 'jdbc:ch') return defaultRegistry.getById('clickhouse') || undefined;
+  return defaultRegistry.getByScheme(value.scheme) || undefined;
 }

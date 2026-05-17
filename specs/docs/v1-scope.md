@@ -55,7 +55,7 @@ Each v1 provider should have:
   meaningful.
 - Reference documentation for provider-specific authority, resource, query,
   credential, and option keys.
-- Safe redaction behavior for credentials and sensitive query parameters.
+- Safe redaction behavior for credentials and CPDS-declared sensitive keys.
 
 ## Research Needed
 

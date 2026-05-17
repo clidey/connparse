@@ -26,6 +26,19 @@ func main() {
 }
 ```
 
+`Safe` is spec-driven. Connparse always masks URI userinfo passwords, but query
+parameters and key/value fields are masked only when the matched CPDS definition
+declares them in `redaction.sensitive_keys`.
+
+```go
+postgres, _ := connparse.DefaultRegistry().ByID("postgres")
+fmt.Println(connparse.Mask(
+	"postgres://user:pass@localhost/app?sslkey=/tmp/key.pem",
+	postgres,
+))
+// postgres://user:***@localhost/app?sslkey=***
+```
+
 Run the Go package tests:
 
 ```bash

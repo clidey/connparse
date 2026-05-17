@@ -246,7 +246,7 @@ test('unknown schemes are permissive by default and rejected in strict mode', ()
   assert.equal(permissive.value.type, 'unknown');
   assert.equal(permissive.warnings[0].code, 'UNKNOWN_SCHEME');
   assert.equal(permissive.value.safe.includes('pass'), false);
-  assert.equal(permissive.value.safe.includes('token=secret'), false);
+  assert.equal(permissive.value.safe.includes('token=secret'), true);
 
   const strict = parse('unknown+db://example.com/main', { strict: true });
   assert.equal(strict.ok, false);

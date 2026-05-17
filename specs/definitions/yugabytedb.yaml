@@ -41,3 +41,6 @@ validation:
     max: 65535
 options:
   compatible_with: postgres
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, sslrootcert]

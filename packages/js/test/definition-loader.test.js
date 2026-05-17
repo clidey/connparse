@@ -184,6 +184,17 @@ test('generator rejects invalid CPDS inputs before writing outputs', () => {
     },
     /validation\.port_range/
   );
+
+  assertGeneratorFails(
+    {
+      'bad-redaction.yaml': minimalDefinition({
+        id: 'bad-redaction',
+        schemes: ['bad-redaction'],
+        redaction: { sensitive_keys: 'password' }
+      })
+    },
+    /redaction\.sensitive_keys/
+  );
 });
 
 test('YAML examples parse like built-ins for representative inputs', () => {
@@ -266,6 +277,7 @@ function minimalDefinition(overrides = {}) {
     path: { type: 'object_path', required: false },
     query_parameters: {},
     validation: {},
+    redaction: { safe_credentials: ['username'], sensitive_keys: ['password'] },
     ...overrides
   };
   return JSON.stringify(definition);

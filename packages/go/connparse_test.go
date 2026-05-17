@@ -248,8 +248,11 @@ func TestUnknownSchemesAndCustomDefinitions(t *testing.T) {
 	if !permissive.OK || permissive.Value.Type != "unknown" || permissive.Warnings[0].Code != "UNKNOWN_SCHEME" {
 		t.Fatalf("expected permissive unknown parse, got %+v", permissive)
 	}
-	if strings.Contains(permissive.Value.Safe, "pass") || strings.Contains(permissive.Value.Safe, "token=secret") {
-		t.Fatalf("unknown safe output leaked secrets: %s", permissive.Value.Safe)
+	if strings.Contains(permissive.Value.Safe, ":pass@") {
+		t.Fatalf("unknown safe output leaked userinfo password: %s", permissive.Value.Safe)
+	}
+	if !strings.Contains(permissive.Value.Safe, "token=secret") {
+		t.Fatalf("unknown safe output should not redact undeclared query keys: %s", permissive.Value.Safe)
 	}
 
 	strict := Parse("unknown+db://example.com/main", Options{Strict: true})
@@ -281,14 +284,25 @@ func TestMaskRedactsSensitiveForms(t *testing.T) {
 	cases := map[string]string{
 		"postgres://user:pass@localhost/app":     "postgres://user:***@localhost/app",
 		"user:pass@localhost/app":                "user:***@localhost/app",
-		"https://example.com?api_key=secret&x=1": "https://example.com?api_key=***&x=1",
-		"host=db password=secret token=abc":      "host=db password=*** token=***",
-		"https::addr=localhost;password=secret;": "https::addr=localhost;password=***;",
+		"https://example.com?api_key=secret&x=1": "https://example.com?api_key=secret&x=1",
+		"host=db password=secret token=abc":      "host=db password=secret token=abc",
+		"https::addr=localhost;password=secret;": "https::addr=localhost;password=secret;",
 	}
 	for input, expected := range cases {
 		if actual := Mask(input); actual != expected {
 			t.Fatalf("Mask(%q)\nwant %q\ngot  %q", input, expected, actual)
 		}
+	}
+
+	def := Definition{Redaction: RedactionRule{SensitiveKeys: []string{"api_key", "password", "tls_roots_password"}}}
+	if actual := Mask("https://example.com?api_key=secret&x=1", def); actual != "https://example.com?api_key=***&x=1" {
+		t.Fatalf("spec-defined query key was not masked: %s", actual)
+	}
+	if actual := Mask("host=db password=secret token=abc", def); actual != "host=db password=*** token=abc" {
+		t.Fatalf("spec-defined key-value field was not masked: %s", actual)
+	}
+	if actual := Mask("https::addr=localhost;tls_roots_password=secret;", def); actual != "https::addr=localhost;tls_roots_password=***;" {
+		t.Fatalf("spec-defined key was not masked: %s", actual)
 	}
 }
 

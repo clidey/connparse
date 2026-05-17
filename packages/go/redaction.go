@@ -6,15 +6,8 @@ import (
 	"strings"
 )
 
-var sensitiveKeys = map[string]bool{
-	"access_key": true, "accesskey": true, "access_key_id": true,
-	"api_key": true, "apikey": true, "aws_access_key_id": true,
-	"password": true, "secret": true, "secret_key": true,
-	"secretaccesskey": true, "token": true,
-}
-
-func Mask(input string) string {
-	return maskSensitiveKeyValues(maskSensitiveQuery(maskUserInfo(input)))
+func Mask(input string, definitions ...Definition) string {
+	return maskSensitiveKeyValues(maskSensitiveQuery(maskUserInfo(input), definitions...), definitions...)
 }
 
 func maskUserInfo(value string) string {
@@ -47,25 +40,44 @@ func maskUserInfo(value string) string {
 	return value[:start] + masked + "@" + host + value[end:]
 }
 
-func maskSensitiveQuery(value string) string {
+func maskSensitiveQuery(value string, definitions ...Definition) string {
 	re := regexp.MustCompile(`([?&])([^=&#]+)=([^&#]*)`)
 	return re.ReplaceAllStringFunc(value, func(match string) string {
 		parts := re.FindStringSubmatch(match)
-		key, _ := url.QueryUnescape(parts[2])
-		if sensitiveKeys[strings.ToLower(key)] {
+		key, err := url.QueryUnescape(parts[2])
+		if err != nil {
+			key = parts[2]
+		}
+		if isSensitiveKey(key, definitions...) {
 			return parts[1] + parts[2] + "=***"
 		}
 		return match
 	})
 }
 
-func maskSensitiveKeyValues(value string) string {
+func maskSensitiveKeyValues(value string, definitions ...Definition) string {
 	re := regexp.MustCompile(`(^|[;,&\s])([^=;,&\s]+)=([^;,&\s]*)`)
 	return re.ReplaceAllStringFunc(value, func(match string) string {
 		parts := re.FindStringSubmatch(match)
-		if sensitiveKeys[strings.ToLower(strings.TrimSpace(parts[2]))] {
+		if isSensitiveKey(parts[2], definitions...) {
 			return parts[1] + parts[2] + "=***"
 		}
 		return match
 	})
+}
+
+func isSensitiveKey(key string, definitions ...Definition) bool {
+	normalized := normalizeRedactionKey(key)
+	for _, def := range definitions {
+		for _, item := range def.Redaction.SensitiveKeys {
+			if normalizeRedactionKey(item) == normalized {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func normalizeRedactionKey(key string) string {
+	return strings.ToLower(strings.TrimSpace(key))
 }

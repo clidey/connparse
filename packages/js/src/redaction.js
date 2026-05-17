@@ -1,16 +1,26 @@
-const SENSITIVE_QUERY_KEYS = new Set([
-  'access_key',
-  'accesskey',
-  'access_key_id',
-  'api_key',
-  'apikey',
-  'aws_access_key_id',
-  'password',
-  'secret',
-  'secret_key',
-  'secretaccesskey',
-  'token'
-]);
+function normalizeKey(key) {
+  return String(key || '').trim().toLowerCase();
+}
+
+function safeDecodeKey(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function sensitiveKeys(definition) {
+  return new Set((definition?.redaction?.sensitive_keys || []).map(normalizeKey));
+}
+
+function safeCredentialKeys(definition) {
+  return new Set((definition?.redaction?.safe_credentials || []).map(normalizeKey));
+}
+
+function isSensitiveKey(key, definition) {
+  return sensitiveKeys(definition).has(normalizeKey(key));
+}
 
 function maskUserInfo(value) {
   const schemeMarker = value.indexOf('://');
@@ -33,20 +43,46 @@ function maskUserInfo(value) {
   return `${value.slice(0, authorityStart)}${maskedUserInfo}@${host}${value.slice(authorityEnd)}`;
 }
 
-function maskSensitiveQuery(value) {
+function maskSensitiveQuery(value, definition) {
   return value.replace(/([?&])([^=&#]+)=([^&#]*)/g, (match, prefix, rawKey) => {
-    const key = decodeURIComponent(rawKey).toLowerCase();
-    return SENSITIVE_QUERY_KEYS.has(key) ? `${prefix}${rawKey}=***` : match;
+    const key = safeDecodeKey(rawKey);
+    return isSensitiveKey(key, definition) ? `${prefix}${rawKey}=***` : match;
   });
 }
 
-function maskSensitiveKeyValues(value) {
+function maskSensitiveKeyValues(value, definition) {
   return value.replace(/(^|[;,&\s])([^=;,&\s]+)=([^;,&\s]*)/g, (match, prefix, rawKey) => {
-    const key = rawKey.trim().toLowerCase();
-    return SENSITIVE_QUERY_KEYS.has(key) ? `${prefix}${rawKey}=***` : match;
+    return isSensitiveKey(rawKey, definition) ? `${prefix}${rawKey}=***` : match;
   });
 }
 
-export function mask(input) {
-  return maskSensitiveKeyValues(maskSensitiveQuery(maskUserInfo(String(input))));
+function sanitizeObject(value, definition) {
+  const output = {};
+  for (const [key, item] of Object.entries(value || {})) {
+    output[key] = isSensitiveKey(key, definition) ? '***' : item;
+  }
+  return output;
+}
+
+function sanitizeCredentials(credentials, definition) {
+  const safeKeys = safeCredentialKeys(definition);
+  const output = {};
+  for (const [key, value] of Object.entries(credentials || {})) {
+    output[key] = safeKeys.has(normalizeKey(key)) ? value : '***';
+  }
+  return output;
+}
+
+export function mask(input, definition) {
+  return maskSensitiveKeyValues(maskSensitiveQuery(maskUserInfo(String(input)), definition), definition);
+}
+
+export function sanitize(address, definition) {
+  return {
+    ...address,
+    credentials: sanitizeCredentials(address?.credentials, definition),
+    query: sanitizeObject(address?.query, definition),
+    options: sanitizeObject(address?.options, definition),
+    raw: address?.safe || ''
+  };
 }

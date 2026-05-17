@@ -83,6 +83,18 @@ export function validateDefinition(definition, adapters = {}) {
     }
   }
 
+  if (definition.redaction != null) {
+    assert(isPlainObject(definition.redaction), `${definition.id}.redaction must be an object`);
+    for (const key of ['safe_credentials', 'sensitive_keys']) {
+      if (definition.redaction[key] != null) {
+        assert(Array.isArray(definition.redaction[key]), `${definition.id}.redaction.${key} must be an array`);
+        for (const value of definition.redaction[key]) {
+          assert(typeof value === 'string' && value.trim(), `${definition.id}.redaction.${key} must contain non-empty strings`);
+        }
+      }
+    }
+  }
+
   return definition;
 }
 

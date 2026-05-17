@@ -56,5 +56,15 @@ func ValidateDefinition(def Definition) error {
 			return fmt.Errorf("invalid CPDS definition: %s.validation.port_range must be within 1..65535", def.ID)
 		}
 	}
+	for _, key := range def.Redaction.SafeCredentials {
+		if key == "" {
+			return fmt.Errorf("invalid CPDS definition: %s.redaction.safe_credentials must contain non-empty strings", def.ID)
+		}
+	}
+	for _, key := range def.Redaction.SensitiveKeys {
+		if key == "" {
+			return fmt.Errorf("invalid CPDS definition: %s.redaction.sensitive_keys must contain non-empty strings", def.ID)
+		}
+	}
 	return nil
 }

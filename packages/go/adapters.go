@@ -12,7 +12,7 @@ func parseGenericURI(input string, def Definition, raw string) (*Address, error)
 		return nil, err
 	}
 	name, rest := firstRest(p.PathSegments)
-	return baseAddress(def, p.Scheme, raw, Mask(raw), authorityFromParts(p, def, false), Resource{Type: resType(def, "resource"), Name: nullable(name)}, strings.Join(rest, "/"), p.Query, p.Fragment, credentialsFromParts(p), nil), nil
+	return baseAddress(def, p.Scheme, raw, Mask(raw, def), authorityFromParts(p, def, false), Resource{Type: resType(def, "resource"), Name: nullable(name)}, strings.Join(rest, "/"), p.Query, p.Fragment, credentialsFromParts(p), nil), nil
 }
 
 func parseMongoDB(input string, def Definition, raw string) (*Address, error) {
@@ -22,7 +22,7 @@ func parseMongoDB(input string, def Definition, raw string) (*Address, error) {
 	}
 	name, rest := firstRest(p.PathSegments)
 	srv := p.Scheme == "mongodb+srv"
-	return baseAddress(def, p.Scheme, raw, Mask(raw), authorityFromParts(p, def, srv), Resource{Type: resType(def, "database"), Name: nullable(name)}, strings.Join(rest, "/"), p.Query, p.Fragment, credentialsFromParts(p), map[string]any{"srv": srv}), nil
+	return baseAddress(def, p.Scheme, raw, Mask(raw, def), authorityFromParts(p, def, srv), Resource{Type: resType(def, "database"), Name: nullable(name)}, strings.Join(rest, "/"), p.Query, p.Fragment, credentialsFromParts(p), map[string]any{"srv": srv}), nil
 }
 
 func parseRedis(input string, def Definition, raw string) (*Address, error) {
@@ -32,7 +32,7 @@ func parseRedis(input string, def Definition, raw string) (*Address, error) {
 			return nil, err
 		}
 		name, _ := firstRest(p.PathSegments)
-		return baseAddress(def, p.Scheme, raw, Mask(raw), authorityFromParts(p, def, false), Resource{Type: resType(def, "database_index"), Name: nullable(name)}, "", p.Query, p.Fragment, credentialsFromParts(p), map[string]any{"tls": p.Scheme == "rediss"}), nil
+		return baseAddress(def, p.Scheme, raw, Mask(raw, def), authorityFromParts(p, def, false), Resource{Type: resType(def, "database_index"), Name: nullable(name)}, "", p.Query, p.Fragment, credentialsFromParts(p), map[string]any{"tls": p.Scheme == "rediss"}), nil
 	}
 	entries := splitNonEmpty(input, ",")
 	endpoints, opts, creds := []map[string]any{}, map[string]any{}, map[string]string{}
@@ -63,7 +63,7 @@ func parseRedis(input string, def Definition, raw string) (*Address, error) {
 	delete(opts, "defaultDatabase")
 	delete(opts, "defaultdatabase")
 	opts["tls"] = strings.EqualFold(asString(opts["ssl"]), "true") || strings.EqualFold(asString(opts["tls"]), "true")
-	return baseAddress(def, "redis", raw, Mask(raw), endpointAuthority(endpoints, defaultPort(def)), Resource{Type: resType(def, "database_index"), Name: db}, "", map[string]any{}, nil, creds, opts), nil
+	return baseAddress(def, "redis", raw, Mask(raw, def), endpointAuthority(endpoints, defaultPort(def)), Resource{Type: resType(def, "database_index"), Name: db}, "", map[string]any{}, nil, creds, opts), nil
 }
 
 func parseFile(input string, def Definition, raw string) (*Address, error) {
@@ -84,7 +84,7 @@ func parseFile(input string, def Definition, raw string) (*Address, error) {
 	} else {
 		path, query, fragment = stripMeta(path)
 	}
-	return baseAddress(def, "file", raw, Mask(raw), auth, Resource{Type: "none", Name: nil}, path, query, fragment, nil, nil), nil
+	return baseAddress(def, "file", raw, Mask(raw, def), auth, Resource{Type: "none", Name: nil}, path, query, fragment, nil, nil), nil
 }
 
 func parseSQLite(input string, def Definition, raw string) (*Address, error) {
@@ -120,7 +120,7 @@ func parseSQLite(input string, def Definition, raw string) (*Address, error) {
 	} else {
 		path, query, fragment = stripMeta(regexp.MustCompile(`(?i)^sqlite:`).ReplaceAllString(input, ""))
 	}
-	return baseAddress(def, "sqlite", raw, Mask(raw), map[string]any{}, Resource{Type: resType(def, "database"), Name: nullable(path)}, path, query, fragment, nil, opts), nil
+	return baseAddress(def, "sqlite", raw, Mask(raw, def), map[string]any{}, Resource{Type: resType(def, "database"), Name: nullable(path)}, path, query, fragment, nil, opts), nil
 }
 
 func parseDuckDB(input string, def Definition, raw string) (*Address, error) {
@@ -141,7 +141,7 @@ func parseDuckDB(input string, def Definition, raw string) (*Address, error) {
 	} else {
 		path, query, fragment = stripMeta(regexp.MustCompile(`(?i)^duckdb:`).ReplaceAllString(input, ""))
 	}
-	return baseAddress(def, "duckdb", raw, Mask(raw), map[string]any{}, Resource{Type: resType(def, "database"), Name: nullable(path)}, path, query, fragment, nil, opts), nil
+	return baseAddress(def, "duckdb", raw, Mask(raw, def), map[string]any{}, Resource{Type: resType(def, "database"), Name: nullable(path)}, path, query, fragment, nil, opts), nil
 }
 
 func parseJDBC(input string, def Definition, raw string) (*Address, error) {
@@ -181,7 +181,7 @@ func parseJDBC(input string, def Definition, raw string) (*Address, error) {
 	if mode != "" {
 		opts["mode"] = mode
 	}
-	return baseAddress(def, "jdbc:"+provider, raw, Mask(raw), endpointAuthority(hosts, port), Resource{Type: resType(def, "database"), Name: nullable(name)}, strings.Join(restPath, "/"), p.Query, p.Fragment, credentialsFromParts(p), opts), nil
+	return baseAddress(def, "jdbc:"+provider, raw, Mask(raw, def), endpointAuthority(hosts, port), Resource{Type: resType(def, "database"), Name: nullable(name)}, strings.Join(restPath, "/"), p.Query, p.Fragment, credentialsFromParts(p), opts), nil
 }
 
 func parseClickHouse(input string, def Definition, raw string) (*Address, error) {
@@ -205,7 +205,7 @@ func parseClickHouse(input string, def Definition, raw string) (*Address, error)
 	if auth["port"] == nil {
 		auth["port"] = clickhouseDefaultPort(proto, def)
 	}
-	return baseAddress(def, normalizeCHScheme(p.Scheme), raw, Mask(raw), auth, Resource{Type: "database", Name: nullable(name)}, strings.Join(rest, "/"), p.Query, p.Fragment, credentialsFromParts(p), map[string]any{"protocol": proto}), nil
+	return baseAddress(def, normalizeCHScheme(p.Scheme), raw, Mask(raw, def), auth, Resource{Type: "database", Name: nullable(name)}, strings.Join(rest, "/"), p.Query, p.Fragment, credentialsFromParts(p), map[string]any{"protocol": proto}), nil
 }
 
 func parseMemcached(input string, def Definition, raw string) (*Address, error) {
@@ -233,7 +233,7 @@ func parseMemcached(input string, def Definition, raw string) (*Address, error) 
 			hosts = append(hosts, h)
 		}
 	}
-	return baseAddress(def, "memcached", raw, Mask(raw), endpointAuthority(hosts, defaultPort(def)), Resource{Type: "none", Name: nil}, "", query, nil, creds, map[string]any{"tls": tls}), nil
+	return baseAddress(def, "memcached", raw, Mask(raw, def), endpointAuthority(hosts, defaultPort(def)), Resource{Type: "none", Name: nil}, "", query, nil, creds, map[string]any{"tls": tls}), nil
 }
 
 func parseElasticsearch(input string, def Definition, raw string) (*Address, error) {
@@ -267,7 +267,7 @@ func parseElasticsearch(input string, def Definition, raw string) (*Address, err
 	if auth["port"] == nil {
 		auth["port"] = defaultPort(def)
 	}
-	return baseAddress(def, "elasticsearch", raw, Mask(raw), auth, Resource{Type: "index", Name: nullable(name)}, strings.Join(rest, "/"), p.Query, p.Fragment, creds, map[string]any{"protocol": p.Scheme, "tls": p.Scheme == "https"}), nil
+	return baseAddress(def, "elasticsearch", raw, Mask(raw, def), auth, Resource{Type: "index", Name: nullable(name)}, strings.Join(rest, "/"), p.Query, p.Fragment, creds, map[string]any{"protocol": p.Scheme, "tls": p.Scheme == "https"}), nil
 }
 
 func parseS3(input string, def Definition, raw string) (*Address, error) {
@@ -299,7 +299,7 @@ func parseS3(input string, def Definition, raw string) (*Address, error) {
 			key = strings.Join(rest, "/")
 		}
 	}
-	return baseAddress(def, "s3", raw, Mask(raw), map[string]any{"bucket": bucket, "region": region}, Resource{Type: "bucket", Name: nullable(bucket)}, key, query, fragment, nil, opts), nil
+	return baseAddress(def, "s3", raw, Mask(raw, def), map[string]any{"bucket": bucket, "region": region}, Resource{Type: "bucket", Name: nullable(bucket)}, key, query, fragment, nil, opts), nil
 }
 
 func parseQuestDB(input string, def Definition, raw string) (*Address, error) {
@@ -364,7 +364,7 @@ func parseQuestDB(input string, def Definition, raw string) (*Address, error) {
 			}
 		}
 
-		return baseAddress(def, "questdb", raw, Mask(raw), endpointAuthority(hosts, defaultPort), Resource{Type: "endpoint", Name: nil}, "", query, nil, credentials, map[string]any{"ingestion": true, "protocol": protocol, "tls": protocol == "https" || protocol == "tcps"}), nil
+		return baseAddress(def, "questdb", raw, Mask(raw, def), endpointAuthority(hosts, defaultPort), Resource{Type: "endpoint", Name: nil}, "", query, nil, credentials, map[string]any{"ingestion": true, "protocol": protocol, "tls": protocol == "https" || protocol == "tcps"}), nil
 	}
 
 	p, err := parseHierarchical(input)
@@ -376,7 +376,7 @@ func parseQuestDB(input string, def Definition, raw string) (*Address, error) {
 	if auth["port"] == nil {
 		auth["port"] = defaultPort(def)
 	}
-	return baseAddress(def, p.Scheme, raw, Mask(raw), auth, Resource{Type: "database", Name: nullable(name)}, strings.Join(rest, "/"), p.Query, p.Fragment, credentialsFromParts(p), map[string]any{"compatible_with": "postgres"}), nil
+	return baseAddress(def, p.Scheme, raw, Mask(raw, def), auth, Resource{Type: "database", Name: nullable(name)}, strings.Join(rest, "/"), p.Query, p.Fragment, credentialsFromParts(p), map[string]any{"compatible_with": "postgres"}), nil
 }
 
 func parsePostgresCompatible(input string, def Definition, raw string) (*Address, error) {

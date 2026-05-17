@@ -52,6 +52,7 @@ type Definition struct {
 	QueryParameters map[string]QueryRule `yaml:"query_parameters" json:"query_parameters"`
 	Validation      ValidationRule       `yaml:"validation" json:"validation"`
 	Options         map[string]any       `yaml:"options" json:"options"`
+	Redaction       RedactionRule        `yaml:"redaction" json:"redaction"`
 }
 
 type Rule struct {
@@ -72,6 +73,11 @@ type ValidationRule struct {
 type PortRange struct {
 	Min int `yaml:"min" json:"min"`
 	Max int `yaml:"max" json:"max"`
+}
+
+type RedactionRule struct {
+	SafeCredentials []string `yaml:"safe_credentials" json:"safe_credentials"`
+	SensitiveKeys   []string `yaml:"sensitive_keys" json:"sensitive_keys"`
 }
 
 type parts struct {
