@@ -4,9 +4,8 @@ Connparse is a definition-driven parser for data source connection strings and
 addresses. It turns database URLs, object storage URIs, file paths, and similar
 source identifiers into one safe, normalized object.
 
-This repository currently contains the v1 JavaScript reference implementation,
-a Go implementation, and the shared fixture format that future ports must
-follow.
+This repository contains the JavaScript reference implementation, a Go
+implementation, shared CPDS definitions, and shared compatibility fixtures.
 
 ## Repository Layout
 
@@ -14,7 +13,7 @@ follow.
 specs/
   definitions/   Shared CPDS YAML definitions
   fixtures/      Cross-implementation compatibility fixtures
-  docs/          V1 reference and provider-format docs
+  docs/          Reference and porting docs
 
 packages/
   js/            JavaScript/npm implementation
@@ -84,9 +83,9 @@ Output:
 }
 ```
 
-## Supported in v1
+## Supported Providers
 
-Current v1 target providers:
+Current built-in providers:
 
 - PostgreSQL: `postgres`, `postgresql`
 - MySQL: `mysql`, `mysqlx`, `mysqlx+srv`
@@ -103,11 +102,6 @@ Current v1 target providers:
 - YugabyteDB: `yugabyte`, `yugabytedb`
 - Amazon S3: `s3`, plus common S3 HTTPS virtual-host/path-style URLs
 - File paths: `file:///tmp/data.csv`, `/tmp/data.csv`, `./data.csv`
-
-The target provider set for the first stable v1 release is tracked in
-[specs/docs/v1-scope.md](specs/docs/v1-scope.md). The included/excluded
-connection-string formats are tracked in
-[specs/docs/v1-provider-formats.md](specs/docs/v1-provider-formats.md).
 
 ## API
 
@@ -232,7 +226,7 @@ type ConnparseAddress = {
 Credentials are intentionally separated from `authority` and the `safe` field is
 intended for logs and UI. Do not log `credentials` by default.
 
-For the full list of v1 keys, provider-specific fields, diagnostics, CPDS keys,
+For the full list of keys, provider-specific fields, diagnostics, CPDS keys,
 adapter names, and fixture format, see [specs/docs/reference.md](specs/docs/reference.md).
 
 ## CPDS Definitions
@@ -279,9 +273,9 @@ redaction:
   sensitive_keys: [password, sslkey, sslcert, sslrootcert]
 ```
 
-The v1 definition language is intentionally small. It handles schemes, provider
+The definition language is intentionally small. It handles schemes, provider
 type, adapter selection, defaults, resource/path rules, query parameter typing,
-allowed values, basic validation, and provider-specific redaction keys.
+allowed values, validation, and provider-specific redaction keys.
 
 Provider-specific structural parsing still lives in adapters where real-world
 formats need it, such as MongoDB SRV URLs, PostgreSQL-compatible conninfo,
@@ -312,9 +306,8 @@ Do not edit generated files directly:
 The shared compatibility contract lives in `specs/fixtures/v1.json`.
 
 The fixtures are used by the test suite, but they are not only test data. They
-are the portable behavior contract future implementations should share. A Go or
-Rust implementation should be able to run the same fixture file and produce the
-same observable fields.
+are the portable behavior contract across implementations. A port should be able
+to run the same fixture file and produce the same observable fields.
 
 Fixture example:
 
@@ -355,9 +348,8 @@ sensitive credential/query/option values declared by the provider CPDS file are
 replaced with `***`, and `raw` is replaced with `safe`. Use `--include-secrets`
 only when you intentionally need the full parse result.
 
-## V1 Boundaries
+## Boundaries
 
-Connparse v1 is a practical parser, not a full external standard yet. It does
-not perform network checks, open sockets, authenticate credentials, infer table
-schemas, or generate UI forms. Those can be layered on top of the normalized
-address model later.
+Connparse parses and normalizes address strings. It does not perform network
+checks, open sockets, authenticate credentials, infer table schemas, or generate
+UI forms.

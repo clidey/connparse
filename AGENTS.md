@@ -6,7 +6,7 @@ This is a monorepo. Shared specification assets live under `specs/`:
 
 - `specs/definitions/`: CPDS YAML definitions.
 - `specs/fixtures/v1.json`: cross-implementation compatibility fixtures.
-- `specs/docs/`: reference and v1 provider-format documentation.
+- `specs/docs/`: reference and porting documentation.
 
 The JavaScript/npm implementation lives in `packages/js/`:
 

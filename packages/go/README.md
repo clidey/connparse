@@ -1,6 +1,6 @@
 # Connparse Go
 
-Go implementation of the Connparse DSAM v1 parser.
+Go implementation of the Connparse parser.
 
 The package uses the shared CPDS definitions and fixture contract from the
 repository root. It mirrors the JavaScript API shape with a Go-friendly result

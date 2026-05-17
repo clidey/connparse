@@ -3,7 +3,7 @@
 Connparse is a definition-driven parser for data source connection strings and
 addresses.
 
-This is the JavaScript package from the Connparse monorepo. The shared v1
+This is the JavaScript package from the Connparse monorepo. The shared
 fixtures, CPDS definitions, and reference docs live at the repository root under
 `specs/`.
 

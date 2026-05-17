@@ -1,6 +1,6 @@
-# Connparse v1 Reference
+# Connparse Reference
 
-This document lists the v1 keys used by Connparse addresses, parse results,
+This document lists the keys used by Connparse addresses, parse results,
 diagnostics, CPDS definitions, built-in adapters, and fixtures.
 
 For cross-language implementation rules, see
@@ -71,7 +71,7 @@ Allowed `type` values:
 | `database` | Database or database-like source. |
 | `object_storage` | Object storage source. |
 | `file` | Local or remote filesystem-style source. |
-| `stream` | Streaming system. Reserved for definitions and future built-ins. |
+| `stream` | Streaming system. |
 | `cache` | Cache or key-value source. |
 | `analytics` | Analytics warehouse or analytical service. |
 | `api` | Generic API-backed source. |
@@ -79,8 +79,7 @@ Allowed `type` values:
 
 ## Authority Keys
 
-`authority` is provider-dependent. These are the v1 keys used or reserved by the
-model:
+`authority` is provider-dependent. These are the keys used by the current model:
 
 | Key | Type | Used by | Meaning |
 | --- | --- | --- | --- |
@@ -89,8 +88,8 @@ model:
 | `hosts` | `{ host: string; port: number \| null }[]` | Multi-host providers | Multi-host list when the input contains more than one host. |
 | `bucket` | `string` | S3 | Object storage bucket name. |
 | `region` | `string` | S3 | Region parsed from virtual-host URLs or query/default data. |
-| `project` | `string` | Reserved | Project identifier for future analytics/cloud definitions. |
-| `cluster` | `string` | Reserved | Cluster identifier for future distributed systems. |
+| `project` | `string` | Definitions | Project identifier for analytics/cloud definitions. |
+| `cluster` | `string` | Definitions | Cluster identifier for distributed systems. |
 
 Provider notes:
 
@@ -219,7 +218,7 @@ Current built-in keys:
 | `source_scheme` | `string` | S3 HTTPS URLs | Original source scheme, such as `https`, when normalized to `s3`. |
 | `memory` | `boolean` | SQLite, DuckDB | `true` for in-memory databases. |
 
-Definitions and future adapters may add additional option keys.
+Definitions and adapters may add additional option keys.
 
 ## Diagnostics
 
