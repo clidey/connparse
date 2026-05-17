@@ -304,6 +304,13 @@ Top-level keys:
 | `validation` | `object` | no | Declares validation rules. |
 | `redaction` | `object` | no | Declares provider-specific safe-output redaction rules. |
 
+For repository CPDS files under `specs/definitions/`, run
+`pnpm verify:definitions` before generation. The verifier treats the core
+shape keys (`id`, `name`, `type`, `schemes`, `adapter`, `resource`, `path`,
+`query_parameters`, and `validation`) as required, reports hard schema errors,
+and emits suggestions such as adding `redaction` when credentials are declared.
+`pnpm verify:definitions:strict` upgrades suggestions to failures.
+
 ### `adapter`
 
 Built-in adapter names:

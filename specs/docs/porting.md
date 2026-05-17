@@ -42,6 +42,7 @@ real connection-string formats still need hand-written adapter code.
 The current generator is:
 
 ```bash
+pnpm verify:definitions
 pnpm generate:definitions
 ```
 
@@ -55,6 +56,12 @@ The drift check is:
 ```bash
 pnpm check:generated
 ```
+
+`pnpm verify:definitions` validates CPDS YAML before generation. It fails on
+missing required keys, invalid field shapes, duplicate schemes, and invalid
+ports. It also reports suggestions such as missing `redaction` on definitions
+that declare credentials; `pnpm verify:definitions:strict` treats suggestions
+as failures.
 
 Ports should add their generated built-in definition file to this generator.
 Generated files must be committed, and package tests should fail if generated

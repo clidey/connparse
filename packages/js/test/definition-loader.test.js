@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -132,6 +132,15 @@ test('generated definition files are current', () => {
   });
 });
 
+test('CPDS verifier accepts current definitions with strict suggestions', () => {
+  assert.doesNotThrow(() => {
+    execFileSync('node', ['tools/verify-definitions.mjs', '--strict-suggestions'], {
+      cwd: repoRootPath,
+      stdio: 'pipe'
+    });
+  });
+});
+
 test('generated outputs use typed/native definitions', () => {
   const jsOutput = readFileSync(new URL('packages/js/src/builtin-definitions.js', repoRoot), 'utf8');
   assert.match(jsOutput, /@type \{ReadonlyArray<import\('\.\/index\.js'\)\.ConnparseDefinition>\}/);
@@ -195,6 +204,45 @@ test('generator rejects invalid CPDS inputs before writing outputs', () => {
     },
     /redaction\.sensitive_keys/
   );
+});
+
+test('CPDS verifier reports missing required keys and suggested redaction', () => {
+  assertVerifierFails(
+    {
+      'missing-resource.yaml': minimalDefinition({
+        id: 'missing-resource',
+        schemes: ['missing-resource'],
+        resource: undefined
+      })
+    },
+    ['--strict-suggestions'],
+    /missing required key resource/
+  );
+
+  assertVerifierFails(
+    {
+      'missing-redaction.yaml': minimalDefinition({
+        id: 'missing-redaction',
+        schemes: ['missing-redaction'],
+        redaction: undefined
+      })
+    },
+    ['--strict-suggestions'],
+    /missing suggested key redaction/
+  );
+
+  const warningOnly = runVerifier(
+    {
+      'missing-redaction.yaml': minimalDefinition({
+        id: 'missing-redaction',
+        schemes: ['missing-redaction'],
+        redaction: undefined
+      })
+    },
+    []
+  );
+  assert.equal(warningOnly.status, 0);
+  assert.match(String(warningOnly.stderr), /missing suggested key redaction/);
 });
 
 test('YAML examples parse like built-ins for representative inputs', () => {
@@ -266,6 +314,37 @@ function assertGeneratorFails(files, pattern) {
   assert.match(String(error.stderr), pattern);
 }
 
+function assertVerifierFails(files, args, pattern) {
+  const result = runVerifier(files, args);
+  assert.notEqual(result.status, 0, 'verifier should fail');
+  assert.match(`${result.stdout}\n${result.stderr}`, pattern);
+}
+
+function runVerifier(files, args) {
+  const dir = mkdtempSync(join(tmpdir(), 'connparse-verifier-'));
+  const definitionsDir = join(dir, 'definitions');
+  mkdirSync(definitionsDir);
+  for (const [name, text] of Object.entries(files)) {
+    writeFileSync(join(definitionsDir, name), text);
+  }
+
+  const result = spawnSync(
+    'node',
+    [
+      'tools/verify-definitions.mjs',
+      '--definitions-dir',
+      definitionsDir,
+      ...args
+    ],
+    { cwd: repoRootPath, encoding: 'utf8' }
+  );
+  return {
+    status: result.status,
+    stdout: result.stdout,
+    stderr: result.stderr
+  };
+}
+
 function minimalDefinition(overrides = {}) {
   const definition = {
     id: 'sample',
@@ -273,6 +352,7 @@ function minimalDefinition(overrides = {}) {
     type: 'database',
     schemes: ['sample'],
     adapter: 'generic-uri',
+    credentials: { username: true, password: true },
     resource: { type: 'database', required: false },
     path: { type: 'object_path', required: false },
     query_parameters: {},

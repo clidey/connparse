@@ -4,10 +4,12 @@
   "type": "module",
   "scripts": {
     "generate:definitions": "node tools/generate-definitions.mjs",
+    "verify:definitions": "node tools/verify-definitions.mjs",
+    "verify:definitions:strict": "node tools/verify-definitions.mjs --strict-suggestions",
     "test": "pnpm test:js && pnpm test:go",
     "test:js": "pnpm --filter connparse test",
     "test:go": "cd packages/go && GOCACHE=$(pwd)/../../.cache/go-build GOMODCACHE=$(pwd)/../../.cache/go-mod go test ./...",
-    "check": "pnpm check:generated && pnpm check:js && pnpm check:go",
+    "check": "pnpm verify:definitions:strict && pnpm check:generated && pnpm check:js && pnpm check:go",
     "check:generated": "node tools/generate-definitions.mjs --check",
     "check:js": "pnpm --filter connparse check",
     "check:go": "cd packages/go && GOCACHE=$(pwd)/../../.cache/go-build GOMODCACHE=$(pwd)/../../.cache/go-mod go test ./..."

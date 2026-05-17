@@ -35,6 +35,7 @@ For local development in this repo:
 
 ```bash
 pnpm install
+pnpm verify:definitions
 pnpm generate:definitions
 pnpm test
 pnpm test:go
@@ -289,9 +290,17 @@ QuestDB ILP config strings, JDBC URLs, and SQLite/DuckDB memory databases.
 Built-in definitions are generated from `specs/definitions/*.yaml`:
 
 ```bash
+pnpm verify:definitions
+pnpm verify:definitions:strict
 pnpm generate:definitions
 pnpm check:generated
 ```
+
+`verify:definitions` parses every CPDS YAML file and fails on hard schema
+errors such as missing required keys, invalid ports, duplicate schemes, or bad
+query/redaction shapes. It also prints suggestions, including missing
+`redaction` for definitions that declare credentials. `verify:definitions:strict`
+treats those suggestions as failures and is part of `pnpm run check`.
 
 Do not edit generated files directly:
 

@@ -1,13 +1,10 @@
 #!/usr/bin/env node
 
 import { execFileSync } from 'node:child_process';
-import { readFile, readdir, writeFile } from 'node:fs/promises';
-import { createRequire } from 'node:module';
+import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-
-const require = createRequire(new URL('../packages/js/package.json', import.meta.url));
-const { parse: parseYaml } = require('yaml');
+import { verifyDefinitionFiles } from './cpds-verifier.mjs';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const definitionsDir = optionValue('--definitions-dir') || join(root, 'specs/definitions');
@@ -15,16 +12,14 @@ const jsOutput = optionValue('--js-output') || join(root, 'packages/js/src/built
 const goOutput = optionValue('--go-output') || join(root, 'packages/go/builtin_definitions.go');
 const check = process.argv.includes('--check');
 
-const files = (await readdir(definitionsDir)).filter((file) => file.endsWith('.yaml')).sort();
-const definitions = [];
-const seenSchemes = new Map();
-
-for (const file of files) {
-  const text = await readFile(join(definitionsDir, file), 'utf8');
-  const definition = parseYaml(text);
-  validateDefinition(definition, file, seenSchemes);
-  definitions.push(definition);
+const verification = await verifyDefinitionFiles(definitionsDir);
+if (verification.errors.length > 0) {
+  for (const error of verification.errors) {
+    console.error(`${error.file}: ${error.message}`);
+  }
+  throw new Error(`invalid CPDS definitions: ${verification.errors.length} error(s)`);
 }
+const definitions = verification.definitions;
 
 const jsText = renderJS(definitions);
 const goText = renderGo(definitions);
@@ -51,69 +46,6 @@ async function assertCurrent(path, expected) {
   const actual = await readFile(path, 'utf8');
   if (actual !== expected) {
     throw new Error(`${relative(path)} is out of date; run pnpm generate:definitions`);
-  }
-}
-
-function validateDefinition(definition, file, seenSchemes) {
-  if (!definition || typeof definition !== 'object') {
-    throw new Error(`${file}: definition must be an object`);
-  }
-  for (const key of ['id', 'name', 'type', 'schemes', 'adapter', 'resource', 'path', 'query_parameters', 'validation']) {
-    if (!(key in definition)) {
-      throw new Error(`${file}: missing required key ${key}`);
-    }
-  }
-  if (!Array.isArray(definition.schemes) || definition.schemes.length === 0) {
-    throw new Error(`${file}: schemes must be a non-empty array`);
-  }
-  if (!definition.id || !definition.type || !definition.adapter) {
-    throw new Error(`${file}: id, type, and adapter must be non-empty`);
-  }
-  if (!['database', 'object_storage', 'file', 'stream', 'cache', 'analytics', 'api', 'unknown'].includes(definition.type)) {
-    throw new Error(`${file}: invalid type ${definition.type}`);
-  }
-  for (const scheme of definition.schemes) {
-    if (typeof scheme !== 'string' || !scheme) {
-      throw new Error(`${file}: schemes must contain non-empty strings`);
-    }
-    if (seenSchemes.has(scheme)) {
-      throw new Error(`${file}: scheme ${scheme} already declared by ${seenSchemes.get(scheme)}`);
-    }
-    seenSchemes.set(scheme, definition.id);
-  }
-  if (definition.defaults?.port != null && (!Number.isInteger(definition.defaults.port) || definition.defaults.port < 1 || definition.defaults.port > 65535)) {
-    throw new Error(`${file}: defaults.port must be an integer from 1 to 65535`);
-  }
-  for (const [key, rule] of Object.entries(definition.query_parameters || {})) {
-    if (!['string', 'boolean', 'number'].includes(rule.type)) {
-      throw new Error(`${file}: query_parameters.${key}.type must be string, boolean, or number`);
-    }
-  }
-  const portRange = definition.validation?.port_range;
-  if (portRange) {
-    if (
-      !Number.isInteger(portRange.min) ||
-      !Number.isInteger(portRange.max) ||
-      portRange.min < 1 ||
-      portRange.max > 65535 ||
-      portRange.min > portRange.max
-    ) {
-      throw new Error(`${file}: validation.port_range must be within 1..65535`);
-    }
-  }
-  if (definition.redaction) {
-    for (const key of ['safe_credentials', 'sensitive_keys']) {
-      if (definition.redaction[key] != null) {
-        if (!Array.isArray(definition.redaction[key])) {
-          throw new Error(`${file}: redaction.${key} must be an array`);
-        }
-        for (const item of definition.redaction[key]) {
-          if (typeof item !== 'string' || !item) {
-            throw new Error(`${file}: redaction.${key} must contain non-empty strings`);
-          }
-        }
-      }
-    }
   }
 }
 
