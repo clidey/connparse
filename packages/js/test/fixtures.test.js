@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { parse } from '../src/index.js';
 
-const fixtures = JSON.parse(readFileSync(new URL('../../../specs/fixtures/v1.json', import.meta.url), 'utf8'));
+const fixtures = JSON.parse(readFileSync(new URL('../../../specs/fixtures/compatibility.json', import.meta.url), 'utf8'));
 const TOP_LEVEL_KEYS = [
   'authority',
   'credentials',
@@ -132,14 +132,14 @@ test('fixture metadata is unique and complete', () => {
   }
 });
 
-test('fixture contract covers every documented v1 provider format', () => {
+test('fixture contract covers every documented provider format', () => {
   const names = new Set(fixtures.map((fixture) => fixture.name));
   for (const name of REQUIRED_FIXTURE_NAMES) {
     assert.equal(names.has(name), true, `missing fixture: ${name}`);
   }
 });
 
-test('fixtures cover every v1 provider id', () => {
+test('fixtures cover every provider id', () => {
   for (const id of REQUIRED_PROVIDER_IDS) {
     const covered = fixtures.some((fixture) => {
       if (fixture.provider === id) return true;

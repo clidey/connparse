@@ -303,7 +303,7 @@ Do not edit generated files directly:
 
 ## Fixtures
 
-The shared compatibility contract lives in `specs/fixtures/v1.json`.
+The shared compatibility contract lives in `specs/fixtures/compatibility.json`.
 
 The fixtures are used by the test suite, but they are not only test data. They
 are the portable behavior contract across implementations. A port should be able

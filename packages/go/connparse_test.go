@@ -308,7 +308,7 @@ func TestMaskRedactsSensitiveForms(t *testing.T) {
 
 func loadFixtures(t *testing.T) []fixture {
 	t.Helper()
-	data, err := os.ReadFile("../../specs/fixtures/v1.json")
+	data, err := os.ReadFile("../../specs/fixtures/compatibility.json")
 	if err != nil {
 		t.Fatal(err)
 	}

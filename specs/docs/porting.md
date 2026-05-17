@@ -9,7 +9,7 @@ not parsing behavior.
 Every port must treat these files as the source of truth:
 
 - `specs/definitions/*.yaml`: CPDS provider metadata.
-- `specs/fixtures/v1.json`: stable cross-language behavior fixtures.
+- `specs/fixtures/compatibility.json`: stable cross-language behavior fixtures.
 - `specs/docs/reference.md`: public key, diagnostic, adapter, and fixture
   reference.
 
@@ -19,7 +19,7 @@ generated output must remain compatible with the CPDS files.
 ## Required Tests
 
 Each implementation must include a fixture runner that reads
-`specs/fixtures/v1.json` directly. The runner must assert:
+`specs/fixtures/compatibility.json` directly. The runner must assert:
 
 - all fixtures parse successfully in permissive mode;
 - all fixtures parse successfully in strict mode;

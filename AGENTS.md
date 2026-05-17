@@ -5,7 +5,7 @@
 This is a monorepo. Shared specification assets live under `specs/`:
 
 - `specs/definitions/`: CPDS YAML definitions.
-- `specs/fixtures/v1.json`: cross-implementation compatibility fixtures.
+- `specs/fixtures/compatibility.json`: cross-implementation compatibility fixtures.
 - `specs/docs/`: reference and porting documentation.
 
 The JavaScript/npm implementation lives in `packages/js/`:
@@ -52,7 +52,7 @@ Do not edit generated built-ins directly. Update `specs/definitions/*.yaml`, the
 
 ## Testing Guidelines
 
-Tests use Node’s built-in `node:test` and `node:assert/strict` for JS and Go’s standard `testing` package for Go. Add or update fixtures in `specs/fixtures/v1.json` for any behavior that should be stable across implementations. Package tests must consume shared fixtures and definitions from `specs/`, not package-local copies. Generator drift is checked by `pnpm check:generated` and by package tests.
+Tests use Node’s built-in `node:test` and `node:assert/strict` for JS and Go’s standard `testing` package for Go. Add or update fixtures in `specs/fixtures/compatibility.json` for any behavior that should be stable across implementations. Package tests must consume shared fixtures and definitions from `specs/`, not package-local copies. Generator drift is checked by `pnpm check:generated` and by package tests.
 
 Before finishing changes, run:
 

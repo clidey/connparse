@@ -429,7 +429,7 @@ Keys:
 
 ## Fixture Format
 
-Fixtures live in `specs/fixtures/v1.json`.
+Fixtures live in `specs/fixtures/compatibility.json`.
 
 They are used by tests today, but their larger purpose is to be the portable
 compatibility contract for Connparse implementations. A Go or Rust
