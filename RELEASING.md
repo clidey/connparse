@@ -19,7 +19,9 @@ pnpm --filter @clidey/connparse pack --dry-run
 
 ## npm
 
-The npm package is published from `packages/js`.
+The npm package is published from `packages/js`. GitHub Actions uses npm trusted
+publishing, so no `NPM_TOKEN` secret is required for the release workflow. The
+trusted publisher on npm must match this repository and `.github/workflows/release.yml`.
 
 ```bash
 cd packages/js
@@ -59,9 +61,8 @@ Inputs:
 - `version`: optional explicit SemVer without `v`; overrides `bump`
 - `preid`: prerelease identifier used with `bump=prerelease`
 
-Required secret:
-
-- `NPM_TOKEN`: npm automation token with publish rights for `@clidey/connparse`
+No npm automation token is required when trusted publishing is enabled for this
+package and workflow.
 
 The workflow:
 
