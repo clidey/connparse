@@ -5,23 +5,74 @@ build-backend = "hatchling.build"
 [project]
 name = "connparse"
 version = "0.3.0"
-description = "Parse connection strings from databases, caches, files, and object storage."
+description = "Parse database connection strings, DSNs, URLs, file paths, and cloud storage URIs."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
 authors = [{ name = "Clidey" }]
 keywords = [
   "connection-string",
+  "connection-strings",
+  "connection-url",
+  "connection-uri",
   "connparse",
   "database",
+  "database-url",
+  "database-uri",
+  "data-source",
+  "datasource",
   "dsn",
+  "dsn-parser",
   "parser",
+  "postgres",
+  "postgresql",
+  "mysql",
+  "mariadb",
+  "sqlite",
+  "duckdb",
+  "clickhouse",
+  "redis",
+  "memcached",
+  "elasticsearch",
+  "mongodb",
+  "cockroachdb",
+  "questdb",
+  "yugabytedb",
   "s3",
+  "aws-s3",
+  "file-path",
+  "jdbc",
+  "cloud-storage",
+  "object-storage",
+  "credentials",
+  "redaction",
   "uri"
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Database",
+  "Topic :: Internet",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: System :: Filesystems",
+  "Topic :: Utilities"
 ]
 
 [project.urls]
+Homepage = "https://github.com/clidey/connparse#readme"
 Repository = "https://github.com/clidey/connparse"
+Source = "https://github.com/clidey/connparse"
+Issues = "https://github.com/clidey/connparse/issues"
+Documentation = "https://github.com/clidey/connparse/tree/main/packages/python#readme"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/connparse"]

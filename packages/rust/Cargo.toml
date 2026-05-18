@@ -2,12 +2,13 @@
 name = "connparse"
 version = "0.3.0"
 edition = "2024"
-description = "Parse connection strings from databases, caches, files, and object storage."
+description = "Parse database connection strings, DSNs, URLs, file paths, and cloud storage URIs."
 license = "Apache-2.0"
 repository = "https://github.com/clidey/connparse"
+documentation = "https://docs.rs/connparse"
 readme = "README.md"
-keywords = ["connection-string", "database", "dsn", "parser", "uri"]
-categories = ["config", "parser-implementations"]
+keywords = ["connection-string", "database-url", "dsn", "parser", "uri"]
+categories = ["config", "database", "parser-implementations"]
 
 [dependencies]
 serde = { version = "1.0.228", features = ["derive"] }

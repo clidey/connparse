@@ -1,8 +1,9 @@
 # Connparse
 
-Connparse is a definition-driven parser for data source connection strings and
-addresses. It turns database URLs, object storage URIs, file paths, and similar
-source identifiers into one safe, normalized object.
+Connparse parses database connection strings, DSNs, URLs, file paths, and cloud
+storage URIs into one safe structured object. It supports PostgreSQL, MySQL,
+MariaDB, SQLite, DuckDB, ClickHouse, Redis, Memcached, Elasticsearch, MongoDB,
+CockroachDB, QuestDB, YugabyteDB, Amazon S3, and local file paths.
 
 This repository contains JavaScript, Go, Python, and Rust implementations, shared
 CPDS definitions, and shared compatibility fixtures.

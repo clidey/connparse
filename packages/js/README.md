@@ -1,11 +1,15 @@
 # @clidey/connparse
 
-Parse database, cache, file, and storage connection strings into one predictable
-JavaScript object.
+Connparse parses database connection strings, DSNs, URLs, file paths, and cloud
+storage URIs into one predictable JavaScript object.
 
 Connparse is useful when your app accepts connection strings from different
 systems and you want to pull out the host, port, database, bucket, path,
 credentials, query options, and a safe redacted string.
+
+Supported sources include PostgreSQL, MySQL, MariaDB, SQLite, DuckDB,
+ClickHouse, Redis, Memcached, Elasticsearch, MongoDB, CockroachDB, QuestDB,
+YugabyteDB, Amazon S3, and local file paths.
 
 ## Install
 
