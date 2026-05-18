@@ -4,13 +4,14 @@ Connparse is a definition-driven parser for data source connection strings and
 addresses. It turns database URLs, object storage URIs, file paths, and similar
 source identifiers into one safe, normalized object.
 
-This repository contains the JavaScript reference implementation, a Go
-implementation, shared CPDS definitions, and shared compatibility fixtures.
+This repository contains JavaScript, Go, and Python implementations, shared
+CPDS definitions, and shared compatibility fixtures.
 
 ## Packages
 
 - npm: `@clidey/connparse`
 - Go: `github.com/clidey/connparse/packages/go`
+- Python: `connparse`
 
 ## Repository Layout
 
@@ -24,13 +25,14 @@ specs/
 packages/
   js/            JavaScript/npm implementation
   go/            Go implementation
+  python/        Python implementation
 ```
 
 ## Install
 
 The JavaScript package has one runtime dependency: `yaml`, used to load CPDS
 definition files. The Go package uses `gopkg.in/yaml.v3` for the same CPDS
-loader API.
+loader API. The Python parser uses the standard library at runtime.
 
 ```bash
 npm install @clidey/connparse
@@ -43,8 +45,10 @@ pnpm install
 pnpm verify:definitions
 pnpm conformance
 pnpm generate:definitions
+pnpm check:versions
 pnpm test
 pnpm test:go
+pnpm test:python
 pnpm check:package
 ```
 
@@ -390,6 +394,7 @@ Do not edit generated files directly:
 
 - `packages/js/src/builtin-definitions.js`
 - `packages/go/builtin_definitions.go`
+- `packages/python/src/connparse/builtin_definitions.py`
 
 ## Fixtures
 

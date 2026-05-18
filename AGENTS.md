@@ -20,6 +20,11 @@ The Go implementation lives in `packages/go/`:
 - `packages/go/*.go`: parser, adapters, registry, validation, and Go tests.
 - `packages/go/connparse_test.go`: shared fixture runner.
 
+The Python implementation lives in `packages/python/`:
+
+- `packages/python/src/connparse/`: parser, adapters, generated definitions, and public exports.
+- `packages/python/tests/`: unittest suite using the shared fixtures.
+
 Keep implementation-specific code inside its package. Keep reusable specs and fixtures in `specs/`.
 
 ## Build, Test, and Development Commands
@@ -27,15 +32,17 @@ Keep implementation-specific code inside its package. Keep reusable specs and fi
 Run commands from the repository root unless noted:
 
 - `pnpm install`: install workspace dependencies.
-- `pnpm generate:definitions`: regenerate JS and Go built-in definitions from CPDS YAML.
+- `pnpm generate:definitions`: regenerate JS, Go, and Python built-in definitions from CPDS YAML.
+- `pnpm check:versions`: verify JS and Python package versions match; Go version is the release tag.
 - `pnpm check:generated`: verify generated definitions are current.
 - `pnpm conformance`: run the shared compatibility fixtures through the conformance runner.
-- `pnpm check:package`: pack and consume the npm package and verify Go package import from a temp module.
+- `pnpm check:package`: pack and consume the npm package and verify Go/Python imports from temp projects.
 - `pnpm check:schemas`: verify JSON Schema documents are parseable and have required metadata.
-- `pnpm test`: run JS and Go test suites.
+- `pnpm test`: run JS, Go, and Python test suites.
 - `pnpm test:js`: run the JS package test suite.
 - `pnpm test:go`: run the Go package test suite.
-- `pnpm run check`: verify generated definitions, syntax-check JS source, and run Go tests.
+- `pnpm test:python`: run the Python package test suite.
+- `pnpm run check`: verify generated definitions, syntax-check JS/Python source, run Go tests, and run Python conformance.
 - `pnpm --filter @clidey/connparse test`: run tests from the package scope.
 
 For CLI smoke tests:
@@ -50,13 +57,15 @@ Use ESM JavaScript and explicit `.js` import extensions. Keep indentation to two
 
 Use `gofmt` for Go. Keep Go files in package `connparse`, use exported names for public API (`Parse`, `ParseOrThrow`, `BuiltInDefinitions`), and keep provider logic in focused adapter functions.
 
+Use standard-library Python unless a dependency is clearly justified. The Python public API uses snake case (`parse_normalize`) and returns the same JSON-shaped result contract as JS and Go.
+
 CPDS definition IDs and YAML filenames should match provider IDs, such as `postgres.yaml` and `yugabytedb.yaml`.
 
 Do not edit generated built-ins directly. Update `specs/definitions/*.yaml`, then run `pnpm generate:definitions`.
 
 ## Testing Guidelines
 
-Tests use Node’s built-in `node:test` and `node:assert/strict` for JS and Go’s standard `testing` package for Go. Add or update fixtures in `specs/fixtures/compatibility.json` for any behavior that should be stable across implementations. Package tests must consume shared fixtures and definitions from `specs/`, not package-local copies. Generator drift is checked by `pnpm check:generated`, schema metadata by `pnpm check:schemas`, fixture behavior by `pnpm conformance`, and package install/import behavior by `pnpm check:package`.
+Tests use Node’s built-in `node:test` and `node:assert/strict` for JS, Go’s standard `testing` package for Go, and Python’s `unittest` package for Python. Add or update fixtures in `specs/fixtures/compatibility.json` for any behavior that should be stable across implementations. Package tests must consume shared fixtures and definitions from `specs/`, not package-local copies. Generator drift is checked by `pnpm check:generated`, schema metadata by `pnpm check:schemas`, fixture behavior by `pnpm conformance`, Python external-parser parity by `pnpm check:python`, and package install/import behavior by `pnpm check:package`.
 
 Before finishing changes, run:
 

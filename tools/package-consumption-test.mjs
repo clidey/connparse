@@ -12,6 +12,7 @@ const temp = mkdtempSync(join(tmpdir(), 'connparse-consume-'));
 
 await testNpmPackage();
 await testGoPackage();
+await testPythonPackage();
 
 console.log('Package consumption checks passed.');
 
@@ -108,5 +109,33 @@ func TestConsumeConnparse(t *testing.T) {
     cwd: consumeDir,
     stdio: 'pipe',
     env: goEnv
+  });
+}
+
+async function testPythonPackage() {
+  const consumeDir = join(temp, 'python-consume');
+  await mkdir(consumeDir, { recursive: true });
+  const script = join(consumeDir, 'consume.py');
+  await writeFile(
+    script,
+    `
+from connparse import parse, parse_normalize
+
+parsed = parse("postgres://localhost/app?sslmode=require")
+if not parsed["ok"] or parsed["value"]["resource"]["name"] != "app":
+    raise SystemExit("parse failed")
+
+normalized = parse_normalize("postgresql://LOCALHOST:5432/app?sslmode=require")
+if not normalized["ok"] or normalized["value"]["canonical"] != "postgres://localhost/app?sslmode=require":
+    raise SystemExit("parse_normalize failed")
+`
+  );
+  execFileSync('python3', [script], {
+    cwd: consumeDir,
+    stdio: 'pipe',
+    env: {
+      ...process.env,
+      PYTHONPATH: join(root, 'packages/python/src')
+    }
   });
 }

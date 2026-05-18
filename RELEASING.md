@@ -1,9 +1,10 @@
 # Releasing
 
-Connparse publishes two client libraries from this monorepo:
+Connparse publishes three client libraries from this monorepo:
 
 - npm: `@clidey/connparse`
 - Go: `github.com/clidey/connparse/packages/go`
+- PyPI: `connparse`
 
 ## Required Checks
 
@@ -16,6 +17,10 @@ pnpm test
 pnpm check:package
 pnpm --filter @clidey/connparse pack --dry-run
 ```
+
+All packages must use the same version. `pnpm check:versions` verifies that
+`packages/js/package.json` and `packages/python/pyproject.toml` match. The Go
+version is the release tag `packages/go/vX.Y.Z`.
 
 ## npm
 
@@ -34,6 +39,24 @@ The package keeps the CLI command name as `connparse`:
 npm install -g @clidey/connparse
 connparse --help
 ```
+
+## Python
+
+The Python package is published from `packages/python` as `connparse`.
+
+```bash
+pip install connparse
+```
+
+Consumers import:
+
+```python
+from connparse import parse
+```
+
+GitHub Actions uses PyPI trusted publishing, so no PyPI token is required. The
+trusted publisher on PyPI must match this repository and
+`.github/workflows/release.yml`.
 
 ## Go
 
@@ -67,10 +90,11 @@ package and workflow.
 The workflow:
 
 1. installs dependencies;
-2. bumps `packages/js/package.json`;
-3. runs checks, tests, package consumption checks, and npm dry-run packing;
+2. bumps `packages/js/package.json` and `packages/python/pyproject.toml` to the same version;
+3. runs checks, tests, package consumption checks, npm dry-run packing, and Python package build;
 4. commits the version bump;
 5. pushes the commit;
 6. publishes `@clidey/connparse` to npm;
-7. creates and pushes `packages/go/vX.Y.Z`;
-8. creates a GitHub Release for the Go module tag.
+7. publishes `connparse` to PyPI;
+8. creates and pushes `packages/go/vX.Y.Z`;
+9. creates a GitHub Release for the Go module tag.

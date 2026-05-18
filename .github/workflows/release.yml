@@ -52,6 +52,11 @@ jobs:
           go-version-file: packages/go/go.mod
           cache-dependency-path: packages/go/go.sum
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -79,6 +84,7 @@ jobs:
             npm --prefix packages/js version "$BUMP" --no-git-tag-version
             VERSION="$(node -p "require('./packages/js/package.json').version")"
           fi
+          node tools/sync-versions.mjs --set "$VERSION"
 
           GO_TAG="packages/go/v$VERSION"
           if git rev-parse "$GO_TAG" >/dev/null 2>&1; then
@@ -101,9 +107,14 @@ jobs:
       - name: npm pack dry-run
         run: pnpm --filter @clidey/connparse pack --dry-run
 
+      - name: Build Python package
+        run: |
+          python -m pip install --upgrade build
+          python -m build packages/python
+
       - name: Commit version bump
         run: |
-          git add packages/js/package.json
+          git add packages/js/package.json packages/python/pyproject.toml
           git commit -m "release v${{ steps.version.outputs.version }}"
 
       - name: Push version commit
@@ -112,6 +123,11 @@ jobs:
       - name: Publish npm package
         working-directory: packages/js
         run: npm publish --access public
+
+      - name: Publish Python package
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: packages/python/dist
 
       - name: Tag Go module
         run: |

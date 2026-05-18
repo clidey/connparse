@@ -30,6 +30,11 @@ jobs:
           go-version-file: packages/go/go.mod
           cache-dependency-path: packages/go/go.sum
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

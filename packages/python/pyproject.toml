@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "connparse"
+version = "0.1.0"
+description = "Parse connection strings from databases, caches, files, and object storage."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Clidey" }]
+keywords = [
+  "connection-string",
+  "connparse",
+  "database",
+  "dsn",
+  "parser",
+  "s3",
+  "uri"
+]
+
+[project.urls]
+Repository = "https://github.com/clidey/connparse"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/connparse"]
