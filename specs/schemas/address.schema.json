@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://connparse.dev/schemas/address.schema.json",
+  "title": "Connparse Address",
+  "type": "object",
+  "required": [
+    "scheme",
+    "type",
+    "authority",
+    "resource",
+    "path",
+    "query",
+    "fragment",
+    "credentials",
+    "options",
+    "raw",
+    "safe"
+  ],
+  "properties": {
+    "scheme": {
+      "type": "string"
+    },
+    "type": {
+      "enum": [
+        "database",
+        "object_storage",
+        "file",
+        "stream",
+        "cache",
+        "analytics",
+        "api",
+        "unknown"
+      ]
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "resource": {
+      "type": "object",
+      "required": [
+        "type",
+        "name"
+      ],
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "path": {
+      "type": "string"
+    },
+    "query": {
+      "$ref": "#/$defs/stringMap"
+    },
+    "fragment": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "credentials": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "options": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "raw": {
+      "type": "string"
+    },
+    "safe": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "stringMap": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

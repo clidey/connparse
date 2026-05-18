@@ -10,6 +10,8 @@ Every port must treat these files as the source of truth:
 
 - `specs/definitions/*.yaml`: CPDS provider metadata.
 - `specs/fixtures/compatibility.json`: stable cross-language behavior fixtures.
+- `specs/schemas/*.schema.json`: JSON Schemas for definitions, fixtures, parse
+  results, and address objects.
 - `specs/docs/reference.md`: public key, diagnostic, adapter, and fixture
   reference.
 
@@ -31,6 +33,42 @@ Each implementation must include a fixture runner that reads
 
 Provider-specific validation tests should live in each package, but durable
 behavior should be promoted into shared fixtures.
+
+## Conformance Runner
+
+The shared conformance runner is:
+
+```bash
+pnpm conformance
+```
+
+It runs the compatibility fixtures against the JavaScript implementation by
+default. Other ports can use the external parser protocol:
+
+```bash
+node tools/conformance-runner.mjs -- ./path/to/parser-runner
+```
+
+For each fixture, the runner sends one JSON object to the external command on
+stdin:
+
+```json
+{
+  "input": "postgres://localhost/app",
+  "options": {
+    "provider": "postgres",
+    "strict": true
+  }
+}
+```
+
+The external command must write a Connparse parse result JSON object to stdout.
+The runner checks permissive and strict parsing, warnings, top-level address
+shape, fixture expected paths, multi-host behavior, raw preservation, safe-output
+leak checks, and provider coverage.
+
+For custom fixture subsets, pass `--skip-coverage` to disable the built-in
+provider coverage check.
 
 ## Generator Strategy
 
@@ -62,6 +100,12 @@ missing required keys, invalid field shapes, duplicate schemes, and invalid
 ports. It also reports suggestions such as missing `redaction` on definitions
 that declare credentials; `pnpm verify:definitions:strict` treats suggestions
 as failures.
+
+JSON Schema documents are checked with:
+
+```bash
+pnpm check:schemas
+```
 
 Ports should add their generated built-in definition file to this generator.
 Generated files must be committed, and package tests should fail if generated

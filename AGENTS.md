@@ -6,6 +6,7 @@ This is a monorepo. Shared specification assets live under `specs/`:
 
 - `specs/definitions/`: CPDS YAML definitions.
 - `specs/fixtures/compatibility.json`: cross-implementation compatibility fixtures.
+- `specs/schemas/`: JSON Schemas for CPDS, fixtures, parse results, and addresses.
 - `specs/docs/`: reference and porting documentation.
 
 The JavaScript/npm implementation lives in `packages/js/`:
@@ -28,6 +29,8 @@ Run commands from the repository root unless noted:
 - `pnpm install`: install workspace dependencies.
 - `pnpm generate:definitions`: regenerate JS and Go built-in definitions from CPDS YAML.
 - `pnpm check:generated`: verify generated definitions are current.
+- `pnpm conformance`: run the shared compatibility fixtures through the conformance runner.
+- `pnpm check:schemas`: verify JSON Schema documents are parseable and have required metadata.
 - `pnpm test`: run JS and Go test suites.
 - `pnpm test:js`: run the JS package test suite.
 - `pnpm test:go`: run the Go package test suite.
@@ -52,7 +55,7 @@ Do not edit generated built-ins directly. Update `specs/definitions/*.yaml`, the
 
 ## Testing Guidelines
 
-Tests use Node’s built-in `node:test` and `node:assert/strict` for JS and Go’s standard `testing` package for Go. Add or update fixtures in `specs/fixtures/compatibility.json` for any behavior that should be stable across implementations. Package tests must consume shared fixtures and definitions from `specs/`, not package-local copies. Generator drift is checked by `pnpm check:generated` and by package tests.
+Tests use Node’s built-in `node:test` and `node:assert/strict` for JS and Go’s standard `testing` package for Go. Add or update fixtures in `specs/fixtures/compatibility.json` for any behavior that should be stable across implementations. Package tests must consume shared fixtures and definitions from `specs/`, not package-local copies. Generator drift is checked by `pnpm check:generated`, schema metadata by `pnpm check:schemas`, and fixture behavior by `pnpm conformance`.
 
 Before finishing changes, run:
 

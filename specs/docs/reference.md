@@ -519,3 +519,18 @@ Example:
 The fixture format intentionally asserts selected fields instead of requiring a
 full object snapshot. That keeps fixtures readable while still locking down the
 important behavior for each address format.
+
+## JSON Schemas
+
+Schemas live in `specs/schemas/`.
+
+| File | Meaning |
+| --- | --- |
+| `cpds.schema.json` | CPDS definition object schema. |
+| `address.schema.json` | `parse()` address value schema. |
+| `normalized-address.schema.json` | `parseNormalize()` value schema, including `canonical`. |
+| `parse-result.schema.json` | Parse result wrapper schema. |
+| `fixture.schema.json` | Compatibility fixture file schema. |
+
+Run `pnpm check:schemas` to verify schema files are valid JSON Schema documents
+with required metadata.

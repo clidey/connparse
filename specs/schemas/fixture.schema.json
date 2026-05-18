@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://connparse.dev/schemas/fixture.schema.json",
+  "title": "Connparse Compatibility Fixtures",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "name",
+      "input",
+      "expected"
+    ],
+    "properties": {
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "provider": {
+        "type": "string",
+        "minLength": 1
+      },
+      "input": {
+        "type": "string",
+        "minLength": 1
+      },
+      "expected": {
+        "type": "object",
+        "minProperties": 1,
+        "additionalProperties": true
+      }
+    },
+    "additionalProperties": false
+  }
+}

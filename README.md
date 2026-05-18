@@ -13,6 +13,7 @@ implementation, shared CPDS definitions, and shared compatibility fixtures.
 specs/
   definitions/   Shared CPDS YAML definitions
   fixtures/      Cross-implementation compatibility fixtures
+  schemas/       JSON Schemas for definitions, fixtures, and outputs
   docs/          Reference and porting docs
 
 packages/
@@ -35,6 +36,7 @@ For local development in this repo:
 ```bash
 pnpm install
 pnpm verify:definitions
+pnpm conformance
 pnpm generate:definitions
 pnpm test
 pnpm test:go
@@ -409,11 +411,28 @@ Run the fixture suite:
 
 ```bash
 pnpm test
+pnpm conformance
 ```
 
 The Go package also reads this same fixture file. See
 [specs/docs/porting.md](specs/docs/porting.md) for the porting contract and the
 generator boundary used to keep language implementations aligned.
+
+## Schemas
+
+JSON Schemas live in `specs/schemas/`:
+
+- `cpds.schema.json`
+- `address.schema.json`
+- `normalized-address.schema.json`
+- `parse-result.schema.json`
+- `fixture.schema.json`
+
+Check them with:
+
+```bash
+pnpm check:schemas
+```
 
 ## CLI
 

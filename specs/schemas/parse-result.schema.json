@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://connparse.dev/schemas/parse-result.schema.json",
+  "title": "Connparse Parse Result",
+  "type": "object",
+  "required": [
+    "ok",
+    "value",
+    "errors",
+    "warnings"
+  ],
+  "properties": {
+    "ok": {
+      "type": "boolean"
+    },
+    "value": {
+      "oneOf": [
+        {
+          "$ref": "address.schema.json"
+        },
+        {
+          "$ref": "normalized-address.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/diagnostic"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/diagnostic"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "diagnostic": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
