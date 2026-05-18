@@ -1,10 +1,11 @@
 # Releasing
 
-Connparse publishes three client libraries from this monorepo:
+Connparse maintains four client libraries from this monorepo:
 
 - npm: `@clidey/connparse`
 - Go: `github.com/clidey/connparse/packages/go`
 - PyPI: `connparse`
+- Rust: `connparse`
 
 ## Required Checks
 
@@ -19,8 +20,9 @@ pnpm --filter @clidey/connparse pack --dry-run
 ```
 
 All packages must use the same version. `pnpm check:versions` verifies that
-`packages/js/package.json` and `packages/python/pyproject.toml` match. The Go
-version is the release tag `packages/go/vX.Y.Z`.
+`packages/js/package.json`, `packages/python/pyproject.toml`, and
+`packages/rust/Cargo.toml` match. The Go version is the release tag
+`packages/go/vX.Y.Z`.
 
 ## npm
 
@@ -74,6 +76,16 @@ Consumers import:
 import connparse "github.com/clidey/connparse/packages/go"
 ```
 
+## Rust
+
+The Rust crate lives in `packages/rust` and uses the same generated definitions
+and fixture contract as the other clients. Crates.io publishing is not wired
+into the release workflow yet, but the manifest version is kept in sync.
+
+```toml
+connparse = { path = "packages/rust" }
+```
+
 ## Manual GitHub Release Workflow
 
 Use `.github/workflows/release.yml` from GitHub Actions.
@@ -90,7 +102,7 @@ package and workflow.
 The workflow:
 
 1. installs dependencies;
-2. bumps `packages/js/package.json` and `packages/python/pyproject.toml` to the same version;
+2. bumps `packages/js/package.json`, `packages/python/pyproject.toml`, and `packages/rust/Cargo.toml` to the same version;
 3. runs checks, tests, package consumption checks, npm dry-run packing, and Python package build;
 4. commits the version bump;
 5. pushes the commit;

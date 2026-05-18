@@ -4,7 +4,7 @@ Connparse is a definition-driven parser for data source connection strings and
 addresses. It turns database URLs, object storage URIs, file paths, and similar
 source identifiers into one safe, normalized object.
 
-This repository contains JavaScript, Go, and Python implementations, shared
+This repository contains JavaScript, Go, Python, and Rust implementations, shared
 CPDS definitions, and shared compatibility fixtures.
 
 ## Packages
@@ -12,6 +12,7 @@ CPDS definitions, and shared compatibility fixtures.
 - npm: `@clidey/connparse`
 - Go: `github.com/clidey/connparse/packages/go`
 - Python: `connparse`
+- Rust: `connparse`
 
 ## Repository Layout
 
@@ -26,13 +27,15 @@ packages/
   js/            JavaScript/npm implementation
   go/            Go implementation
   python/        Python implementation
+  rust/          Rust crate implementation
 ```
 
 ## Install
 
 The JavaScript package has one runtime dependency: `yaml`, used to load CPDS
 definition files. The Go package uses `gopkg.in/yaml.v3` for the same CPDS
-loader API. The Python parser uses the standard library at runtime.
+loader API. The Python parser uses the standard library at runtime. The Rust
+crate uses `serde` and `serde_json` for the shared JSON-shaped contract.
 
 ```bash
 npm install @clidey/connparse
@@ -49,6 +52,7 @@ pnpm check:versions
 pnpm test
 pnpm test:go
 pnpm test:python
+pnpm test:rust
 pnpm check:package
 ```
 
@@ -395,6 +399,7 @@ Do not edit generated files directly:
 - `packages/js/src/builtin-definitions.js`
 - `packages/go/builtin_definitions.go`
 - `packages/python/src/connparse/builtin_definitions.py`
+- `packages/rust/src/builtin_definitions.rs`
 
 ## Fixtures
 
@@ -425,7 +430,7 @@ pnpm test
 pnpm conformance
 ```
 
-The Go package also reads this same fixture file. See
+The Go, Python, and Rust packages also read this same fixture file. See
 [specs/docs/porting.md](specs/docs/porting.md) for the porting contract and the
 generator boundary used to keep language implementations aligned.
 
@@ -448,8 +453,9 @@ pnpm check:schemas
 ## Package Consumption Checks
 
 The package consumption check packs the npm package, imports it from a temporary
-project, runs the packed CLI, and verifies a temporary Go module with a local
-`replace` directive.
+project, runs the packed CLI, verifies a temporary Go module with a local
+`replace` directive, verifies a Python import via `PYTHONPATH`, and verifies a
+temporary Rust crate with a local path dependency.
 
 ```bash
 pnpm check:package

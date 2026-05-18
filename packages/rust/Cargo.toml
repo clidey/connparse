@@ -1,0 +1,17 @@
+[package]
+name = "connparse"
+version = "0.3.0"
+edition = "2021"
+description = "Parse connection strings from databases, caches, files, and object storage."
+license = "Apache-2.0"
+repository = "https://github.com/clidey/connparse"
+readme = "README.md"
+keywords = ["connection-string", "database", "dsn", "parser", "uri"]
+categories = ["config", "parser-implementations"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[dev-dependencies]
+serde_json = "1"

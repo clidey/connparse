@@ -118,7 +118,7 @@ jobs:
 
       - name: Commit version bump
         run: |
-          git add packages/js/package.json packages/python/pyproject.toml
+          git add packages/js/package.json packages/python/pyproject.toml packages/rust/Cargo.toml packages/rust/Cargo.lock
           git commit -m "release v${{ steps.version.outputs.version }}"
 
       - name: Push version commit

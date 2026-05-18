@@ -88,6 +88,8 @@ It writes:
 
 - `packages/js/src/builtin-definitions.js`
 - `packages/go/builtin_definitions.go`
+- `packages/python/src/connparse/builtin_definitions.py`
+- `packages/rust/src/builtin_definitions.rs`
 
 The drift check is:
 

@@ -25,6 +25,11 @@ The Python implementation lives in `packages/python/`:
 - `packages/python/src/connparse/`: parser, adapters, generated definitions, and public exports.
 - `packages/python/tests/`: unittest suite using the shared fixtures.
 
+The Rust implementation lives in `packages/rust/`:
+
+- `packages/rust/src/`: parser, adapters, generated definitions, and public exports.
+- `packages/rust/tests/`: Cargo integration tests using the shared fixtures.
+
 Keep implementation-specific code inside its package. Keep reusable specs and fixtures in `specs/`.
 
 ## Build, Test, and Development Commands
@@ -32,17 +37,18 @@ Keep implementation-specific code inside its package. Keep reusable specs and fi
 Run commands from the repository root unless noted:
 
 - `pnpm install`: install workspace dependencies.
-- `pnpm generate:definitions`: regenerate JS, Go, and Python built-in definitions from CPDS YAML.
-- `pnpm check:versions`: verify JS and Python package versions match; Go version is the release tag.
+- `pnpm generate:definitions`: regenerate JS, Go, Python, and Rust built-in definitions from CPDS YAML.
+- `pnpm check:versions`: verify JS, Python, and Rust package versions match; Go version is the release tag.
 - `pnpm check:generated`: verify generated definitions are current.
 - `pnpm conformance`: run the shared compatibility fixtures through the conformance runner.
-- `pnpm check:package`: pack and consume the npm package and verify Go/Python imports from temp projects.
+- `pnpm check:package`: pack and consume the npm package and verify Go/Python/Rust imports from temp projects.
 - `pnpm check:schemas`: verify JSON Schema documents are parseable and have required metadata.
-- `pnpm test`: run JS, Go, and Python test suites.
+- `pnpm test`: run JS, Go, Python, and Rust test suites.
 - `pnpm test:js`: run the JS package test suite.
 - `pnpm test:go`: run the Go package test suite.
 - `pnpm test:python`: run the Python package test suite.
-- `pnpm run check`: verify generated definitions, syntax-check JS/Python source, run Go tests, and run Python conformance.
+- `pnpm test:rust`: run the Rust crate test suite.
+- `pnpm run check`: verify generated definitions, syntax-check JS/Python source, run Go/Rust tests, and run Python conformance.
 - `pnpm --filter @clidey/connparse test`: run tests from the package scope.
 
 For CLI smoke tests:
@@ -57,7 +63,9 @@ Use ESM JavaScript and explicit `.js` import extensions. Keep indentation to two
 
 Use `gofmt` for Go. Keep Go files in package `connparse`, use exported names for public API (`Parse`, `ParseOrThrow`, `BuiltInDefinitions`), and keep provider logic in focused adapter functions.
 
-Use standard-library Python unless a dependency is clearly justified. The Python public API uses snake case (`parse_normalize`) and returns the same JSON-shaped result contract as JS and Go.
+Use standard-library Python unless a dependency is clearly justified. The Python public API uses snake case (`parse_normalize`) and returns the same JSON-shaped result contract as the other packages.
+
+Use `cargo fmt` for Rust. Keep the Rust public API snake case (`parse_normalize`, `parse_or_throw`) and keep serialized output aligned with the shared JSON-shaped result contract.
 
 CPDS definition IDs and YAML filenames should match provider IDs, such as `postgres.yaml` and `yugabytedb.yaml`.
 
@@ -65,7 +73,7 @@ Do not edit generated built-ins directly. Update `specs/definitions/*.yaml`, the
 
 ## Testing Guidelines
 
-Tests use Node’s built-in `node:test` and `node:assert/strict` for JS, Go’s standard `testing` package for Go, and Python’s `unittest` package for Python. Add or update fixtures in `specs/fixtures/compatibility.json` for any behavior that should be stable across implementations. Package tests must consume shared fixtures and definitions from `specs/`, not package-local copies. Generator drift is checked by `pnpm check:generated`, schema metadata by `pnpm check:schemas`, fixture behavior by `pnpm conformance`, Python external-parser parity by `pnpm check:python`, and package install/import behavior by `pnpm check:package`.
+Tests use Node’s built-in `node:test` and `node:assert/strict` for JS, Go’s standard `testing` package for Go, Python’s `unittest` package for Python, and Cargo integration tests for Rust. Add or update fixtures in `specs/fixtures/compatibility.json` for any behavior that should be stable across implementations. Package tests must consume shared fixtures and definitions from `specs/`, not package-local copies. Generator drift is checked by `pnpm check:generated`, schema metadata by `pnpm check:schemas`, fixture behavior by `pnpm conformance`, Python external-parser parity by `pnpm check:python`, Rust format/tests by `pnpm check:rust`, and package install/import behavior by `pnpm check:package`.
 
 Before finishing changes, run:
 

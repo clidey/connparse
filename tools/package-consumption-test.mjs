@@ -13,6 +13,7 @@ const temp = mkdtempSync(join(tmpdir(), 'connparse-consume-'));
 await testNpmPackage();
 await testGoPackage();
 await testPythonPackage();
+await testRustPackage();
 
 console.log('Package consumption checks passed.');
 
@@ -136,6 +137,51 @@ if not normalized["ok"] or normalized["value"]["canonical"] != "postgres://local
     env: {
       ...process.env,
       PYTHONPATH: join(root, 'packages/python/src')
+    }
+  });
+}
+
+async function testRustPackage() {
+  const consumeDir = join(temp, 'rust-consume');
+  await mkdir(join(consumeDir, 'tests'), { recursive: true });
+  await writeFile(
+    join(consumeDir, 'Cargo.toml'),
+    `
+[package]
+name = "connparse-consume"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+connparse = { path = "${resolve(root, 'packages/rust')}" }
+`
+  );
+  await writeFile(
+    join(consumeDir, 'tests/consume_test.rs'),
+    `
+use connparse::{parse, parse_normalize};
+
+#[test]
+fn consumes_connparse() {
+    let parsed = parse("postgres://localhost/app?sslmode=require", None);
+    assert!(parsed.ok, "{:?}", parsed.errors);
+    assert_eq!(parsed.value.unwrap().resource.name.as_deref(), Some("app"));
+
+    let normalized = parse_normalize("postgresql://LOCALHOST:5432/app?sslmode=require", None);
+    assert!(normalized.ok, "{:?}", normalized.errors);
+    assert_eq!(normalized.value.unwrap().canonical, "postgres://localhost/app?sslmode=require");
+}
+`
+  );
+  // Rust dependencies are populated by pnpm check/test before this smoke test.
+  // Offline mode keeps the consumption check deterministic inside CI/sandboxes.
+  execFileSync('cargo', ['test', '--offline'], {
+    cwd: consumeDir,
+    stdio: 'pipe',
+    env: {
+      ...process.env,
+      CARGO_HOME: join(root, '.cache/cargo-home'),
+      CARGO_TARGET_DIR: join(root, '.cache/cargo-target/consume')
     }
   });
 }
