@@ -1,6 +1,8 @@
 #!/usr/bin/env node
+import { readFileSync } from 'node:fs';
 import { defaultRegistry, parse, sanitize } from '../src/index.js';
 
+const packageJson = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 const args = process.argv.slice(2);
 const help = args.includes('--help') || args.includes('-h');
 const version = args.includes('--version') || args.includes('-v');
@@ -38,7 +40,7 @@ Options:
 }
 
 if (version) {
-  console.log('0.1.0');
+  console.log(packageJson.version);
   process.exit(0);
 }
 

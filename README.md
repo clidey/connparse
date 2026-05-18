@@ -7,6 +7,11 @@ source identifiers into one safe, normalized object.
 This repository contains the JavaScript reference implementation, a Go
 implementation, shared CPDS definitions, and shared compatibility fixtures.
 
+## Packages
+
+- npm: `@clidey/connparse`
+- Go: `github.com/clidey/connparse/packages/go`
+
 ## Repository Layout
 
 ```text
@@ -40,6 +45,7 @@ pnpm conformance
 pnpm generate:definitions
 pnpm test
 pnpm test:go
+pnpm check:package
 ```
 
 ## Quick Start
@@ -433,6 +439,18 @@ Check them with:
 ```bash
 pnpm check:schemas
 ```
+
+## Package Consumption Checks
+
+The package consumption check packs the npm package, imports it from a temporary
+project, runs the packed CLI, and verifies a temporary Go module with a local
+`replace` directive.
+
+```bash
+pnpm check:package
+```
+
+Release instructions live in [RELEASING.md](RELEASING.md).
 
 ## CLI
 

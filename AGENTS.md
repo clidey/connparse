@@ -30,6 +30,7 @@ Run commands from the repository root unless noted:
 - `pnpm generate:definitions`: regenerate JS and Go built-in definitions from CPDS YAML.
 - `pnpm check:generated`: verify generated definitions are current.
 - `pnpm conformance`: run the shared compatibility fixtures through the conformance runner.
+- `pnpm check:package`: pack and consume the npm package and verify Go package import from a temp module.
 - `pnpm check:schemas`: verify JSON Schema documents are parseable and have required metadata.
 - `pnpm test`: run JS and Go test suites.
 - `pnpm test:js`: run the JS package test suite.
@@ -55,7 +56,7 @@ Do not edit generated built-ins directly. Update `specs/definitions/*.yaml`, the
 
 ## Testing Guidelines
 
-Tests use Node’s built-in `node:test` and `node:assert/strict` for JS and Go’s standard `testing` package for Go. Add or update fixtures in `specs/fixtures/compatibility.json` for any behavior that should be stable across implementations. Package tests must consume shared fixtures and definitions from `specs/`, not package-local copies. Generator drift is checked by `pnpm check:generated`, schema metadata by `pnpm check:schemas`, and fixture behavior by `pnpm conformance`.
+Tests use Node’s built-in `node:test` and `node:assert/strict` for JS and Go’s standard `testing` package for Go. Add or update fixtures in `specs/fixtures/compatibility.json` for any behavior that should be stable across implementations. Package tests must consume shared fixtures and definitions from `specs/`, not package-local copies. Generator drift is checked by `pnpm check:generated`, schema metadata by `pnpm check:schemas`, fixture behavior by `pnpm conformance`, and package install/import behavior by `pnpm check:package`.
 
 Before finishing changes, run:
 

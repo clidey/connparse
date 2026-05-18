@@ -13,6 +13,7 @@
     "check": "pnpm verify:definitions:strict && pnpm check:schemas && pnpm check:conformance && pnpm check:generated && pnpm check:tools && pnpm check:js && pnpm check:go",
     "check:conformance": "node tools/conformance-runner.mjs --quiet",
     "check:generated": "node tools/generate-definitions.mjs --check",
+    "check:package": "node tools/package-consumption-test.mjs",
     "check:schemas": "node tools/check-schemas.mjs",
     "check:tools": "node --check tools/*.mjs",
     "check:js": "pnpm --filter @clidey/connparse check",
