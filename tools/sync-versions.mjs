@@ -6,24 +6,30 @@ import { fileURLToPath } from 'node:url';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const jsPackagePath = join(root, 'packages/js/package.json');
+const javaPomPath = join(root, 'packages/java/pom.xml');
 const pythonProjectPath = join(root, 'packages/python/pyproject.toml');
 const rustManifestPath = join(root, 'packages/rust/Cargo.toml');
 const check = process.argv.includes('--check');
 const setVersion = optionValue('--set');
 
 const jsPackage = JSON.parse(await readFile(jsPackagePath, 'utf8'));
+let javaPom = await readFile(javaPomPath, 'utf8');
 let pythonProject = await readFile(pythonProjectPath, 'utf8');
 let rustManifest = await readFile(rustManifestPath, 'utf8');
 
 if (setVersion) {
   jsPackage.version = setVersion;
+  javaPom = setPomValue(javaPom, 'version', setVersion);
   pythonProject = setTomlValue(pythonProject, 'version', setVersion);
   rustManifest = setTomlValue(rustManifest, 'version', setVersion);
   await writeFile(jsPackagePath, `${JSON.stringify(jsPackage, null, 2)}\n`);
+  await writeFile(javaPomPath, javaPom);
   await writeFile(pythonProjectPath, pythonProject);
   await writeFile(rustManifestPath, rustManifest);
 }
 
+const javaArtifactId = pomValue(javaPom, 'artifactId');
+const javaVersion = pomValue(javaPom, 'version');
 const pythonName = tomlValue(pythonProject, 'name');
 const pythonVersion = tomlValue(pythonProject, 'version');
 const rustName = tomlValue(rustManifest, 'name');
@@ -33,12 +39,16 @@ if (pythonName !== 'connparse') {
   throw new Error(`packages/python/pyproject.toml project.name must be "connparse", got "${pythonName}"`);
 }
 
+if (javaArtifactId !== 'connparse') {
+  throw new Error(`packages/java/pom.xml artifactId must be "connparse", got "${javaArtifactId}"`);
+}
+
 if (rustName !== 'connparse') {
   throw new Error(`packages/rust/Cargo.toml package.name must be "connparse", got "${rustName}"`);
 }
 
-if (jsPackage.version !== pythonVersion || jsPackage.version !== rustVersion) {
-  const message = `version mismatch: packages/js/package.json=${jsPackage.version}, packages/python/pyproject.toml=${pythonVersion}, packages/rust/Cargo.toml=${rustVersion}`;
+if (jsPackage.version !== javaVersion || jsPackage.version !== pythonVersion || jsPackage.version !== rustVersion) {
+  const message = `version mismatch: packages/js/package.json=${jsPackage.version}, packages/java/pom.xml=${javaVersion}, packages/python/pyproject.toml=${pythonVersion}, packages/rust/Cargo.toml=${rustVersion}`;
   if (check) throw new Error(message);
   console.error(message);
   process.exitCode = 1;
@@ -59,8 +69,19 @@ function tomlValue(source, key) {
   return match ? match[1] : null;
 }
 
+function pomValue(source, key) {
+  const match = source.match(new RegExp(`<${key}>([^<]+)</${key}>`));
+  return match ? match[1] : null;
+}
+
 function setTomlValue(source, key, value) {
   const pattern = new RegExp(`^${key}\\s*=\\s*"[^"]*"`, 'm');
   if (!pattern.test(source)) throw new Error(`missing ${key} in packages/python/pyproject.toml`);
   return source.replace(pattern, `${key} = "${value}"`);
+}
+
+function setPomValue(source, key, value) {
+  const pattern = new RegExp(`(<${key}>)([^<]+)(</${key}>)`);
+  if (!pattern.test(source)) throw new Error(`missing ${key} in packages/java/pom.xml`);
+  return source.replace(pattern, `$1${value}$3`);
 }

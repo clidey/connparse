@@ -21,3 +21,7 @@ updates:
     directory: "/packages/rust" # Location of package manifests
     schedule:
       interval: "weekly"
+  - package-ecosystem: "maven" # See documentation for possible values
+    directory: "/packages/java" # Location of package manifests
+    schedule:
+      interval: "weekly"

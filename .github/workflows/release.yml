@@ -61,6 +61,14 @@ jobs:
         with:
           python-version: "3.14"
 
+      - name: Setup Java
+        # actions/setup-java@v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -114,6 +122,9 @@ jobs:
       - name: Rust crate dry-run
         run: cargo publish --manifest-path packages/rust/Cargo.toml --locked --dry-run
 
+      - name: Build Java package
+        run: mvn -q -f packages/java/pom.xml -DskipTests package
+
       - name: Build Python package
         run: |
           python -m pip install build==1.5.0
@@ -121,7 +132,7 @@ jobs:
 
       - name: Commit version bump
         run: |
-          git add packages/js/package.json packages/python/pyproject.toml packages/rust/Cargo.toml packages/rust/Cargo.lock
+          git add packages/js/package.json packages/java/pom.xml packages/python/pyproject.toml packages/rust/Cargo.toml packages/rust/Cargo.lock
           git commit -m "release v${{ steps.version.outputs.version }}"
 
       - name: Push version commit

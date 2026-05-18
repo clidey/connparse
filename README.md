@@ -10,7 +10,7 @@ SAP HANA, Athena, Spanner, Google Cloud Storage, Azure Blob, Azure Data Lake
 Storage, Azure Files, Azure Cosmos DB, Business Central, TallyPrime, Amazon S3,
 and local file paths.
 
-This repository contains JavaScript, Go, Python, and Rust implementations,
+This repository contains JavaScript, Go, Python, Rust, and Java implementations,
 shared Connparse Definition Specification (CPDS) YAML definitions, and shared
 compatibility fixtures.
 
@@ -20,6 +20,7 @@ compatibility fixtures.
 - Go: `github.com/clidey/connparse/packages/go`
 - Python: `connparse`
 - Rust: `connparse`
+- Java: `io.github.clidey:connparse`
 
 ## Repository Layout
 
@@ -35,14 +36,16 @@ packages/
   go/            Go implementation
   python/        Python implementation
   rust/          Rust crate implementation
+  java/          Java implementation
 ```
 
 ## Install
 
 The JavaScript package has one runtime dependency: `yaml`, used to load CPDS
 definition files. The Go package uses `github.com/goccy/go-yaml` for the same
-CPDS loader API. The Python parser uses the standard library at runtime. The Rust
-crate uses `serde` and `serde_json` for the shared JSON-shaped contract.
+CPDS loader API. The Python and Java parsers use the standard library at
+runtime. The Rust crate uses `serde` and `serde_json` for the shared
+JSON-shaped contract.
 
 ```bash
 npm install @clidey/connparse
@@ -60,6 +63,7 @@ pnpm test
 pnpm test:go
 pnpm test:python
 pnpm test:rust
+pnpm test:java
 pnpm check:package
 ```
 

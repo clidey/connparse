@@ -151,6 +151,11 @@ test('generated outputs use typed/native definitions', () => {
   assert.match(goOutput, /Definition\{/);
   assert.doesNotMatch(goOutput, /encoding\/json|builtInDefinitionsJSON|json\.Unmarshal/);
 
+  const javaOutput = readFileSync(new URL('packages/java/src/main/java/io/github/clidey/connparse/BuiltInDefinitions.java', repoRoot), 'utf8');
+  assert.match(javaOutput, /static List<Definition> builtInDefinitions\(\)/);
+  assert.match(javaOutput, /new Definition\(/);
+  assert.doesNotMatch(javaOutput, /json\.loads|from_str|BUILT_IN_DEFINITIONS_JSON/);
+
   const pythonOutput = readFileSync(new URL('packages/python/src/connparse/builtin_definitions.py', repoRoot), 'utf8');
   assert.match(pythonOutput, /BUILT_IN_DEFINITIONS: list\[ConnparseDefinition\]/);
   assert.doesNotMatch(pythonOutput, /json\.loads|import json/);

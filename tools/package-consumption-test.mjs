@@ -2,7 +2,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { mkdir, readFile, symlink, writeFile } from 'node:fs/promises';
-import { mkdtempSync } from 'node:fs';
+import { mkdtempSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -14,6 +14,7 @@ await testNpmPackage();
 await testGoPackage();
 await testPythonPackage();
 await testRustPackage();
+await testJavaPackage();
 
 console.log('Package consumption checks passed.');
 
@@ -184,4 +185,47 @@ fn consumes_connparse() {
       CARGO_TARGET_DIR: join(root, '.cache/cargo-target/consume')
     }
   });
+}
+
+async function testJavaPackage() {
+  const consumeDir = join(temp, 'java-consume');
+  const classes = join(consumeDir, 'classes');
+  await mkdir(classes, { recursive: true });
+  const source = join(consumeDir, 'ConsumeConnparse.java');
+  await writeFile(
+    source,
+    `
+import io.github.clidey.connparse.Connparse;
+import io.github.clidey.connparse.ParseResult;
+
+public final class ConsumeConnparse {
+  public static void main(String[] args) {
+    ParseResult parsed = Connparse.parse("postgres://localhost/app?sslmode=require");
+    if (!parsed.ok || !"app".equals(parsed.value.resource.name)) {
+      throw new AssertionError("parse failed");
+    }
+  }
+}
+`
+  );
+
+  execFileSync('javac', ['--release', '17', '-d', classes, ...javaFiles(join(root, 'packages/java/src/main/java')), source], {
+    cwd: consumeDir,
+    stdio: 'pipe'
+  });
+  execFileSync('java', ['-cp', classes, 'ConsumeConnparse'], {
+    cwd: consumeDir,
+    stdio: 'pipe'
+  });
+}
+
+function javaFiles(dir) {
+  const entries = readdirSync(dir, { withFileTypes: true });
+  const output = [];
+  for (const entry of entries) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) output.push(...javaFiles(path));
+    else if (entry.isFile() && entry.name.endsWith('.java')) output.push(path);
+  }
+  return output.sort();
 }
