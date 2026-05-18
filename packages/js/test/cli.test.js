@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 
 const bin = fileURLToPath(new URL('../bin/connparse.js', import.meta.url));
+const packageJson = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 
 function run(args) {
   return execFileSync(process.execPath, [bin, ...args], { encoding: 'utf8' }).trim();
@@ -21,7 +23,7 @@ test('CLI prints help', () => {
 });
 
 test('CLI prints version', () => {
-  assert.equal(run(['--version']), '0.1.0');
+  assert.equal(run(['--version']), packageJson.version);
 });
 
 test('CLI supports provider hints', () => {
