@@ -4,3 +4,4 @@ node_modules/
 .pnpm-store/
 __pycache__/
 *.pyc
+packages/rust/target
