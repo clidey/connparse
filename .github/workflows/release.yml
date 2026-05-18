@@ -6,7 +6,7 @@ on:
       bump:
         description: SemVer bump to apply when version is empty
         required: true
-        default: patch
+        default: minor
         type: choice
         options:
           - patch
