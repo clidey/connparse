@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"slices"
 
-	"gopkg.in/yaml.v3"
+	"github.com/goccy/go-yaml"
 )
 
 var validTypes = []string{"database", "object_storage", "file", "stream", "cache", "analytics", "api", "unknown"}

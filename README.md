@@ -33,7 +33,7 @@ packages/
 ## Install
 
 The JavaScript package has one runtime dependency: `yaml`, used to load CPDS
-definition files. The Go package uses `gopkg.in/yaml.v3` for the same CPDS
+definition files. The Go package uses `github.com/goccy/go-yaml` for the same CPDS
 loader API. The Python parser uses the standard library at runtime. The Rust
 crate uses `serde` and `serde_json` for the shared JSON-shaped contract.
 

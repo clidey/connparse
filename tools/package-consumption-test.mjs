@@ -69,7 +69,7 @@ go 1.26
 
 require (
 	github.com/clidey/connparse/packages/go v0.0.0
-	gopkg.in/yaml.v3 v3.0.1 // indirect
+	github.com/goccy/go-yaml v1.19.2 // indirect
 )
 
 replace github.com/clidey/connparse/packages/go => ${resolve(root, 'packages/go')}
