@@ -48,8 +48,20 @@ export type ParseOptions = {
   strict?: boolean;
 };
 
+export type CanonicalizeOptions = ParseOptions & {
+  definition?: ConnparseDefinition;
+  includeCredentials?: boolean;
+  includeDefaultPort?: boolean;
+  includeSensitive?: boolean;
+  includeFragment?: boolean;
+};
+
 export function parse(input: string, options?: ParseOptions): ParseResult;
 export function parseOrThrow(input: string, options?: ParseOptions): ConnparseAddress;
+export function canonicalize(input: string | ConnparseAddress, options?: CanonicalizeOptions): string;
+export function equivalent(left: string | ConnparseAddress, right: string | ConnparseAddress, options?: CanonicalizeOptions): boolean;
+export function normalizeAddress(address: ConnparseAddress, options?: CanonicalizeOptions & { canonical?: string }): ConnparseAddress & { canonical: string };
+export function parseNormalize(input: string, options?: CanonicalizeOptions): ParseResult & { value: (ConnparseAddress & { canonical: string }) | null };
 export function mask(input: string, definition?: ConnparseDefinition): string;
 export function sanitize(address: ConnparseAddress, definition?: ConnparseDefinition): ConnparseAddress;
 export function parseDefinition(input: string, format?: 'json' | 'yaml'): ConnparseDefinition;

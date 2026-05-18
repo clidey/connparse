@@ -14,6 +14,28 @@ type Address struct {
 	Safe        string            `json:"safe"`
 }
 
+type NormalizedAddress struct {
+	Scheme      string            `json:"scheme"`
+	Type        string            `json:"type"`
+	Authority   map[string]any    `json:"authority"`
+	Resource    Resource          `json:"resource"`
+	Path        string            `json:"path"`
+	Query       map[string]any    `json:"query"`
+	Fragment    any               `json:"fragment"`
+	Credentials map[string]string `json:"credentials"`
+	Options     map[string]any    `json:"options"`
+	Raw         string            `json:"raw"`
+	Safe        string            `json:"safe"`
+	Canonical   string            `json:"canonical"`
+}
+
+type NormalizedResult struct {
+	OK       bool               `json:"ok"`
+	Value    *NormalizedAddress `json:"value"`
+	Errors   []Diagnostic       `json:"errors"`
+	Warnings []Diagnostic       `json:"warnings"`
+}
+
 type Resource struct {
 	Type string `json:"type"`
 	Name any    `json:"name"`

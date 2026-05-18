@@ -243,6 +243,186 @@ func TestValidation(t *testing.T) {
 	}
 }
 
+func TestCanonicalizeProducesSafeStableIdentityStrings(t *testing.T) {
+	value, err := Canonicalize("postgresql://user:pass@LOCALHOST:5432/app?sslmode=require&application_name=myapp")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if value != "postgres://localhost/app?application_name=myapp&sslmode=require" {
+		t.Fatalf("unexpected canonical postgres value: %s", value)
+	}
+
+	value, err = Canonicalize("postgres://user:pass@localhost/app?sslkey=/tmp/client.key&sslmode=require")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if value != "postgres://localhost/app?sslkey=***&sslmode=require" {
+		t.Fatalf("unexpected safe canonical value: %s", value)
+	}
+
+	value, err = Canonicalize("postgres://user:pass@localhost/app?sslkey=/tmp/client.key&sslmode=require", CanonicalizeOptions{
+		IncludeCredentials: true,
+		IncludeSensitive:   true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if value != "postgres://user:pass@localhost/app?sslkey=%2Ftmp%2Fclient.key&sslmode=require" {
+		t.Fatalf("unexpected secret-inclusive canonical value: %s", value)
+	}
+}
+
+func TestCanonicalizeHandlesMultiHostDefaultsAndTypedQueries(t *testing.T) {
+	value, err := Canonicalize("postgresql://host1:5432,host2:5432/somedb?target_session_attrs=any&application_name=myapp")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if value != "postgres://host1,host2/somedb?application_name=myapp&target_session_attrs=any" {
+		t.Fatalf("unexpected multi-host canonical value: %s", value)
+	}
+
+	value, err = Canonicalize("mongodb://LOCALHOST:27017/app?tls=1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if value != "mongodb://localhost/app?tls=true" {
+		t.Fatalf("unexpected typed query canonical value: %s", value)
+	}
+}
+
+func TestEquivalentComparesCanonicalIdentities(t *testing.T) {
+	ok, err := Equivalent(
+		"postgresql://localhost:5432/app?sslmode=require&application_name=myapp",
+		"postgres://localhost/app?application_name=myapp&sslmode=require",
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal("expected equivalent postgres addresses")
+	}
+
+	ok, err = Equivalent("postgres://localhost/app", "postgres://localhost/other")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok {
+		t.Fatal("different databases should not be equivalent")
+	}
+}
+
+func TestParseNormalizeReturnsStableJSONForEquivalentInputs(t *testing.T) {
+	left := ParseNormalize("postgresql://user:pass@LOCALHOST:5432/app?sslmode=require&application_name=myapp")
+	right := ParseNormalize("postgres://localhost/app?application_name=myapp&sslmode=require")
+
+	if !left.OK || !right.OK {
+		t.Fatalf("normalize failed: %+v %+v", left.Errors, right.Errors)
+	}
+	if !reflect.DeepEqual(left.Value, right.Value) {
+		t.Fatalf("normalized values differ\nleft:  %+v\nright: %+v", left.Value, right.Value)
+	}
+	if left.Value.Raw != "postgres://localhost/app?application_name=myapp&sslmode=require" {
+		t.Fatalf("unexpected normalized raw value: %s", left.Value.Raw)
+	}
+	if left.Value.Safe != left.Value.Canonical {
+		t.Fatalf("safe should match canonical")
+	}
+	if len(left.Value.Credentials) != 0 {
+		t.Fatalf("credentials should be omitted by default: %+v", left.Value.Credentials)
+	}
+}
+
+func TestParseNormalizeCanIncludeCredentialsAndSensitiveValues(t *testing.T) {
+	result := ParseNormalize("postgres://user:pass@localhost/app?sslkey=/tmp/client.key", CanonicalizeOptions{
+		IncludeCredentials: true,
+		IncludeSensitive:   true,
+	})
+	if !result.OK {
+		t.Fatalf("normalize failed: %+v", result.Errors)
+	}
+	if result.Value.Credentials["username"] != "user" || result.Value.Credentials["password"] != "pass" {
+		t.Fatalf("unexpected credentials: %+v", result.Value.Credentials)
+	}
+	if result.Value.Query["sslkey"] != "/tmp/client.key" {
+		t.Fatalf("unexpected query: %+v", result.Value.Query)
+	}
+	if result.Value.Canonical != "postgres://user:pass@localhost/app?sslkey=%2Ftmp%2Fclient.key" {
+		t.Fatalf("unexpected canonical value: %s", result.Value.Canonical)
+	}
+}
+
+func TestCanonicalizeAndParseNormalizeHonorDefaultPortAndFragmentOptions(t *testing.T) {
+	value, err := Canonicalize("postgres://localhost:5432/app?sslmode=require#section", CanonicalizeOptions{
+		IncludeDefaultPort: true,
+		OmitFragment:       true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if value != "postgres://localhost:5432/app?sslmode=require" {
+		t.Fatalf("unexpected canonical value: %s", value)
+	}
+
+	result := ParseNormalize("postgres://localhost:5432/app?sslmode=require#section", CanonicalizeOptions{
+		IncludeDefaultPort: true,
+		OmitFragment:       true,
+	})
+	if !result.OK {
+		t.Fatalf("normalize failed: %+v", result.Errors)
+	}
+	if result.Value.Authority["host"] != "localhost" || result.Value.Authority["port"] != 5432 {
+		t.Fatalf("unexpected authority: %+v", result.Value.Authority)
+	}
+	if result.Value.Fragment != nil {
+		t.Fatalf("fragment should be omitted: %+v", result.Value.Fragment)
+	}
+	if result.Value.Canonical != "postgres://localhost:5432/app?sslmode=require" {
+		t.Fatalf("unexpected canonical value: %s", result.Value.Canonical)
+	}
+}
+
+func TestParseNormalizePreservesRepeatedQueryValuesInStableKeyOrder(t *testing.T) {
+	result := ParseNormalize("postgres://localhost/app?z=3&application_name=one&application_name=two&sslmode=require")
+	if !result.OK {
+		t.Fatalf("normalize failed: %+v", result.Errors)
+	}
+	values, ok := result.Value.Query["application_name"].([]any)
+	if !ok || !reflect.DeepEqual(values, []any{"one", "two"}) {
+		t.Fatalf("unexpected repeated query values: %+v", result.Value.Query["application_name"])
+	}
+	if result.Value.Canonical != "postgres://localhost/app?application_name=one&application_name=two&sslmode=require&z=3" {
+		t.Fatalf("unexpected canonical value: %s", result.Value.Canonical)
+	}
+}
+
+func TestParseNormalizeSupportsProviderHintsAndDirectAddressNormalization(t *testing.T) {
+	result := ParseNormalize("host=LOCALHOST port=5432 dbname=app user=alice password=secret application_name=myapp", CanonicalizeOptions{
+		Parse: Options{Provider: "postgres"},
+	})
+	if !result.OK {
+		t.Fatalf("normalize failed: %+v", result.Errors)
+	}
+	if result.Value.Canonical != "postgres://localhost/app?application_name=myapp" {
+		t.Fatalf("unexpected canonical value: %s", result.Value.Canonical)
+	}
+	if len(result.Value.Credentials) != 0 {
+		t.Fatalf("credentials should be omitted by default: %+v", result.Value.Credentials)
+	}
+	if result.Value.Query["application_name"] != "myapp" {
+		t.Fatalf("unexpected query: %+v", result.Value.Query)
+	}
+
+	address, err := ParseOrThrow("postgresql://LOCALHOST:5432/app?sslmode=require")
+	if err != nil {
+		t.Fatal(err)
+	}
+	normalized := NormalizeAddress(address)
+	expected := ParseNormalize("postgres://localhost/app?sslmode=require")
+	if !reflect.DeepEqual(normalized, expected.Value) {
+		t.Fatalf("direct normalization differs\nnormalized: %+v\nexpected:   %+v", normalized, expected.Value)
+	}
+}
+
 func TestUnknownSchemesAndCustomDefinitions(t *testing.T) {
 	permissive := Parse("unknown+db://user:pass@example.com/main?token=secret")
 	if !permissive.OK || permissive.Value.Type != "unknown" || permissive.Warnings[0].Code != "UNKNOWN_SCHEME" {

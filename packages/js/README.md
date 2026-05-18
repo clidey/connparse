@@ -8,7 +8,7 @@ fixtures, CPDS definitions, and reference docs live at the repository root under
 `specs/`.
 
 ```ts
-import { defaultRegistry, mask, parse, sanitize } from 'connparse';
+import { defaultRegistry, mask, parse, parseNormalize, sanitize } from 'connparse';
 
 const result = parse('postgres://user:pass@localhost/app');
 
@@ -33,3 +33,22 @@ mask('postgres://user:pass@localhost/app?sslkey=/tmp/key.pem', postgres);
 Connparse always masks URI userinfo passwords. Query parameters, options, and
 key/value fields are masked only when the CPDS definition declares them in
 `redaction.sensitive_keys`.
+
+Use `parseNormalize()` when equivalent inputs should produce the same JSON:
+
+```ts
+parseNormalize('postgresql://user:pass@LOCALHOST:5432/app?sslmode=require');
+parseNormalize('postgres://localhost/app?sslmode=require');
+```
+
+Canonical identity helpers are safe by default:
+
+```ts
+import { canonicalize, equivalent } from 'connparse';
+
+canonicalize('postgresql://user:pass@LOCALHOST:5432/app?sslmode=require');
+// postgres://localhost/app?sslmode=require
+
+equivalent('postgresql://localhost:5432/app', 'postgres://localhost/app');
+// true
+```

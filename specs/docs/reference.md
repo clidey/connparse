@@ -281,6 +281,64 @@ Custom definitions are merged after built-ins. If a custom definition uses an
 existing scheme, that scheme resolves to the custom definition for the parse
 call.
 
+## Canonicalization
+
+`parseNormalize(input, options?)` returns the normal parse result wrapper, but
+with a normalized `value` designed for stable JSON comparison. The normalized
+value has the same top-level address fields as `parse()`, plus `canonical`.
+Unlike `parse()`, the normalized `raw` field is set to the canonical string.
+
+`canonicalize(input, options?)` returns a stable identity string for a parsed
+address. The JavaScript package accepts either a raw string or a
+`ConnparseAddress`; the Go package exposes `Canonicalize(input)` and
+`CanonicalizeAddress(address)`.
+
+Default behavior:
+
+- normalizes scheme aliases when the parsed scheme is declared by the provider
+  definition, such as `postgresql` to `postgres`;
+- lowercases host names;
+- removes default ports declared by CPDS definitions;
+- sorts query parameters by key;
+- normalizes typed query values, such as boolean aliases to `true` or `false`;
+- omits URI credentials;
+- masks CPDS-declared sensitive query values as `***`;
+- preserves fragments unless disabled.
+
+Examples:
+
+```text
+postgresql://user:pass@LOCALHOST:5432/app?sslmode=require&application_name=myapp
+```
+
+canonicalizes to:
+
+```text
+postgres://localhost/app?application_name=myapp&sslmode=require
+```
+
+```text
+postgres://user:pass@localhost/app?sslkey=/tmp/client.key&sslmode=require
+```
+
+canonicalizes to:
+
+```text
+postgres://localhost/app?sslkey=***&sslmode=require
+```
+
+Options:
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `includeCredentials` | `false` | Includes URI username/password in the canonical string. |
+| `includeDefaultPort` | `false` | Keeps default ports instead of eliding them. |
+| `includeSensitive` | `false` | Includes CPDS-declared sensitive query values instead of masking them. |
+| `includeFragment` / `OmitFragment` | include | JS uses `includeFragment: false`; Go uses `OmitFragment: true`. |
+
+`equivalent(left, right, options?)` compares two addresses by their canonical
+identity.
+
 ## CPDS Definition Keys
 
 Connparse Definition Files are JSON or YAML.

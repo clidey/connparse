@@ -39,6 +39,34 @@ fmt.Println(connparse.Mask(
 // postgres://user:***@localhost/app?sslkey=***
 ```
 
+Canonical identity helpers are safe by default:
+
+```go
+value, _ := connparse.Canonicalize(
+	"postgresql://user:pass@LOCALHOST:5432/app?sslmode=require",
+)
+fmt.Println(value)
+// postgres://localhost/app?sslmode=require
+
+same, _ := connparse.Equivalent(
+	"postgresql://localhost:5432/app",
+	"postgres://localhost/app",
+)
+fmt.Println(same)
+// true
+```
+
+Use `ParseNormalize` when equivalent inputs should produce the same JSON-shaped
+value:
+
+```go
+result := connparse.ParseNormalize(
+	"postgresql://user:pass@LOCALHOST:5432/app?sslmode=require",
+)
+fmt.Println(result.Value.Canonical)
+// postgres://localhost/app?sslmode=require
+```
+
 Run the Go package tests:
 
 ```bash

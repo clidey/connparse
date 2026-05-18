@@ -138,6 +138,88 @@ parse('https://clickhouse.example.com:8443/default', { provider: 'clickhouse' })
 
 Returns a `ConnparseAddress` or throws an `Error`.
 
+### `parseNormalize(input, options?)`
+
+Returns a `ParseResult`, but `value` is a stable normalized object instead of a
+faithful raw parse object. Equivalent inputs produce the same normalized JSON.
+
+Use `parse()` when you need to preserve the exact original input in `raw`. Use
+`parseNormalize()` when you need dedupe keys, config comparison, cache keys, or
+stable UI state.
+
+```js
+parseNormalize('postgresql://user:pass@LOCALHOST:5432/app?sslmode=require&application_name=myapp');
+parseNormalize('postgres://localhost/app?application_name=myapp&sslmode=require');
+```
+
+Both return the same normalized `value`:
+
+```json
+{
+  "scheme": "postgres",
+  "type": "database",
+  "authority": {
+    "host": "localhost",
+    "port": null
+  },
+  "resource": {
+    "type": "database",
+    "name": "app"
+  },
+  "path": "",
+  "query": {
+    "application_name": "myapp",
+    "sslmode": "require"
+  },
+  "fragment": null,
+  "credentials": {},
+  "options": {},
+  "raw": "postgres://localhost/app?application_name=myapp&sslmode=require",
+  "safe": "postgres://localhost/app?application_name=myapp&sslmode=require",
+  "canonical": "postgres://localhost/app?application_name=myapp&sslmode=require"
+}
+```
+
+### `canonicalize(input, options?)`
+
+Returns a stable string identity for a connection address. Canonicalization
+normalizes scheme aliases, removes default ports, sorts query parameters, and
+normalizes typed query values where the CPDS definition declares the type.
+
+Canonical strings are safe by default: URI credentials are omitted, and
+CPDS-declared sensitive query values are replaced with `***`.
+
+```js
+canonicalize('postgresql://user:pass@LOCALHOST:5432/app?sslmode=require&application_name=myapp');
+// postgres://localhost/app?application_name=myapp&sslmode=require
+
+canonicalize('postgres://user:pass@localhost/app?sslkey=/tmp/client.key&sslmode=require');
+// postgres://localhost/app?sslkey=***&sslmode=require
+```
+
+Use explicit options only when the caller intentionally needs secret-inclusive
+identity strings:
+
+```js
+canonicalize('postgres://user:pass@localhost/app?sslkey=/tmp/client.key', {
+  includeCredentials: true,
+  includeSensitive: true
+});
+// postgres://user:pass@localhost/app?sslkey=%2Ftmp%2Fclient.key
+```
+
+### `equivalent(left, right, options?)`
+
+Compares two inputs by canonical identity:
+
+```js
+equivalent(
+  'postgresql://localhost:5432/app?sslmode=require&application_name=myapp',
+  'postgres://localhost/app?application_name=myapp&sslmode=require'
+);
+// true
+```
+
 ### `mask(input, definition?)`
 
 Redacts URI userinfo passwords from a raw connection string. Query parameters
