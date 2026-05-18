@@ -168,8 +168,7 @@ struct Parts {
 }
 
 pub fn built_in_definitions() -> Vec<Definition> {
-    serde_json::from_str(builtin_definitions::BUILT_IN_DEFINITIONS_JSON)
-        .expect("generated built-in definitions must be valid")
+    builtin_definitions::built_in_definitions()
 }
 
 pub fn parse(input: &str, options: Option<ParseOptions>) -> ParseResult {

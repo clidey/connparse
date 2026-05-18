@@ -150,6 +150,15 @@ test('generated outputs use typed/native definitions', () => {
   assert.match(goOutput, /func BuiltInDefinitions\(\) \[\]Definition/);
   assert.match(goOutput, /Definition\{/);
   assert.doesNotMatch(goOutput, /encoding\/json|builtInDefinitionsJSON|json\.Unmarshal/);
+
+  const pythonOutput = readFileSync(new URL('packages/python/src/connparse/builtin_definitions.py', repoRoot), 'utf8');
+  assert.match(pythonOutput, /BUILT_IN_DEFINITIONS: list\[ConnparseDefinition\]/);
+  assert.doesNotMatch(pythonOutput, /json\.loads|import json/);
+
+  const rustOutput = readFileSync(new URL('packages/rust/src/builtin_definitions.rs', repoRoot), 'utf8');
+  assert.match(rustOutput, /pub fn built_in_definitions\(\) -> Vec<Definition>/);
+  assert.match(rustOutput, /Definition \{/);
+  assert.doesNotMatch(rustOutput, /BUILT_IN_DEFINITIONS_JSON|serde_json::from_str/);
 });
 
 test('generator rejects invalid CPDS inputs before writing outputs', () => {

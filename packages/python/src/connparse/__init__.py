@@ -8,8 +8,10 @@ from typing import Any
 from urllib.parse import parse_qsl, quote, unquote, urlsplit
 
 from .builtin_definitions import BUILT_IN_DEFINITIONS
+from .types import ConnparseDefinition
 
 __all__ = [
+    "ConnparseDefinition",
     "canonicalize",
     "equivalent",
     "get_built_in_definitions",
@@ -120,7 +122,7 @@ def parse_normalize(input: str, options: dict[str, Any] | None = None) -> dict[s
     return {**result, "value": normalize_address(result["value"], options)}
 
 
-def get_built_in_definitions() -> list[dict[str, Any]]:
+def get_built_in_definitions() -> list[ConnparseDefinition]:
     return copy.deepcopy(BUILT_IN_DEFINITIONS)
 
 
