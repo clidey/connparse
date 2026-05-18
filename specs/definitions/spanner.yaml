@@ -1,0 +1,31 @@
+id: spanner
+name: Spanner
+type: database
+schemes:
+  - spanner
+authority:
+  host: true
+  project: true
+resource:
+  type: instance
+  required: false
+path:
+  type: database_path
+  required: false
+adapter: generic-uri
+credentials:
+  username: true
+  password: true
+  token: true
+query_parameters:
+  project:
+    type: string
+  instance:
+    type: string
+  database:
+    type: string
+validation:
+  require_host: true
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, token]

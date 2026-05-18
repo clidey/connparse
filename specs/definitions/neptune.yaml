@@ -1,0 +1,32 @@
+id: neptune
+name: Neptune
+type: database
+schemes:
+  - neptune
+adapter: generic-uri
+defaults:
+  port: 8182
+authority:
+  host: true
+  port: true
+resource:
+  type: graph
+  required: false
+path:
+  type: graph_path
+  required: false
+credentials:
+  username: true
+  password: true
+query_parameters: {}
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+options:
+  model: graph
+  provider: aws
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password]

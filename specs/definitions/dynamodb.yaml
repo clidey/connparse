@@ -1,0 +1,33 @@
+id: dynamodb
+name: DynamoDB
+type: database
+schemes:
+  - dynamodb
+adapter: generic-uri
+authority:
+  host: true
+  region: true
+resource:
+  type: table
+  required: false
+path:
+  type: item_path
+  required: false
+credentials:
+  username: true
+  password: true
+  access_key: true
+  secret_key: true
+  token: true
+query_parameters:
+  region:
+    type: string
+  profile:
+    type: string
+  token:
+    type: string
+validation:
+  require_host: false
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, access_key, secret_key, token]

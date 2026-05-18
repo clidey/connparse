@@ -1,0 +1,25 @@
+id: tallyprime
+name: TallyPrime
+type: database
+schemes:
+  - tally
+  - tallyprime
+adapter: generic-uri
+defaults:
+  port: 9000
+authority:
+  host: true
+  port: true
+resource:
+  type: company
+  required: false
+path:
+  type: collection_path
+  required: false
+credentials: {}
+query_parameters: {}
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535

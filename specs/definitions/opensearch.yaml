@@ -1,0 +1,41 @@
+id: opensearch
+name: OpenSearch
+type: api
+schemes:
+  - opensearch
+  - opensearch+http
+  - opensearch+https
+adapter: generic-uri
+defaults:
+  port: 9200
+authority:
+  host: true
+  port: true
+resource:
+  type: index
+  required: false
+path:
+  type: api_path
+  required: false
+credentials:
+  username: true
+  password: true
+  api_key: true
+  token: true
+query_parameters:
+  api_key:
+    type: string
+  apiKey:
+    type: string
+  token:
+    type: string
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+options:
+  compatible_with: elasticsearch
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, api_key, apiKey, token]

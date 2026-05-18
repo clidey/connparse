@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { parse } from '../src/index.js';
+import { getBuiltInDefinitions, parse } from '../src/index.js';
 
 const fixtures = JSON.parse(readFileSync(new URL('../../../specs/fixtures/compatibility.json', import.meta.url), 'utf8'));
 const TOP_LEVEL_KEYS = [
@@ -62,23 +62,7 @@ const REQUIRED_FIXTURE_NAMES = [
   'relative file'
 ];
 
-const REQUIRED_PROVIDER_IDS = [
-  'clickhouse',
-  'cockroachdb',
-  'duckdb',
-  'elasticsearch',
-  'file',
-  'mariadb',
-  'memcached',
-  'mongodb',
-  'mysql',
-  'postgres',
-  'questdb',
-  'redis',
-  's3',
-  'sqlite',
-  'yugabytedb'
-];
+const REQUIRED_PROVIDER_IDS = getBuiltInDefinitions().map((definition) => definition.id);
 
 function getPath(value, path) {
   return path.split('.').reduce((current, part) => {

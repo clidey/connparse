@@ -1,0 +1,35 @@
+id: oracle
+name: Oracle
+type: database
+schemes:
+  - oracle
+adapter: generic-uri
+defaults:
+  port: 1521
+authority:
+  host: true
+  port: true
+resource:
+  type: service
+  required: false
+path:
+  type: object_path
+  required: false
+credentials:
+  username: true
+  password: true
+query_parameters:
+  service_name:
+    type: string
+  sid:
+    type: string
+  wallet:
+    type: string
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, wallet]

@@ -1,0 +1,36 @@
+id: databricks
+name: Databricks
+type: analytics
+schemes:
+  - databricks
+adapter: generic-uri
+defaults:
+  port: 443
+authority:
+  host: true
+  port: true
+resource:
+  type: database
+  required: false
+path:
+  type: http_path
+  required: false
+credentials:
+  username: true
+  password: true
+  token: true
+query_parameters:
+  http_path:
+    type: string
+  warehouse:
+    type: string
+  access_token:
+    type: string
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, token, access_token]

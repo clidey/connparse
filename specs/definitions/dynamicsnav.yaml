@@ -1,0 +1,33 @@
+id: dynamicsnav
+name: Dynamics NAV
+type: database
+schemes:
+  - dynamicsnav
+adapter: generic-uri
+defaults:
+  port: 1433
+authority:
+  host: true
+  port: true
+resource:
+  type: company
+  required: false
+path:
+  type: object_path
+  required: false
+credentials:
+  username: true
+  password: true
+query_parameters:
+  auth_method:
+    type: string
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+options:
+  compatible_with: mssql
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password]

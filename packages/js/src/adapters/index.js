@@ -6,6 +6,7 @@ import { parseGenericUri } from './generic-uri.js';
 import { parseJdbc } from './jdbc.js';
 import { parseMemcached } from './memcached.js';
 import { parseMongoDb } from './mongodb.js';
+import { parseObjectStorage } from './object-storage.js';
 import { parseMySqlCompatible } from './mysql-compatible.js';
 import { parsePostgresCompatible } from './postgres-compatible.js';
 import { parseQuestDb } from './questdb.js';
@@ -22,6 +23,7 @@ export const adapters = {
   jdbc: parseJdbc,
   memcached: parseMemcached,
   mongodb: parseMongoDb,
+  'object-storage': parseObjectStorage,
   'mysql-compatible': parseMySqlCompatible,
   'postgres-compatible': parsePostgresCompatible,
   questdb: parseQuestDb,

@@ -1,0 +1,39 @@
+id: firestore
+name: Firestore
+type: database
+schemes:
+  - firestore
+adapter: mongodb
+defaults:
+  port: 443
+authority:
+  host: true
+  port: true
+resource:
+  type: database
+  required: false
+path:
+  type: collection
+  required: false
+credentials:
+  username: true
+  password: true
+  token: true
+query_parameters:
+  project:
+    type: string
+  database:
+    type: string
+  token:
+    type: string
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+options:
+  compatible_with: mongodb
+  provider: gcp
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, token]

@@ -1,0 +1,29 @@
+id: h2
+name: H2 Database
+type: database
+schemes:
+  - h2
+adapter: generic-uri
+defaults:
+  port: 9092
+authority:
+  host: true
+  port: true
+resource:
+  type: database
+  required: false
+path:
+  type: object_path
+  required: false
+credentials:
+  username: true
+  password: true
+query_parameters: {}
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password]

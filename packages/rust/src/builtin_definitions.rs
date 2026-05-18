@@ -2,6 +2,789 @@
 
 pub const BUILT_IN_DEFINITIONS_JSON: &str = r###"[
   {
+    "id": "adlsgen2",
+    "name": "Azure Data Lake Storage",
+    "type": "object_storage",
+    "schemes": [
+      "adls",
+      "adlsgen2",
+      "abfs",
+      "abfss"
+    ],
+    "adapter": "object-storage",
+    "authority": {
+      "host": true,
+      "account": true
+    },
+    "resource": {
+      "type": "filesystem",
+      "required": false
+    },
+    "path": {
+      "type": "object_key",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true,
+      "access_key": true,
+      "secret_key": true,
+      "token": true
+    },
+    "query_parameters": {
+      "auth_method": {
+        "type": "string"
+      },
+      "tenant_id": {
+        "type": "string"
+      },
+      "client_id": {
+        "type": "string"
+      },
+      "client_secret": {
+        "type": "string"
+      },
+      "account_key": {
+        "type": "string"
+      },
+      "sas": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true
+    },
+    "options": {
+      "provider": "azure"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "access_key",
+        "secret_key",
+        "token",
+        "client_secret",
+        "account_key",
+        "sas"
+      ]
+    }
+  },
+  {
+    "id": "apache-doris",
+    "name": "Apache Doris",
+    "type": "analytics",
+    "schemes": [
+      "apache-doris",
+      "doris"
+    ],
+    "adapter": "mysql-compatible",
+    "defaults": {
+      "port": 3306
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "charset": {
+        "type": "string"
+      },
+      "ssl": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "mysql"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "athena",
+    "name": "Amazon Athena",
+    "type": "analytics",
+    "schemes": [
+      "athena"
+    ],
+    "adapter": "generic-uri",
+    "authority": {
+      "host": true,
+      "region": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "table_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true,
+      "access_key": true,
+      "secret_key": true,
+      "token": true
+    },
+    "query_parameters": {
+      "region": {
+        "type": "string"
+      },
+      "workgroup": {
+        "type": "string"
+      },
+      "catalog": {
+        "type": "string"
+      },
+      "output_location": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": false
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "access_key",
+        "secret_key",
+        "token"
+      ]
+    }
+  },
+  {
+    "id": "aurora-mysql",
+    "name": "Aurora MySQL",
+    "type": "database",
+    "schemes": [
+      "aurora-mysql"
+    ],
+    "adapter": "mysql-compatible",
+    "defaults": {
+      "port": 3306
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "charset": {
+        "type": "string"
+      },
+      "ssl": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "mysql",
+      "provider": "aws"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "aurora-postgres",
+    "name": "Aurora PostgreSQL",
+    "type": "database",
+    "schemes": [
+      "aurora-postgres"
+    ],
+    "adapter": "postgres-compatible",
+    "defaults": {
+      "port": 5432
+    },
+    "authority": {
+      "host": true,
+      "port": true,
+      "multi_host": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "sslmode": {
+        "type": "string",
+        "allowed": [
+          "disable",
+          "allow",
+          "prefer",
+          "require",
+          "verify-ca",
+          "verify-full"
+        ]
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "postgres",
+      "provider": "aws"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "azure-blob",
+    "name": "Azure Blob",
+    "type": "object_storage",
+    "schemes": [
+      "azureblob",
+      "azblob"
+    ],
+    "adapter": "object-storage",
+    "authority": {
+      "host": true,
+      "account": true
+    },
+    "resource": {
+      "type": "container",
+      "required": false
+    },
+    "path": {
+      "type": "blob",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true,
+      "access_key": true,
+      "secret_key": true,
+      "token": true
+    },
+    "query_parameters": {
+      "auth_method": {
+        "type": "string"
+      },
+      "tenant_id": {
+        "type": "string"
+      },
+      "client_id": {
+        "type": "string"
+      },
+      "client_secret": {
+        "type": "string"
+      },
+      "account_key": {
+        "type": "string"
+      },
+      "sas": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true
+    },
+    "options": {
+      "provider": "azure"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "access_key",
+        "secret_key",
+        "token",
+        "client_secret",
+        "account_key",
+        "sas"
+      ]
+    }
+  },
+  {
+    "id": "azure-cosmosdb",
+    "name": "Azure Cosmos DB",
+    "type": "database",
+    "schemes": [
+      "cosmosdb",
+      "azure-cosmosdb"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 443
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "collection",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true,
+      "token": true
+    },
+    "query_parameters": {
+      "container": {
+        "type": "string"
+      },
+      "auth_method": {
+        "type": "string"
+      },
+      "tenant_id": {
+        "type": "string"
+      },
+      "client_id": {
+        "type": "string"
+      },
+      "client_secret": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "provider": "azure"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "token",
+        "client_secret"
+      ]
+    }
+  },
+  {
+    "id": "azure-files",
+    "name": "Azure Files",
+    "type": "object_storage",
+    "schemes": [
+      "azurefile",
+      "azurefiles"
+    ],
+    "adapter": "object-storage",
+    "authority": {
+      "host": true,
+      "account": true
+    },
+    "resource": {
+      "type": "share",
+      "required": false
+    },
+    "path": {
+      "type": "file_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true,
+      "access_key": true,
+      "secret_key": true,
+      "token": true
+    },
+    "query_parameters": {
+      "auth_method": {
+        "type": "string"
+      },
+      "tenant_id": {
+        "type": "string"
+      },
+      "client_id": {
+        "type": "string"
+      },
+      "client_secret": {
+        "type": "string"
+      },
+      "account_key": {
+        "type": "string"
+      },
+      "sas": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true
+    },
+    "options": {
+      "provider": "azure"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "access_key",
+        "secret_key",
+        "token",
+        "client_secret",
+        "account_key",
+        "sas"
+      ]
+    }
+  },
+  {
+    "id": "azure-managed-cassandra",
+    "name": "Azure Managed Cassandra",
+    "type": "database",
+    "schemes": [
+      "azure-managed-cassandra"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 9042
+    },
+    "authority": {
+      "host": true,
+      "port": true,
+      "multi_host": true
+    },
+    "resource": {
+      "type": "keyspace",
+      "required": false
+    },
+    "path": {
+      "type": "table_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "consistency": {
+        "type": "string"
+      },
+      "datacenter": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "cassandra",
+      "provider": "azure"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "azure-managed-redis",
+    "name": "Azure Managed Redis",
+    "type": "cache",
+    "schemes": [
+      "azure-managed-redis",
+      "azure-managed-rediss"
+    ],
+    "adapter": "redis",
+    "defaults": {
+      "port": 10000
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database_index",
+      "required": false
+    },
+    "path": {
+      "type": "none",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "protocol": {
+        "type": "number"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "redis",
+      "provider": "azure",
+      "tls": true
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "bigquery",
+    "name": "BigQuery",
+    "type": "analytics",
+    "schemes": [
+      "bigquery"
+    ],
+    "adapter": "generic-uri",
+    "authority": {
+      "host": true,
+      "project": true,
+      "region": true
+    },
+    "resource": {
+      "type": "dataset",
+      "required": false
+    },
+    "path": {
+      "type": "table_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true,
+      "token": true
+    },
+    "query_parameters": {
+      "location": {
+        "type": "string"
+      },
+      "region": {
+        "type": "string"
+      },
+      "access_token": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "token",
+        "access_token"
+      ]
+    }
+  },
+  {
+    "id": "business-central",
+    "name": "Dynamics 365 Business Central",
+    "type": "api",
+    "schemes": [
+      "businesscentral",
+      "business-central"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 443
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "environment",
+      "required": false
+    },
+    "path": {
+      "type": "api_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true,
+      "token": true
+    },
+    "query_parameters": {
+      "auth_method": {
+        "type": "string"
+      },
+      "tenant_id": {
+        "type": "string"
+      },
+      "client_id": {
+        "type": "string"
+      },
+      "client_secret": {
+        "type": "string"
+      },
+      "environment": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "provider": "microsoft"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "token",
+        "client_secret"
+      ]
+    }
+  },
+  {
+    "id": "cassandra",
+    "name": "Cassandra",
+    "type": "database",
+    "schemes": [
+      "cassandra"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 9042
+    },
+    "authority": {
+      "host": true,
+      "port": true,
+      "multi_host": true
+    },
+    "resource": {
+      "type": "keyspace",
+      "required": false
+    },
+    "path": {
+      "type": "table_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "consistency": {
+        "type": "string"
+      },
+      "datacenter": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
     "id": "clickhouse",
     "name": "ClickHouse",
     "type": "database",
@@ -158,6 +941,296 @@ pub const BUILT_IN_DEFINITIONS_JSON: &str = r###"[
     }
   },
   {
+    "id": "cratedb",
+    "name": "CrateDB",
+    "type": "database",
+    "schemes": [
+      "cratedb"
+    ],
+    "adapter": "postgres-compatible",
+    "defaults": {
+      "port": 5432
+    },
+    "authority": {
+      "host": true,
+      "port": true,
+      "multi_host": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "sslmode": {
+        "type": "string",
+        "allowed": [
+          "disable",
+          "allow",
+          "prefer",
+          "require",
+          "verify-ca",
+          "verify-full"
+        ]
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "postgres"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "databricks",
+    "name": "Databricks",
+    "type": "analytics",
+    "schemes": [
+      "databricks"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 443
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "http_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true,
+      "token": true
+    },
+    "query_parameters": {
+      "http_path": {
+        "type": "string"
+      },
+      "warehouse": {
+        "type": "string"
+      },
+      "access_token": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "token",
+        "access_token"
+      ]
+    }
+  },
+  {
+    "id": "db2",
+    "name": "IBM Db2",
+    "type": "database",
+    "schemes": [
+      "db2"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 50000
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {},
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "documentdb",
+    "name": "Amazon DocumentDB",
+    "type": "database",
+    "schemes": [
+      "documentdb",
+      "documentdb+srv"
+    ],
+    "adapter": "mongodb",
+    "defaults": {
+      "port": 27017
+    },
+    "authority": {
+      "host": true,
+      "port": true,
+      "multi_host": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "collection",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "authSource": {
+        "type": "string"
+      },
+      "replicaSet": {
+        "type": "string"
+      },
+      "retryWrites": {
+        "type": "boolean"
+      },
+      "readPreference": {
+        "type": "string"
+      },
+      "tls": {
+        "type": "boolean"
+      },
+      "tlsInsecure": {
+        "type": "boolean"
+      },
+      "tlsCAFile": {
+        "type": "string"
+      },
+      "tlsCertificateKeyFile": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "mongodb",
+      "provider": "aws"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "tlsCAFile",
+        "tlsCertificateKeyFile"
+      ]
+    }
+  },
+  {
+    "id": "dragonfly",
+    "name": "Dragonfly",
+    "type": "cache",
+    "schemes": [
+      "dragonfly",
+      "dragonflys"
+    ],
+    "adapter": "redis",
+    "defaults": {
+      "port": 6379
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database_index",
+      "required": false
+    },
+    "path": {
+      "type": "none",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "protocol": {
+        "type": "number"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "redis"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
     "id": "duckdb",
     "name": "DuckDB",
     "type": "database",
@@ -181,6 +1254,164 @@ pub const BUILT_IN_DEFINITIONS_JSON: &str = r###"[
       }
     },
     "validation": {}
+  },
+  {
+    "id": "dynamicsnav",
+    "name": "Dynamics NAV",
+    "type": "database",
+    "schemes": [
+      "dynamicsnav"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 1433
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "company",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "auth_method": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "mssql"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "dynamodb",
+    "name": "DynamoDB",
+    "type": "database",
+    "schemes": [
+      "dynamodb"
+    ],
+    "adapter": "generic-uri",
+    "authority": {
+      "host": true,
+      "region": true
+    },
+    "resource": {
+      "type": "table",
+      "required": false
+    },
+    "path": {
+      "type": "item_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true,
+      "access_key": true,
+      "secret_key": true,
+      "token": true
+    },
+    "query_parameters": {
+      "region": {
+        "type": "string"
+      },
+      "profile": {
+        "type": "string"
+      },
+      "token": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": false
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "access_key",
+        "secret_key",
+        "token"
+      ]
+    }
+  },
+  {
+    "id": "elasticache",
+    "name": "Amazon ElastiCache",
+    "type": "cache",
+    "schemes": [
+      "elasticache",
+      "elasticaches"
+    ],
+    "adapter": "redis",
+    "defaults": {
+      "port": 6379
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database_index",
+      "required": false
+    },
+    "path": {
+      "type": "none",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "protocol": {
+        "type": "number"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "redis",
+      "provider": "aws",
+      "tls": true
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
   },
   {
     "id": "elasticsearch",
@@ -245,6 +1476,76 @@ pub const BUILT_IN_DEFINITIONS_JSON: &str = r###"[
     }
   },
   {
+    "id": "ferretdb",
+    "name": "FerretDB",
+    "type": "database",
+    "schemes": [
+      "ferretdb",
+      "ferretdb+srv"
+    ],
+    "adapter": "mongodb",
+    "defaults": {
+      "port": 27017
+    },
+    "authority": {
+      "host": true,
+      "port": true,
+      "multi_host": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "collection",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "authSource": {
+        "type": "string"
+      },
+      "replicaSet": {
+        "type": "string"
+      },
+      "retryWrites": {
+        "type": "boolean"
+      },
+      "tls": {
+        "type": "boolean"
+      },
+      "tlsCAFile": {
+        "type": "string"
+      },
+      "tlsCertificateKeyFile": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "mongodb"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "tlsCAFile",
+        "tlsCertificateKeyFile"
+      ]
+    }
+  },
+  {
     "id": "file",
     "name": "File",
     "type": "file",
@@ -266,6 +1567,232 @@ pub const BUILT_IN_DEFINITIONS_JSON: &str = r###"[
     "credentials": {},
     "query_parameters": {},
     "validation": {}
+  },
+  {
+    "id": "firestore",
+    "name": "Firestore",
+    "type": "database",
+    "schemes": [
+      "firestore"
+    ],
+    "adapter": "mongodb",
+    "defaults": {
+      "port": 443
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "collection",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true,
+      "token": true
+    },
+    "query_parameters": {
+      "project": {
+        "type": "string"
+      },
+      "database": {
+        "type": "string"
+      },
+      "token": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "mongodb",
+      "provider": "gcp"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "token"
+      ]
+    }
+  },
+  {
+    "id": "gaussdb",
+    "name": "GaussDB",
+    "type": "database",
+    "schemes": [
+      "gaussdb"
+    ],
+    "adapter": "postgres-compatible",
+    "defaults": {
+      "port": 5432
+    },
+    "authority": {
+      "host": true,
+      "port": true,
+      "multi_host": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "sslmode": {
+        "type": "string",
+        "allowed": [
+          "disable",
+          "allow",
+          "prefer",
+          "require",
+          "verify-ca",
+          "verify-full"
+        ]
+      },
+      "application_name": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "postgres"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "gcs",
+    "name": "Google Cloud Storage",
+    "type": "object_storage",
+    "schemes": [
+      "gs",
+      "gcs"
+    ],
+    "adapter": "object-storage",
+    "authority": {
+      "bucket": true,
+      "project": true
+    },
+    "resource": {
+      "type": "bucket",
+      "required": true
+    },
+    "path": {
+      "type": "object_key",
+      "required": false
+    },
+    "credentials": {
+      "token": true
+    },
+    "query_parameters": {
+      "project": {
+        "type": "string"
+      },
+      "project_id": {
+        "type": "string"
+      },
+      "projectId": {
+        "type": "string"
+      },
+      "generation": {
+        "type": "string"
+      },
+      "userProject": {
+        "type": "string"
+      },
+      "access_token": {
+        "type": "string"
+      },
+      "service_account_key_path": {
+        "type": "string"
+      }
+    },
+    "validation": {},
+    "options": {
+      "provider": "gcp"
+    },
+    "redaction": {
+      "safe_credentials": [],
+      "sensitive_keys": [
+        "token",
+        "access_token"
+      ]
+    }
+  },
+  {
+    "id": "h2",
+    "name": "H2 Database",
+    "type": "database",
+    "schemes": [
+      "h2"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 9092
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {},
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
   },
   {
     "id": "mariadb",
@@ -332,6 +1859,66 @@ pub const BUILT_IN_DEFINITIONS_JSON: &str = r###"[
     }
   },
   {
+    "id": "materialize",
+    "name": "Materialize",
+    "type": "analytics",
+    "schemes": [
+      "materialize"
+    ],
+    "adapter": "postgres-compatible",
+    "defaults": {
+      "port": 5432
+    },
+    "authority": {
+      "host": true,
+      "port": true,
+      "multi_host": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "sslmode": {
+        "type": "string",
+        "allowed": [
+          "disable",
+          "allow",
+          "prefer",
+          "require",
+          "verify-ca",
+          "verify-full"
+        ]
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "postgres"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
     "id": "memcached",
     "name": "Memcached",
     "type": "cache",
@@ -367,6 +1954,109 @@ pub const BUILT_IN_DEFINITIONS_JSON: &str = r###"[
         "min": 1,
         "max": 65535
       }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "memgraph",
+    "name": "Memgraph",
+    "type": "database",
+    "schemes": [
+      "memgraph",
+      "memgraph+s"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 7687
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "graph_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {},
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "neo4j",
+      "model": "graph"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "memorydb",
+    "name": "Amazon MemoryDB",
+    "type": "cache",
+    "schemes": [
+      "memorydb",
+      "memorydbs"
+    ],
+    "adapter": "redis",
+    "defaults": {
+      "port": 6379
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database_index",
+      "required": false
+    },
+    "path": {
+      "type": "none",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "protocol": {
+        "type": "number"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "redis",
+      "provider": "aws",
+      "tls": true
     },
     "redaction": {
       "safe_credentials": [
@@ -465,6 +2155,58 @@ pub const BUILT_IN_DEFINITIONS_JSON: &str = r###"[
         "password",
         "tlsCAFile",
         "tlsCertificateKeyFile"
+      ]
+    }
+  },
+  {
+    "id": "mssql",
+    "name": "Microsoft SQL Server",
+    "type": "database",
+    "schemes": [
+      "mssql",
+      "sqlserver"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 1433
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "encrypt": {
+        "type": "boolean"
+      },
+      "trustServerCertificate": {
+        "type": "boolean"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
       ]
     }
   },
@@ -579,6 +2321,277 @@ pub const BUILT_IN_DEFINITIONS_JSON: &str = r###"[
         "ssl-crl",
         "ssl-crlpath",
         "ssl-key"
+      ]
+    }
+  },
+  {
+    "id": "neo4j",
+    "name": "Neo4j",
+    "type": "database",
+    "schemes": [
+      "neo4j",
+      "neo4j+s",
+      "bolt",
+      "bolt+s"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 7687
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "graph_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {},
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "model": "graph"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "neptune",
+    "name": "Neptune",
+    "type": "database",
+    "schemes": [
+      "neptune"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 8182
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "graph",
+      "required": false
+    },
+    "path": {
+      "type": "graph_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {},
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "model": "graph",
+      "provider": "aws"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "oceanbase",
+    "name": "OceanBase",
+    "type": "database",
+    "schemes": [
+      "oceanbase"
+    ],
+    "adapter": "mysql-compatible",
+    "defaults": {
+      "port": 3306
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "charset": {
+        "type": "string"
+      },
+      "ssl": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "mysql"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "opensearch",
+    "name": "OpenSearch",
+    "type": "api",
+    "schemes": [
+      "opensearch",
+      "opensearch+http",
+      "opensearch+https"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 9200
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "index",
+      "required": false
+    },
+    "path": {
+      "type": "api_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true,
+      "api_key": true,
+      "token": true
+    },
+    "query_parameters": {
+      "api_key": {
+        "type": "string"
+      },
+      "apiKey": {
+        "type": "string"
+      },
+      "token": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "elasticsearch"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "api_key",
+        "apiKey",
+        "token"
+      ]
+    }
+  },
+  {
+    "id": "oracle",
+    "name": "Oracle",
+    "type": "database",
+    "schemes": [
+      "oracle"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 1521
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "service",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "service_name": {
+        "type": "string"
+      },
+      "sid": {
+        "type": "string"
+      },
+      "wallet": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "wallet"
       ]
     }
   },
@@ -837,6 +2850,127 @@ pub const BUILT_IN_DEFINITIONS_JSON: &str = r###"[
     }
   },
   {
+    "id": "redshift",
+    "name": "Redshift",
+    "type": "analytics",
+    "schemes": [
+      "redshift"
+    ],
+    "adapter": "postgres-compatible",
+    "defaults": {
+      "port": 5439
+    },
+    "authority": {
+      "host": true,
+      "port": true,
+      "multi_host": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "sslmode": {
+        "type": "string",
+        "allowed": [
+          "disable",
+          "allow",
+          "prefer",
+          "require",
+          "verify-ca",
+          "verify-full"
+        ]
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "postgres",
+      "provider": "aws"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "risingwave",
+    "name": "RisingWave",
+    "type": "stream",
+    "schemes": [
+      "risingwave"
+    ],
+    "adapter": "postgres-compatible",
+    "defaults": {
+      "port": 5432
+    },
+    "authority": {
+      "host": true,
+      "port": true,
+      "multi_host": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "sslmode": {
+        "type": "string",
+        "allowed": [
+          "disable",
+          "allow",
+          "prefer",
+          "require",
+          "verify-ca",
+          "verify-full"
+        ]
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "postgres"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
     "id": "s3",
     "name": "Amazon S3",
     "type": "object_storage",
@@ -868,6 +3002,217 @@ pub const BUILT_IN_DEFINITIONS_JSON: &str = r###"[
     "validation": {}
   },
   {
+    "id": "saphana",
+    "name": "SAP HANA",
+    "type": "database",
+    "schemes": [
+      "saphana",
+      "hana"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 30015
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "schema_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "auth_method": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "singlestore",
+    "name": "SingleStore",
+    "type": "database",
+    "schemes": [
+      "singlestore"
+    ],
+    "adapter": "mysql-compatible",
+    "defaults": {
+      "port": 3306
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "charset": {
+        "type": "string"
+      },
+      "ssl": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "mysql"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "snowflake",
+    "name": "Snowflake",
+    "type": "analytics",
+    "schemes": [
+      "snowflake"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 443
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "schema_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true,
+      "token": true
+    },
+    "query_parameters": {
+      "warehouse": {
+        "type": "string"
+      },
+      "role": {
+        "type": "string"
+      },
+      "schema": {
+        "type": "string"
+      },
+      "token": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "token"
+      ]
+    }
+  },
+  {
+    "id": "spanner",
+    "name": "Spanner",
+    "type": "database",
+    "schemes": [
+      "spanner"
+    ],
+    "authority": {
+      "host": true,
+      "project": true
+    },
+    "resource": {
+      "type": "instance",
+      "required": false
+    },
+    "path": {
+      "type": "database_path",
+      "required": false
+    },
+    "adapter": "generic-uri",
+    "credentials": {
+      "username": true,
+      "password": true,
+      "token": true
+    },
+    "query_parameters": {
+      "project": {
+        "type": "string"
+      },
+      "instance": {
+        "type": "string"
+      },
+      "database": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "token"
+      ]
+    }
+  },
+  {
     "id": "sqlite",
     "name": "SQLite",
     "type": "database",
@@ -894,6 +3239,311 @@ pub const BUILT_IN_DEFINITIONS_JSON: &str = r###"[
       }
     },
     "validation": {}
+  },
+  {
+    "id": "starrocks",
+    "name": "StarRocks",
+    "type": "database",
+    "schemes": [
+      "starrocks"
+    ],
+    "adapter": "mysql-compatible",
+    "defaults": {
+      "port": 9030
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "charset": {
+        "type": "string"
+      },
+      "ssl": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "mysql"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "tallyprime",
+    "name": "TallyPrime",
+    "type": "database",
+    "schemes": [
+      "tally",
+      "tallyprime"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 9000
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "company",
+      "required": false
+    },
+    "path": {
+      "type": "collection_path",
+      "required": false
+    },
+    "credentials": {},
+    "query_parameters": {},
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    }
+  },
+  {
+    "id": "tidb",
+    "name": "TiDB",
+    "type": "database",
+    "schemes": [
+      "tidb"
+    ],
+    "adapter": "mysql-compatible",
+    "defaults": {
+      "port": 4000
+    },
+    "authority": {
+      "host": true,
+      "port": true,
+      "multi_host": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "object_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "ssl-mode": {
+        "type": "string"
+      },
+      "ssl": {
+        "type": "string"
+      },
+      "charset": {
+        "type": "string"
+      },
+      "parseTime": {
+        "type": "boolean"
+      },
+      "loc": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "mysql"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
+  },
+  {
+    "id": "timestream",
+    "name": "Timestream",
+    "type": "analytics",
+    "schemes": [
+      "timestream"
+    ],
+    "adapter": "generic-uri",
+    "authority": {
+      "host": true,
+      "region": true
+    },
+    "resource": {
+      "type": "database",
+      "required": false
+    },
+    "path": {
+      "type": "table_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true,
+      "access_key": true,
+      "secret_key": true,
+      "token": true
+    },
+    "query_parameters": {
+      "region": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": false
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "access_key",
+        "secret_key",
+        "token"
+      ]
+    }
+  },
+  {
+    "id": "trino",
+    "name": "Trino",
+    "type": "analytics",
+    "schemes": [
+      "trino"
+    ],
+    "adapter": "generic-uri",
+    "defaults": {
+      "port": 8080
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "catalog",
+      "required": false
+    },
+    "path": {
+      "type": "schema_path",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true,
+      "token": true
+    },
+    "query_parameters": {
+      "SSL": {
+        "type": "boolean"
+      },
+      "accessToken": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password",
+        "token",
+        "accessToken"
+      ]
+    }
+  },
+  {
+    "id": "valkey",
+    "name": "Valkey",
+    "type": "cache",
+    "schemes": [
+      "valkey",
+      "valkeys"
+    ],
+    "adapter": "redis",
+    "defaults": {
+      "port": 6379
+    },
+    "authority": {
+      "host": true,
+      "port": true
+    },
+    "resource": {
+      "type": "database_index",
+      "required": false
+    },
+    "path": {
+      "type": "none",
+      "required": false
+    },
+    "credentials": {
+      "username": true,
+      "password": true
+    },
+    "query_parameters": {
+      "protocol": {
+        "type": "number"
+      }
+    },
+    "validation": {
+      "require_host": true,
+      "port_range": {
+        "min": 1,
+        "max": 65535
+      }
+    },
+    "options": {
+      "compatible_with": "redis"
+    },
+    "redaction": {
+      "safe_credentials": [
+        "username"
+      ],
+      "sensitive_keys": [
+        "password"
+      ]
+    }
   },
   {
     "id": "yugabytedb",

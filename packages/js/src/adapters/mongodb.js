@@ -8,7 +8,7 @@ import {
 export function parseMongoDb(input, definition, context) {
   const parts = parseHierarchical(input);
   const [database = null, ...rest] = parts.pathSegments;
-  const srv = parts.scheme === 'mongodb+srv';
+  const srv = parts.scheme.endsWith('+srv');
   const authority = authorityFromParts(parts, definition.defaults, { omitPorts: srv });
 
   return baseAddress({

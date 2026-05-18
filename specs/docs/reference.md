@@ -1,7 +1,8 @@
 # Connparse Reference
 
 This document lists the keys used by Connparse addresses, parse results,
-diagnostics, CPDS definitions, built-in adapters, and fixtures.
+diagnostics, Connparse Definition Specification (CPDS) definitions, built-in
+adapters, and fixtures.
 
 For cross-language implementation rules, see
 [porting.md](porting.md).
@@ -208,12 +209,14 @@ Current built-in keys:
 | Key | Type | Used by | Meaning |
 | --- | --- | --- | --- |
 | `srv` | `boolean` | MongoDB | `true` for `mongodb+srv` inputs. |
-| `tls` | `boolean` | Redis, Memcached, Elasticsearch, QuestDB | Derived TLS flag. |
+| `tls` | `boolean` | Redis-compatible, Memcached, Elasticsearch, QuestDB | Derived TLS flag. |
 | `jdbc` | `boolean` | JDBC-backed adapters | `true` when the input was a JDBC URL. |
 | `mode` | `string` | MariaDB JDBC | Failover/load-balancing mode such as `sequential`. |
 | `protocol` | `string` | ClickHouse, Elasticsearch, QuestDB | Transport protocol such as `http`, `https`, `tcp`, or `native`. |
 | `conninfo` | `boolean` | PostgreSQL-compatible adapters | `true` when a keyword/value conninfo string was parsed. |
-| `compatible_with` | `string` | CockroachDB, QuestDB, YugabyteDB | Compatibility family, currently `postgres`. |
+| `compatible_with` | `string` | Compatible providers | Compatibility family, such as `postgres`, `mysql`, `redis`, `mongodb`, or `elasticsearch`. |
+| `provider` | `string` | Managed/cloud providers | Cloud or vendor owner, such as `aws`, `azure`, or `gcp`. |
+| `model` | `string` | Graph providers | Source model hint, such as `graph`. |
 | `ingestion` | `boolean` | QuestDB | `true` for QuestDB ILP ingestion config strings. |
 | `source_scheme` | `string` | S3 HTTPS URLs | Original source scheme, such as `https`, when normalized to `s3`. |
 | `memory` | `boolean` | SQLite, DuckDB | `true` for in-memory databases. |
@@ -339,9 +342,10 @@ Options:
 `equivalent(left, right, options?)` compares two addresses by their canonical
 identity.
 
-## CPDS Definition Keys
+## Connparse Definition Specification (CPDS) Keys
 
-Connparse Definition Files are JSON or YAML.
+CPDS files are JSON or YAML files that describe provider-specific parsing,
+validation, defaults, and redaction.
 
 Top-level keys:
 

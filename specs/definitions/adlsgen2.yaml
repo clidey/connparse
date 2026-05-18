@@ -1,0 +1,44 @@
+id: adlsgen2
+name: Azure Data Lake Storage
+type: object_storage
+schemes:
+  - adls
+  - adlsgen2
+  - abfs
+  - abfss
+adapter: object-storage
+authority:
+  host: true
+  account: true
+resource:
+  type: filesystem
+  required: false
+path:
+  type: object_key
+  required: false
+credentials:
+  username: true
+  password: true
+  access_key: true
+  secret_key: true
+  token: true
+query_parameters:
+  auth_method:
+    type: string
+  tenant_id:
+    type: string
+  client_id:
+    type: string
+  client_secret:
+    type: string
+  account_key:
+    type: string
+  sas:
+    type: string
+validation:
+  require_host: true
+options:
+  provider: azure
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, access_key, secret_key, token, client_secret, account_key, sas]

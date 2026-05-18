@@ -201,6 +201,7 @@ pub fn parse(input: &str, options: Option<ParseOptions>) -> ParseResult {
         "jdbc" => parse_jdbc(input, &definition, input, &safe),
         "memcached" => parse_memcached(input, &definition, input, &safe),
         "mongodb" => parse_mongodb(input, &definition, input, &safe),
+        "object-storage" => parse_object_storage(input, &definition, input, &safe),
         "mysql-compatible" => parse_mysql_compatible(input, &definition, input, &safe),
         "postgres-compatible" => parse_postgres_compatible(input, &definition, input, &safe),
         "questdb" => parse_questdb(input, &definition, input, &safe),
@@ -709,7 +710,7 @@ fn parse_mongodb(
     safe: &str,
 ) -> Result<Address, String> {
     let parts = parse_hierarchical(input)?;
-    let srv = parts.scheme == "mongodb+srv";
+    let srv = parts.scheme.ends_with("+srv");
     Ok(base_address(
         definition,
         &parts.scheme,
@@ -763,7 +764,24 @@ fn parse_redis(
             parts.query.clone(),
             parts.fragment.clone(),
             credentials_from_parts(&parts),
-            map_from_pairs(vec![("tls", json!(scheme == "rediss"))]),
+            map_from_pairs(vec![(
+                "tls",
+                json!(
+                    matches!(
+                        scheme.as_str(),
+                        "rediss"
+                            | "valkeys"
+                            | "dragonflys"
+                            | "elasticaches"
+                            | "memorydbs"
+                            | "azure-managed-rediss"
+                    ) || definition
+                        .options
+                        .get("tls")
+                        .and_then(Value::as_bool)
+                        .unwrap_or(false)
+                ),
+            )]),
         ));
     }
     let mut endpoints = vec![];
@@ -806,7 +824,12 @@ fn parse_redis(
         .get("ssl")
         .or_else(|| options.get("tls"))
         .and_then(Value::as_str)
-        .is_some_and(|v| v.eq_ignore_ascii_case("true"));
+        .is_some_and(|v| v.eq_ignore_ascii_case("true"))
+        || definition
+            .options
+            .get("tls")
+            .and_then(Value::as_bool)
+            .unwrap_or(false);
     options.insert("tls".into(), json!(tls));
     let authority = if endpoints.len() > 1 {
         map_from_pairs(vec![(
@@ -1176,6 +1199,96 @@ fn parse_elasticsearch(
     ))
 }
 
+fn parse_object_storage(
+    input: &str,
+    definition: &Definition,
+    raw: &str,
+    safe: &str,
+) -> Result<Address, String> {
+    let parts = parse_hierarchical(input)?;
+    let mut segments = parts.path_segments.clone();
+    let resource_type = rule_type(&definition.resource, "container");
+    let mut authority = Map::new();
+    let resource_name;
+    let path;
+    let mut credentials = credentials_from_parts(&parts);
+
+    if parts.scheme == "gs" || (parts.scheme == "gcs" && parts.host != "storage.googleapis.com") {
+        resource_name = if parts.host.is_empty() {
+            None
+        } else {
+            Some(parts.host.clone())
+        };
+        path = segments.join("/");
+        authority.insert("bucket".into(), json!(parts.host));
+    } else if (parts.scheme == "gcs" || parts.scheme == "https")
+        && parts.host == "storage.googleapis.com"
+    {
+        resource_name = if segments.is_empty() {
+            None
+        } else {
+            Some(segments.remove(0))
+        };
+        path = segments.join("/");
+        authority.insert(
+            "bucket".into(),
+            json!(resource_name.clone().unwrap_or_default()),
+        );
+    } else if parts.scheme == "abfs" || parts.scheme == "abfss" {
+        resource_name = if parts.username.is_empty() {
+            None
+        } else {
+            Some(parts.username.clone())
+        };
+        path = segments.join("/");
+        authority.insert("host".into(), json!(parts.host));
+        authority.insert("account".into(), json!(account_from_host(&parts.host)));
+        credentials = BTreeMap::new();
+    } else {
+        resource_name = if segments.is_empty() {
+            None
+        } else {
+            Some(segments.remove(0))
+        };
+        path = segments.join("/");
+        authority.insert("host".into(), json!(parts.host));
+        authority.insert("account".into(), json!(account_from_host(&parts.host)));
+    }
+
+    if let Some(project) = parts
+        .query
+        .get("project")
+        .or_else(|| parts.query.get("project_id"))
+        .or_else(|| parts.query.get("projectId"))
+        .and_then(Value::as_str)
+    {
+        authority.insert("project".into(), json!(project));
+    }
+
+    Ok(base_address(
+        definition,
+        &parts.scheme,
+        raw,
+        safe,
+        authority,
+        Resource {
+            kind: resource_type,
+            name: resource_name,
+        },
+        path,
+        parts.query,
+        parts.fragment,
+        credentials,
+        map_from_pairs(vec![
+            ("source_scheme", json!(parts.scheme.clone())),
+            (
+                "tls",
+                json!(parts.scheme == "https" || parts.scheme == "abfss"),
+            ),
+        ]),
+    ))
+}
+
 fn parse_questdb(
     input: &str,
     definition: &Definition,
@@ -1388,6 +1501,10 @@ fn base_address(
     credentials: BTreeMap<String, String>,
     options: Map<String, Value>,
 ) -> Address {
+    let mut merged_options = definition.options.clone();
+    for (key, value) in options {
+        merged_options.insert(key, value);
+    }
     Address {
         scheme: scheme.to_string(),
         kind: if definition.kind.is_empty() {
@@ -1401,7 +1518,7 @@ fn base_address(
         query,
         fragment,
         credentials,
-        options,
+        options: merged_options,
         raw: raw.into(),
         safe: safe.into(),
     }
@@ -2472,6 +2589,10 @@ fn basename(path: &str) -> Option<String> {
         .last()
         .map(str::to_string)
         .or_else(|| Some(path.into()))
+}
+
+fn account_from_host(host: &str) -> String {
+    host.split('.').next().unwrap_or("").to_string()
 }
 
 fn optional_i64(value: Option<i64>) -> Value {

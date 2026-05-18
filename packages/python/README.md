@@ -9,7 +9,11 @@ credentials, query options, and a safe redacted string.
 
 Supported sources include PostgreSQL, MySQL, MariaDB, SQLite, DuckDB,
 ClickHouse, Redis, Memcached, Elasticsearch, MongoDB, CockroachDB, QuestDB,
-YugabyteDB, Amazon S3, and local file paths.
+YugabyteDB, TiDB, Valkey, Dragonfly, OpenSearch, FerretDB, ElastiCache,
+DocumentDB, SQL Server, Oracle, Snowflake, Cassandra, BigQuery, Redshift,
+Aurora, Neo4j, Trino, Databricks, DynamoDB, StarRocks, SAP HANA, Athena,
+Spanner, Google Cloud Storage, Azure Blob, Azure Data Lake Storage, Azure Files,
+Azure Cosmos DB, Business Central, TallyPrime, Amazon S3, and local file paths.
 
 ## Install
 

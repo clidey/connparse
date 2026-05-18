@@ -144,6 +144,16 @@ func baseAddress(def Definition, scheme, raw, safe string, authority map[string]
 	if options == nil {
 		options = map[string]any{}
 	}
+	if def.Options != nil {
+		merged := map[string]any{}
+		for key, value := range def.Options {
+			merged[key] = value
+		}
+		for key, value := range options {
+			merged[key] = value
+		}
+		options = merged
+	}
 	if resource.Type == "" {
 		resource = Resource{Type: "none", Name: nil}
 	}

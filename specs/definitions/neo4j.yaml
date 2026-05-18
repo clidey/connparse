@@ -1,0 +1,34 @@
+id: neo4j
+name: Neo4j
+type: database
+schemes:
+  - neo4j
+  - neo4j+s
+  - bolt
+  - bolt+s
+adapter: generic-uri
+defaults:
+  port: 7687
+authority:
+  host: true
+  port: true
+resource:
+  type: database
+  required: false
+path:
+  type: graph_path
+  required: false
+credentials:
+  username: true
+  password: true
+query_parameters: {}
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+options:
+  model: graph
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password]

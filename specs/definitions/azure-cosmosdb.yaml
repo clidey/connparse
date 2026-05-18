@@ -1,0 +1,43 @@
+id: azure-cosmosdb
+name: Azure Cosmos DB
+type: database
+schemes:
+  - cosmosdb
+  - azure-cosmosdb
+adapter: generic-uri
+defaults:
+  port: 443
+authority:
+  host: true
+  port: true
+resource:
+  type: database
+  required: false
+path:
+  type: collection
+  required: false
+credentials:
+  username: true
+  password: true
+  token: true
+query_parameters:
+  container:
+    type: string
+  auth_method:
+    type: string
+  tenant_id:
+    type: string
+  client_id:
+    type: string
+  client_secret:
+    type: string
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+options:
+  provider: azure
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, token, client_secret]

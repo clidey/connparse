@@ -1,0 +1,29 @@
+id: timestream
+name: Timestream
+type: analytics
+schemes:
+  - timestream
+adapter: generic-uri
+authority:
+  host: true
+  region: true
+resource:
+  type: database
+  required: false
+path:
+  type: table_path
+  required: false
+credentials:
+  username: true
+  password: true
+  access_key: true
+  secret_key: true
+  token: true
+query_parameters:
+  region:
+    type: string
+validation:
+  require_host: false
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, access_key, secret_key, token]

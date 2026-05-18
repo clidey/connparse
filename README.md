@@ -3,10 +3,16 @@
 Connparse parses database connection strings, DSNs, URLs, file paths, and cloud
 storage URIs into one safe structured object. It supports PostgreSQL, MySQL,
 MariaDB, SQLite, DuckDB, ClickHouse, Redis, Memcached, Elasticsearch, MongoDB,
-CockroachDB, QuestDB, YugabyteDB, Amazon S3, and local file paths.
+CockroachDB, QuestDB, YugabyteDB, TiDB, Valkey, Dragonfly, OpenSearch,
+FerretDB, ElastiCache, DocumentDB, SQL Server, Oracle, Snowflake, Cassandra,
+BigQuery, Redshift, Aurora, Neo4j, Trino, Databricks, DynamoDB, StarRocks,
+SAP HANA, Athena, Spanner, Google Cloud Storage, Azure Blob, Azure Data Lake
+Storage, Azure Files, Azure Cosmos DB, Business Central, TallyPrime, Amazon S3,
+and local file paths.
 
-This repository contains JavaScript, Go, Python, and Rust implementations, shared
-CPDS definitions, and shared compatibility fixtures.
+This repository contains JavaScript, Go, Python, and Rust implementations,
+shared Connparse Definition Specification (CPDS) YAML definitions, and shared
+compatibility fixtures.
 
 ## Packages
 
@@ -19,7 +25,7 @@ CPDS definitions, and shared compatibility fixtures.
 
 ```text
 specs/
-  definitions/   Shared CPDS YAML definitions
+  definitions/   Shared Connparse Definition Specification (CPDS) YAML definitions
   fixtures/      Cross-implementation compatibility fixtures
   schemas/       JSON Schemas for definitions, fixtures, and outputs
   docs/          Reference and porting docs
@@ -34,8 +40,8 @@ packages/
 ## Install
 
 The JavaScript package has one runtime dependency: `yaml`, used to load CPDS
-definition files. The Go package uses `github.com/goccy/go-yaml` for the same CPDS
-loader API. The Python parser uses the standard library at runtime. The Rust
+definition files. The Go package uses `github.com/goccy/go-yaml` for the same
+CPDS loader API. The Python parser uses the standard library at runtime. The Rust
 crate uses `serde` and `serde_json` for the shared JSON-shaped contract.
 
 ```bash
@@ -102,23 +108,24 @@ Output:
 
 ## Supported Providers
 
-Current built-in providers:
+Current built-in providers include:
 
-- PostgreSQL: `postgres`, `postgresql`
-- MySQL: `mysql`, `mysqlx`, `mysqlx+srv`
-- MariaDB: `mariadb`
-- SQLite: `sqlite`
-- DuckDB: `duckdb`
-- ClickHouse: `clickhouse`, `ch`, `jdbc:clickhouse`, `jdbc:ch`
-- Memcached: `memcached`, `memcacheds`
-- Redis: `redis`, `rediss`
-- Elasticsearch: `elasticsearch`, `elasticsearch+http`, `elasticsearch+https`
-- MongoDB: `mongodb`, `mongodb+srv`
-- CockroachDB: `cockroach`, `cockroachdb`
-- QuestDB: `questdb`, plus ILP config strings such as `http::addr=localhost:9000;`
-- YugabyteDB: `yugabyte`, `yugabytedb`
-- Amazon S3: `s3`, plus common S3 HTTPS virtual-host/path-style URLs
-- File paths: `file:///tmp/data.csv`, `/tmp/data.csv`, `./data.csv`
+- Core databases and stores: PostgreSQL, MySQL, MariaDB, SQLite, DuckDB,
+  ClickHouse, Redis, Memcached, Elasticsearch, MongoDB, CockroachDB, QuestDB,
+  YugabyteDB, TiDB, Valkey, Dragonfly, OpenSearch, FerretDB, ElastiCache, and
+  DocumentDB.
+- Enterprise and cloud systems: H2, IBM Db2, Trino, Databricks, Neo4j,
+  Memgraph, Microsoft SQL Server, Dynamics NAV, Oracle, GaussDB, Snowflake,
+  DynamoDB, Cassandra, StarRocks, SAP HANA, BigQuery, Spanner, Athena,
+  Redshift, Aurora PostgreSQL, Aurora MySQL, MemoryDB, CrateDB, SingleStore,
+  OceanBase, RisingWave, Materialize, Apache Doris, Azure Managed Redis,
+  Azure Managed Cassandra, Firestore, Timestream, Neptune, Azure Cosmos DB,
+  Business Central, and TallyPrime.
+- Object/file sources: Amazon S3, Google Cloud Storage, Azure Blob, Azure Data
+  Lake Storage, Azure Files, common HTTPS object-storage URLs, and local or
+  `file:` paths.
+
+The exact scheme list and parser rules live in `specs/definitions/*.yaml`.
 
 ## API
 
@@ -328,10 +335,10 @@ intended for logs and UI. Do not log `credentials` by default.
 For the full list of keys, provider-specific fields, diagnostics, CPDS keys,
 adapter names, and fixture format, see [specs/docs/reference.md](specs/docs/reference.md).
 
-## CPDS Definitions
+## Connparse Definition Specification (CPDS)
 
-Connparse Definition Files describe source-specific behavior without putting
-all provider rules directly in the parser.
+CPDS files describe source-specific behavior without putting all provider rules
+directly in the parser.
 
 Example:
 

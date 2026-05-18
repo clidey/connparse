@@ -21,7 +21,7 @@ func parseMongoDB(input string, def Definition, raw string) (*Address, error) {
 		return nil, err
 	}
 	name, rest := firstRest(p.PathSegments)
-	srv := p.Scheme == "mongodb+srv"
+	srv := strings.HasSuffix(p.Scheme, "+srv")
 	return baseAddress(def, p.Scheme, raw, Mask(raw, def), authorityFromParts(p, def, srv), Resource{Type: resType(def, "database"), Name: nullable(name)}, strings.Join(rest, "/"), p.Query, p.Fragment, credentialsFromParts(p), map[string]any{"srv": srv}), nil
 }
 
@@ -32,7 +32,9 @@ func parseRedis(input string, def Definition, raw string) (*Address, error) {
 			return nil, err
 		}
 		name, _ := firstRest(p.PathSegments)
-		return baseAddress(def, p.Scheme, raw, Mask(raw, def), authorityFromParts(p, def, false), Resource{Type: resType(def, "database_index"), Name: nullable(name)}, "", p.Query, p.Fragment, credentialsFromParts(p), map[string]any{"tls": p.Scheme == "rediss"}), nil
+		defaultTLS, _ := def.Options["tls"].(bool)
+		tls := isRedisTLSScheme(p.Scheme) || defaultTLS
+		return baseAddress(def, p.Scheme, raw, Mask(raw, def), authorityFromParts(p, def, false), Resource{Type: resType(def, "database_index"), Name: nullable(name)}, "", p.Query, p.Fragment, credentialsFromParts(p), map[string]any{"tls": tls}), nil
 	}
 	entries := splitNonEmpty(input, ",")
 	endpoints, opts, creds := []map[string]any{}, map[string]any{}, map[string]string{}
@@ -62,8 +64,78 @@ func parseRedis(input string, def Definition, raw string) (*Address, error) {
 	}
 	delete(opts, "defaultDatabase")
 	delete(opts, "defaultdatabase")
-	opts["tls"] = strings.EqualFold(asString(opts["ssl"]), "true") || strings.EqualFold(asString(opts["tls"]), "true")
+	defaultTLS, _ := def.Options["tls"].(bool)
+	opts["tls"] = strings.EqualFold(asString(opts["ssl"]), "true") || strings.EqualFold(asString(opts["tls"]), "true") || defaultTLS
 	return baseAddress(def, "redis", raw, Mask(raw, def), endpointAuthority(endpoints, defaultPort(def)), Resource{Type: resType(def, "database_index"), Name: db}, "", map[string]any{}, nil, creds, opts), nil
+}
+
+func parseObjectStorage(input string, def Definition, raw string) (*Address, error) {
+	p, err := parseHierarchical(input)
+	if err != nil {
+		return nil, err
+	}
+	segments := append([]string{}, p.PathSegments...)
+	resourceType := resType(def, "container")
+	authority := map[string]any{}
+	resourceName := ""
+	path := ""
+	credentials := credentialsFromParts(p)
+
+	switch {
+	case p.Scheme == "gs" || (p.Scheme == "gcs" && p.Host != "storage.googleapis.com"):
+		resourceName = p.Host
+		path = strings.Join(segments, "/")
+		authority["bucket"] = resourceName
+	case (p.Scheme == "gcs" || p.Scheme == "https") && p.Host == "storage.googleapis.com":
+		if len(segments) > 0 {
+			resourceName = segments[0]
+			segments = segments[1:]
+		}
+		path = strings.Join(segments, "/")
+		authority["bucket"] = resourceName
+	case p.Scheme == "abfs" || p.Scheme == "abfss":
+		resourceName = p.Username
+		path = strings.Join(segments, "/")
+		authority["host"] = p.Host
+		authority["account"] = accountFromHost(p.Host)
+		credentials = map[string]string{}
+	default:
+		if len(segments) > 0 {
+			resourceName = segments[0]
+			segments = segments[1:]
+		}
+		path = strings.Join(segments, "/")
+		authority["host"] = p.Host
+		authority["account"] = accountFromHost(p.Host)
+	}
+
+	if project := firstQueryString(p.Query, "project", "project_id", "projectId"); project != "" {
+		authority["project"] = project
+	}
+
+	return baseAddress(def, p.Scheme, raw, Mask(raw, def), authority, Resource{Type: resourceType, Name: nullable(resourceName)}, path, p.Query, p.Fragment, credentials, map[string]any{"source_scheme": p.Scheme, "tls": p.Scheme == "https" || p.Scheme == "abfss"}), nil
+}
+
+func accountFromHost(host string) string {
+	return strings.Split(host, ".")[0]
+}
+
+func firstQueryString(query map[string]any, keys ...string) string {
+	for _, key := range keys {
+		if value := query[key]; value != nil {
+			return asString(value)
+		}
+	}
+	return ""
+}
+
+func isRedisTLSScheme(scheme string) bool {
+	switch scheme {
+	case "rediss", "valkeys", "dragonflys", "elasticaches", "memorydbs", "azure-managed-rediss":
+		return true
+	default:
+		return false
+	}
 }
 
 func parseFile(input string, def Definition, raw string) (*Address, error) {

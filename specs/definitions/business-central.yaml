@@ -1,0 +1,43 @@
+id: business-central
+name: Dynamics 365 Business Central
+type: api
+schemes:
+  - businesscentral
+  - business-central
+adapter: generic-uri
+defaults:
+  port: 443
+authority:
+  host: true
+  port: true
+resource:
+  type: environment
+  required: false
+path:
+  type: api_path
+  required: false
+credentials:
+  username: true
+  password: true
+  token: true
+query_parameters:
+  auth_method:
+    type: string
+  tenant_id:
+    type: string
+  client_id:
+    type: string
+  client_secret:
+    type: string
+  environment:
+    type: string
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+options:
+  provider: microsoft
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, token, client_secret]

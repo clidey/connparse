@@ -542,5 +542,629 @@
       "query.sslmode": "verify-full",
       "query.sslrootcert": "~/.postgresql/root.crt"
     }
+  },
+  {
+    "name": "tidb mysql compatible uri",
+    "input": "tidb://root:secret@tidb.example.com/test",
+    "expected": {
+      "scheme": "tidb",
+      "authority.host": "tidb.example.com",
+      "authority.port": 4000,
+      "resource.name": "test",
+      "options.compatible_with": "mysql"
+    }
+  },
+  {
+    "name": "valkey redis compatible tls uri",
+    "provider": "valkey",
+    "input": "valkeys://:secret@valkey.example.com/0",
+    "expected": {
+      "scheme": "valkeys",
+      "authority.host": "valkey.example.com",
+      "authority.port": 6379,
+      "resource.name": "0",
+      "options.compatible_with": "redis",
+      "options.tls": true
+    }
+  },
+  {
+    "name": "dragonfly redis compatible uri",
+    "input": "dragonfly://:secret@dragonfly.example.com/0",
+    "expected": {
+      "scheme": "dragonfly",
+      "authority.host": "dragonfly.example.com",
+      "authority.port": 6379,
+      "options.compatible_with": "redis",
+      "options.tls": false
+    }
+  },
+  {
+    "name": "elasticache redis compatible uri",
+    "input": "elasticache://:secret@cache.example.com/0",
+    "expected": {
+      "scheme": "elasticache",
+      "authority.host": "cache.example.com",
+      "authority.port": 6379,
+      "options.provider": "aws",
+      "options.compatible_with": "redis",
+      "options.tls": true
+    }
+  },
+  {
+    "name": "memorydb redis compatible uri",
+    "input": "memorydb://:secret@memorydb.example.com/0",
+    "expected": {
+      "scheme": "memorydb",
+      "authority.host": "memorydb.example.com",
+      "authority.port": 6379,
+      "options.provider": "aws",
+      "options.compatible_with": "redis",
+      "options.tls": true
+    }
+  },
+  {
+    "name": "azure managed redis uri",
+    "input": "azure-managed-redis://:secret@redis.cache.windows.net/0",
+    "expected": {
+      "scheme": "azure-managed-redis",
+      "authority.host": "redis.cache.windows.net",
+      "authority.port": 10000,
+      "options.provider": "azure",
+      "options.compatible_with": "redis",
+      "options.tls": true
+    }
+  },
+  {
+    "name": "ferretdb mongodb compatible uri",
+    "input": "ferretdb://user:pass@ferret.example.com/app",
+    "expected": {
+      "scheme": "ferretdb",
+      "authority.host": "ferret.example.com",
+      "authority.port": 27017,
+      "resource.name": "app",
+      "options.compatible_with": "mongodb",
+      "options.srv": false
+    }
+  },
+  {
+    "name": "documentdb mongodb compatible uri",
+    "input": "documentdb://user:pass@docdb.example.com/app",
+    "expected": {
+      "scheme": "documentdb",
+      "authority.host": "docdb.example.com",
+      "authority.port": 27017,
+      "resource.name": "app",
+      "options.provider": "aws",
+      "options.compatible_with": "mongodb"
+    }
+  },
+  {
+    "name": "opensearch elasticsearch compatible uri",
+    "input": "opensearch://admin:secret@search.example.com/logs",
+    "expected": {
+      "scheme": "opensearch",
+      "authority.host": "search.example.com",
+      "authority.port": 9200,
+      "resource.name": "logs",
+      "options.compatible_with": "elasticsearch"
+    }
+  },
+  {
+    "name": "h2 uri",
+    "input": "h2://sa:secret@h2.example.com/app",
+    "expected": {
+      "scheme": "h2",
+      "authority.host": "h2.example.com",
+      "authority.port": 9092,
+      "resource.name": "app"
+    }
+  },
+  {
+    "name": "db2 uri",
+    "input": "db2://db2inst1:secret@db2.example.com/sample",
+    "expected": {
+      "scheme": "db2",
+      "authority.host": "db2.example.com",
+      "authority.port": 50000,
+      "resource.name": "sample"
+    }
+  },
+  {
+    "name": "trino uri",
+    "input": "trino://alice:secret@trino.example.com/hive/default",
+    "expected": {
+      "scheme": "trino",
+      "authority.host": "trino.example.com",
+      "authority.port": 8080,
+      "resource.name": "hive",
+      "path": "default"
+    }
+  },
+  {
+    "name": "databricks uri",
+    "input": "databricks://workspace.cloud.databricks.com/analytics/sql",
+    "expected": {
+      "scheme": "databricks",
+      "authority.host": "workspace.cloud.databricks.com",
+      "authority.port": 443,
+      "resource.name": "analytics",
+      "path": "sql"
+    }
+  },
+  {
+    "name": "neo4j uri",
+    "input": "neo4j://neo4j:secret@graph.example.com/neo4j",
+    "expected": {
+      "scheme": "neo4j",
+      "authority.host": "graph.example.com",
+      "authority.port": 7687,
+      "resource.name": "neo4j",
+      "options.model": "graph"
+    }
+  },
+  {
+    "name": "memgraph uri",
+    "input": "memgraph://memgraph:secret@memgraph.example.com/memgraph",
+    "expected": {
+      "scheme": "memgraph",
+      "authority.host": "memgraph.example.com",
+      "authority.port": 7687,
+      "options.compatible_with": "neo4j"
+    }
+  },
+  {
+    "name": "mssql uri",
+    "input": "mssql://sa:secret@sql.example.com/app",
+    "expected": {
+      "scheme": "mssql",
+      "authority.host": "sql.example.com",
+      "authority.port": 1433,
+      "resource.name": "app"
+    }
+  },
+  {
+    "name": "dynamicsnav uri",
+    "input": "dynamicsnav://nav:secret@nav.example.com/company",
+    "expected": {
+      "scheme": "dynamicsnav",
+      "authority.host": "nav.example.com",
+      "authority.port": 1433,
+      "resource.name": "company",
+      "options.compatible_with": "mssql"
+    }
+  },
+  {
+    "name": "oracle uri",
+    "input": "oracle://system:secret@oracle.example.com/orclpdb1",
+    "expected": {
+      "scheme": "oracle",
+      "authority.host": "oracle.example.com",
+      "authority.port": 1521,
+      "resource.name": "orclpdb1"
+    }
+  },
+  {
+    "name": "gaussdb postgres compatible uri",
+    "input": "gaussdb://gauss:secret@gauss.example.com/app",
+    "expected": {
+      "scheme": "gaussdb",
+      "authority.host": "gauss.example.com",
+      "authority.port": 5432,
+      "resource.name": "app",
+      "options.compatible_with": "postgres"
+    }
+  },
+  {
+    "name": "snowflake uri",
+    "input": "snowflake://user:secret@acct.snowflakecomputing.com/analytics/public",
+    "expected": {
+      "scheme": "snowflake",
+      "authority.host": "acct.snowflakecomputing.com",
+      "authority.port": 443,
+      "resource.name": "analytics",
+      "path": "public"
+    }
+  },
+  {
+    "name": "dynamodb uri",
+    "input": "dynamodb://us-east-1/orders",
+    "expected": {
+      "scheme": "dynamodb",
+      "authority.host": "us-east-1",
+      "resource.name": "orders"
+    }
+  },
+  {
+    "name": "cassandra uri",
+    "input": "cassandra://cassandra:secret@cass.example.com/keyspace1",
+    "expected": {
+      "scheme": "cassandra",
+      "authority.host": "cass.example.com",
+      "authority.port": 9042,
+      "resource.name": "keyspace1"
+    }
+  },
+  {
+    "name": "starrocks mysql compatible uri",
+    "input": "starrocks://root:secret@starrocks.example.com/analytics",
+    "expected": {
+      "scheme": "starrocks",
+      "authority.host": "starrocks.example.com",
+      "authority.port": 9030,
+      "resource.name": "analytics",
+      "options.compatible_with": "mysql"
+    }
+  },
+  {
+    "name": "saphana uri",
+    "input": "saphana://system:secret@hana.example.com/app",
+    "expected": {
+      "scheme": "saphana",
+      "authority.host": "hana.example.com",
+      "authority.port": 30015,
+      "resource.name": "app"
+    }
+  },
+  {
+    "name": "bigquery uri",
+    "input": "bigquery://project-1/analytics/events",
+    "expected": {
+      "scheme": "bigquery",
+      "authority.host": "project-1",
+      "resource.name": "analytics",
+      "path": "events"
+    }
+  },
+  {
+    "name": "spanner uri",
+    "input": "spanner://project-1/instance-1/database-1",
+    "expected": {
+      "scheme": "spanner",
+      "authority.host": "project-1",
+      "resource.name": "instance-1",
+      "path": "database-1"
+    }
+  },
+  {
+    "name": "athena uri",
+    "input": "athena://us-east-1/default",
+    "expected": {
+      "scheme": "athena",
+      "authority.host": "us-east-1",
+      "resource.name": "default"
+    }
+  },
+  {
+    "name": "redshift postgres compatible uri",
+    "input": "redshift://admin:secret@redshift.example.com/dev",
+    "expected": {
+      "scheme": "redshift",
+      "authority.host": "redshift.example.com",
+      "authority.port": 5439,
+      "resource.name": "dev",
+      "options.compatible_with": "postgres"
+    }
+  },
+  {
+    "name": "aurora postgres compatible uri",
+    "input": "aurora-postgres://admin:secret@aurora-pg.example.com/app",
+    "expected": {
+      "scheme": "aurora-postgres",
+      "authority.host": "aurora-pg.example.com",
+      "authority.port": 5432,
+      "resource.name": "app",
+      "options.provider": "aws"
+    }
+  },
+  {
+    "name": "aurora mysql compatible uri",
+    "input": "aurora-mysql://admin:secret@aurora-mysql.example.com/app",
+    "expected": {
+      "scheme": "aurora-mysql",
+      "authority.host": "aurora-mysql.example.com",
+      "authority.port": 3306,
+      "resource.name": "app",
+      "options.provider": "aws"
+    }
+  },
+  {
+    "name": "cratedb postgres compatible uri",
+    "input": "cratedb://crate:secret@crate.example.com/doc",
+    "expected": {
+      "scheme": "cratedb",
+      "authority.host": "crate.example.com",
+      "authority.port": 5432,
+      "resource.name": "doc",
+      "options.compatible_with": "postgres"
+    }
+  },
+  {
+    "name": "singlestore mysql compatible uri",
+    "input": "singlestore://root:secret@singlestore.example.com/app",
+    "expected": {
+      "scheme": "singlestore",
+      "authority.host": "singlestore.example.com",
+      "authority.port": 3306,
+      "resource.name": "app",
+      "options.compatible_with": "mysql"
+    }
+  },
+  {
+    "name": "oceanbase mysql compatible uri",
+    "input": "oceanbase://root:secret@oceanbase.example.com/app",
+    "expected": {
+      "scheme": "oceanbase",
+      "authority.host": "oceanbase.example.com",
+      "authority.port": 3306,
+      "resource.name": "app",
+      "options.compatible_with": "mysql"
+    }
+  },
+  {
+    "name": "risingwave postgres compatible uri",
+    "input": "risingwave://root:secret@risingwave.example.com/dev",
+    "expected": {
+      "scheme": "risingwave",
+      "authority.host": "risingwave.example.com",
+      "authority.port": 5432,
+      "resource.name": "dev",
+      "options.compatible_with": "postgres"
+    }
+  },
+  {
+    "name": "materialize postgres compatible uri",
+    "input": "materialize://root:secret@materialize.example.com/materialize",
+    "expected": {
+      "scheme": "materialize",
+      "authority.host": "materialize.example.com",
+      "authority.port": 5432,
+      "resource.name": "materialize",
+      "options.compatible_with": "postgres"
+    }
+  },
+  {
+    "name": "apache doris mysql compatible uri",
+    "input": "apache-doris://root:secret@doris.example.com/analytics",
+    "expected": {
+      "scheme": "apache-doris",
+      "authority.host": "doris.example.com",
+      "authority.port": 3306,
+      "resource.name": "analytics",
+      "options.compatible_with": "mysql"
+    }
+  },
+  {
+    "name": "azure managed cassandra uri",
+    "input": "azure-managed-cassandra://cassandra:secret@cass.cassandra.cosmos.azure.com/keyspace1",
+    "expected": {
+      "scheme": "azure-managed-cassandra",
+      "authority.host": "cass.cassandra.cosmos.azure.com",
+      "authority.port": 9042,
+      "resource.name": "keyspace1",
+      "options.provider": "azure"
+    }
+  },
+  {
+    "name": "firestore mongodb compatible uri",
+    "input": "firestore://project-1/default/users",
+    "expected": {
+      "scheme": "firestore",
+      "authority.host": "project-1",
+      "authority.port": 443,
+      "resource.name": "default",
+      "path": "users",
+      "options.provider": "gcp"
+    }
+  },
+  {
+    "name": "timestream uri",
+    "input": "timestream://us-east-1/metrics/series",
+    "expected": {
+      "scheme": "timestream",
+      "authority.host": "us-east-1",
+      "resource.name": "metrics",
+      "path": "series"
+    }
+  },
+  {
+    "name": "neptune uri",
+    "input": "neptune://graph.example.com/gremlin",
+    "expected": {
+      "scheme": "neptune",
+      "authority.host": "graph.example.com",
+      "authority.port": 8182,
+      "resource.name": "gremlin",
+      "options.provider": "aws"
+    }
+  },
+  {
+    "name": "gcs gs uri",
+    "input": "gs://reports/2026/file.csv?generation=42",
+    "expected": {
+      "scheme": "gs",
+      "type": "object_storage",
+      "authority.bucket": "reports",
+      "resource.type": "bucket",
+      "resource.name": "reports",
+      "path": "2026/file.csv",
+      "query.generation": "42",
+      "options.provider": "gcp",
+      "options.source_scheme": "gs"
+    }
+  },
+  {
+    "name": "gcs alias bucket uri",
+    "input": "gcs://reports/raw/events.json?project=my-project",
+    "expected": {
+      "scheme": "gcs",
+      "authority.bucket": "reports",
+      "authority.project": "my-project",
+      "resource.name": "reports",
+      "path": "raw/events.json",
+      "options.provider": "gcp"
+    }
+  },
+  {
+    "name": "gcs https storage api with provider hint",
+    "provider": "gcs",
+    "input": "https://storage.googleapis.com/reports/2026/file.csv?access_token=secret-token",
+    "expected": {
+      "scheme": "https",
+      "authority.bucket": "reports",
+      "resource.name": "reports",
+      "path": "2026/file.csv",
+      "query.access_token": "secret-token",
+      "safe": "https://storage.googleapis.com/reports/2026/file.csv?access_token=***",
+      "options.tls": true
+    }
+  },
+  {
+    "name": "azure blob URI",
+    "input": "azureblob://storageacct/reports/2026/file.csv",
+    "expected": {
+      "scheme": "azureblob",
+      "type": "object_storage",
+      "authority.host": "storageacct",
+      "authority.account": "storageacct",
+      "resource.type": "container",
+      "resource.name": "reports",
+      "path": "2026/file.csv",
+      "options.provider": "azure"
+    }
+  },
+  {
+    "name": "azure blob https with provider hint and sas redaction",
+    "provider": "azure-blob",
+    "input": "https://storageacct.blob.core.windows.net/reports/2026/file.csv?sas=sv-secret&client_secret=secret",
+    "expected": {
+      "scheme": "https",
+      "authority.host": "storageacct.blob.core.windows.net",
+      "authority.account": "storageacct",
+      "resource.name": "reports",
+      "path": "2026/file.csv",
+      "query.sas": "sv-secret",
+      "safe": "https://storageacct.blob.core.windows.net/reports/2026/file.csv?sas=***&client_secret=***",
+      "options.tls": true
+    }
+  },
+  {
+    "name": "adls abfss filesystem authority",
+    "provider": "adlsgen2",
+    "input": "abfss://filesystem@storageacct.dfs.core.windows.net/raw/events.parquet?tenant_id=tenant",
+    "expected": {
+      "scheme": "abfss",
+      "authority.host": "storageacct.dfs.core.windows.net",
+      "authority.account": "storageacct",
+      "resource.type": "filesystem",
+      "resource.name": "filesystem",
+      "path": "raw/events.parquet",
+      "query.tenant_id": "tenant",
+      "options.provider": "azure",
+      "options.tls": true
+    }
+  },
+  {
+    "name": "adls path style uri",
+    "input": "adls://storageacct/filesystem/raw/events.parquet?account_key=secret-key",
+    "expected": {
+      "scheme": "adls",
+      "authority.host": "storageacct",
+      "authority.account": "storageacct",
+      "resource.name": "filesystem",
+      "path": "raw/events.parquet",
+      "safe": "adls://storageacct/filesystem/raw/events.parquet?account_key=***",
+      "options.tls": false
+    }
+  },
+  {
+    "name": "azure files uri",
+    "input": "azurefile://storageacct/share1/dir/file.txt",
+    "expected": {
+      "scheme": "azurefile",
+      "authority.host": "storageacct",
+      "authority.account": "storageacct",
+      "resource.type": "share",
+      "resource.name": "share1",
+      "path": "dir/file.txt",
+      "options.provider": "azure"
+    }
+  },
+  {
+    "name": "azure files https with provider hint",
+    "provider": "azure-files",
+    "input": "https://storageacct.file.core.windows.net/share1/dir/file.txt?client_secret=secret",
+    "expected": {
+      "scheme": "https",
+      "authority.host": "storageacct.file.core.windows.net",
+      "authority.account": "storageacct",
+      "resource.name": "share1",
+      "path": "dir/file.txt",
+      "safe": "https://storageacct.file.core.windows.net/share1/dir/file.txt?client_secret=***",
+      "options.tls": true
+    }
+  },
+  {
+    "name": "azure cosmos db uri",
+    "input": "cosmosdb://account.documents.azure.com/appdb/users?auth_method=account-key",
+    "expected": {
+      "scheme": "cosmosdb",
+      "type": "database",
+      "authority.host": "account.documents.azure.com",
+      "authority.port": 443,
+      "resource.type": "database",
+      "resource.name": "appdb",
+      "path": "users",
+      "query.auth_method": "account-key",
+      "options.provider": "azure"
+    }
+  },
+  {
+    "name": "azure cosmos db credential redaction",
+    "input": "azure-cosmosdb://user:pass@account.documents.azure.com/appdb?client_secret=secret",
+    "expected": {
+      "scheme": "azure-cosmosdb",
+      "authority.host": "account.documents.azure.com",
+      "credentials.username": "user",
+      "credentials.password": "pass",
+      "safe": "azure-cosmosdb://user:***@account.documents.azure.com/appdb?client_secret=***"
+    }
+  },
+  {
+    "name": "business central uri",
+    "input": "businesscentral://api.businesscentral.dynamics.com/v2.0/tenant/production?environment=Production",
+    "expected": {
+      "scheme": "businesscentral",
+      "type": "api",
+      "authority.host": "api.businesscentral.dynamics.com",
+      "authority.port": 443,
+      "resource.type": "environment",
+      "resource.name": "v2.0",
+      "path": "tenant/production",
+      "query.environment": "Production",
+      "options.provider": "microsoft"
+    }
+  },
+  {
+    "name": "business central secret redaction",
+    "input": "business-central://user:pass@api.businesscentral.dynamics.com/production?client_secret=secret",
+    "expected": {
+      "scheme": "business-central",
+      "credentials.username": "user",
+      "credentials.password": "pass",
+      "safe": "business-central://user:***@api.businesscentral.dynamics.com/production?client_secret=***"
+    }
+  },
+  {
+    "name": "tallyprime uri",
+    "input": "tallyprime://localhost:9000/company/ledger",
+    "expected": {
+      "scheme": "tallyprime",
+      "type": "database",
+      "authority.host": "localhost",
+      "authority.port": 9000,
+      "resource.type": "company",
+      "resource.name": "company",
+      "path": "ledger"
+    }
   }
 ]

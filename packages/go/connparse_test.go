@@ -31,24 +31,6 @@ var topLevelKeys = []string{
 	"type",
 }
 
-var requiredProviderIDs = []string{
-	"clickhouse",
-	"cockroachdb",
-	"duckdb",
-	"elasticsearch",
-	"file",
-	"mariadb",
-	"memcached",
-	"mongodb",
-	"mysql",
-	"postgres",
-	"questdb",
-	"redis",
-	"s3",
-	"sqlite",
-	"yugabytedb",
-}
-
 func TestSharedFixtures(t *testing.T) {
 	fixtures := loadFixtures(t)
 	for _, item := range fixtures {
@@ -119,7 +101,8 @@ func TestFixtureMetadata(t *testing.T) {
 
 func TestFixturesCoverEveryProviderID(t *testing.T) {
 	fixtures := loadFixtures(t)
-	for _, id := range requiredProviderIDs {
+	for _, definition := range BuiltInDefinitions() {
+		id := definition.ID
 		covered := false
 		for _, item := range fixtures {
 			if item.Provider == id {

@@ -45,8 +45,9 @@ export function parseRedis(input, definition, context) {
     fragment: null,
     credentials,
     options: {
+      ...(definition.options || {}),
       ...options,
-      tls: String(options.ssl || options.tls || '').toLowerCase() === 'true'
+      tls: String(options.ssl || options.tls || '').toLowerCase() === 'true' || definition.options?.tls === true
     },
     raw: context.raw,
     safe: context.safe

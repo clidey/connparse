@@ -1,0 +1,33 @@
+id: memgraph
+name: Memgraph
+type: database
+schemes:
+  - memgraph
+  - memgraph+s
+adapter: generic-uri
+defaults:
+  port: 7687
+authority:
+  host: true
+  port: true
+resource:
+  type: database
+  required: false
+path:
+  type: graph_path
+  required: false
+credentials:
+  username: true
+  password: true
+query_parameters: {}
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+options:
+  compatible_with: neo4j
+  model: graph
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password]

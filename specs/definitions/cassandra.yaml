@@ -1,0 +1,34 @@
+id: cassandra
+name: Cassandra
+type: database
+schemes:
+  - cassandra
+adapter: generic-uri
+defaults:
+  port: 9042
+authority:
+  host: true
+  port: true
+  multi_host: true
+resource:
+  type: keyspace
+  required: false
+path:
+  type: table_path
+  required: false
+credentials:
+  username: true
+  password: true
+query_parameters:
+  consistency:
+    type: string
+  datacenter:
+    type: string
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password]

@@ -128,7 +128,10 @@ export function baseAddress({ definition, scheme, raw, safe, authority, resource
     query: query || {},
     fragment: fragment == null ? null : fragment,
     credentials: credentials || {},
-    options: options || {},
+    options: {
+      ...(definition.options || {}),
+      ...(options || {})
+    },
     raw,
     safe
   };

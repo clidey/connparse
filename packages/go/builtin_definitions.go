@@ -5,6 +5,640 @@ package connparse
 func BuiltInDefinitions() []Definition {
 	return []Definition{
 		Definition{
+			ID:      "adlsgen2",
+			Name:    "Azure Data Lake Storage",
+			Type:    "object_storage",
+			Schemes: []string{"adls", "adlsgen2", "abfs", "abfss"},
+			Adapter: "object-storage",
+			Authority: map[string]any{
+				"account": true,
+				"host":    true,
+			},
+			ResourceRule: Rule{
+				Type: "filesystem",
+			},
+			PathRule: Rule{
+				Type: "object_key",
+			},
+			CredentialsRule: map[string]any{
+				"access_key": true,
+				"password":   true,
+				"secret_key": true,
+				"token":      true,
+				"username":   true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"account_key": QueryRule{
+					Type: "string",
+				},
+				"auth_method": QueryRule{
+					Type: "string",
+				},
+				"client_id": QueryRule{
+					Type: "string",
+				},
+				"client_secret": QueryRule{
+					Type: "string",
+				},
+				"sas": QueryRule{
+					Type: "string",
+				},
+				"tenant_id": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+			},
+			Options: map[string]any{
+				"provider": "azure",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "access_key", "secret_key", "token", "client_secret", "account_key", "sas"},
+			},
+		},
+		Definition{
+			ID:      "apache-doris",
+			Name:    "Apache Doris",
+			Type:    "analytics",
+			Schemes: []string{"apache-doris", "doris"},
+			Adapter: "mysql-compatible",
+			Defaults: map[string]any{
+				"port": 3306,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"charset": QueryRule{
+					Type: "string",
+				},
+				"ssl": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "mysql",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "athena",
+			Name:    "Amazon Athena",
+			Type:    "analytics",
+			Schemes: []string{"athena"},
+			Adapter: "generic-uri",
+			Authority: map[string]any{
+				"host":   true,
+				"region": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "table_path",
+			},
+			CredentialsRule: map[string]any{
+				"access_key": true,
+				"password":   true,
+				"secret_key": true,
+				"token":      true,
+				"username":   true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"catalog": QueryRule{
+					Type: "string",
+				},
+				"output_location": QueryRule{
+					Type: "string",
+				},
+				"region": QueryRule{
+					Type: "string",
+				},
+				"workgroup": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "access_key", "secret_key", "token"},
+			},
+		},
+		Definition{
+			ID:      "aurora-mysql",
+			Name:    "Aurora MySQL",
+			Type:    "database",
+			Schemes: []string{"aurora-mysql"},
+			Adapter: "mysql-compatible",
+			Defaults: map[string]any{
+				"port": 3306,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"charset": QueryRule{
+					Type: "string",
+				},
+				"ssl": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "mysql",
+				"provider":        "aws",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "aurora-postgres",
+			Name:    "Aurora PostgreSQL",
+			Type:    "database",
+			Schemes: []string{"aurora-postgres"},
+			Adapter: "postgres-compatible",
+			Defaults: map[string]any{
+				"port": 5432,
+			},
+			Authority: map[string]any{
+				"host":       true,
+				"multi_host": true,
+				"port":       true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"sslmode": QueryRule{
+					Type:    "string",
+					Allowed: []any{"disable", "allow", "prefer", "require", "verify-ca", "verify-full"},
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "postgres",
+				"provider":        "aws",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "azure-blob",
+			Name:    "Azure Blob",
+			Type:    "object_storage",
+			Schemes: []string{"azureblob", "azblob"},
+			Adapter: "object-storage",
+			Authority: map[string]any{
+				"account": true,
+				"host":    true,
+			},
+			ResourceRule: Rule{
+				Type: "container",
+			},
+			PathRule: Rule{
+				Type: "blob",
+			},
+			CredentialsRule: map[string]any{
+				"access_key": true,
+				"password":   true,
+				"secret_key": true,
+				"token":      true,
+				"username":   true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"account_key": QueryRule{
+					Type: "string",
+				},
+				"auth_method": QueryRule{
+					Type: "string",
+				},
+				"client_id": QueryRule{
+					Type: "string",
+				},
+				"client_secret": QueryRule{
+					Type: "string",
+				},
+				"sas": QueryRule{
+					Type: "string",
+				},
+				"tenant_id": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+			},
+			Options: map[string]any{
+				"provider": "azure",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "access_key", "secret_key", "token", "client_secret", "account_key", "sas"},
+			},
+		},
+		Definition{
+			ID:      "azure-cosmosdb",
+			Name:    "Azure Cosmos DB",
+			Type:    "database",
+			Schemes: []string{"cosmosdb", "azure-cosmosdb"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 443,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "collection",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"token":    true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"auth_method": QueryRule{
+					Type: "string",
+				},
+				"client_id": QueryRule{
+					Type: "string",
+				},
+				"client_secret": QueryRule{
+					Type: "string",
+				},
+				"container": QueryRule{
+					Type: "string",
+				},
+				"tenant_id": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"provider": "azure",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "token", "client_secret"},
+			},
+		},
+		Definition{
+			ID:      "azure-files",
+			Name:    "Azure Files",
+			Type:    "object_storage",
+			Schemes: []string{"azurefile", "azurefiles"},
+			Adapter: "object-storage",
+			Authority: map[string]any{
+				"account": true,
+				"host":    true,
+			},
+			ResourceRule: Rule{
+				Type: "share",
+			},
+			PathRule: Rule{
+				Type: "file_path",
+			},
+			CredentialsRule: map[string]any{
+				"access_key": true,
+				"password":   true,
+				"secret_key": true,
+				"token":      true,
+				"username":   true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"account_key": QueryRule{
+					Type: "string",
+				},
+				"auth_method": QueryRule{
+					Type: "string",
+				},
+				"client_id": QueryRule{
+					Type: "string",
+				},
+				"client_secret": QueryRule{
+					Type: "string",
+				},
+				"sas": QueryRule{
+					Type: "string",
+				},
+				"tenant_id": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+			},
+			Options: map[string]any{
+				"provider": "azure",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "access_key", "secret_key", "token", "client_secret", "account_key", "sas"},
+			},
+		},
+		Definition{
+			ID:      "azure-managed-cassandra",
+			Name:    "Azure Managed Cassandra",
+			Type:    "database",
+			Schemes: []string{"azure-managed-cassandra"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 9042,
+			},
+			Authority: map[string]any{
+				"host":       true,
+				"multi_host": true,
+				"port":       true,
+			},
+			ResourceRule: Rule{
+				Type: "keyspace",
+			},
+			PathRule: Rule{
+				Type: "table_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"consistency": QueryRule{
+					Type: "string",
+				},
+				"datacenter": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "cassandra",
+				"provider":        "azure",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "azure-managed-redis",
+			Name:    "Azure Managed Redis",
+			Type:    "cache",
+			Schemes: []string{"azure-managed-redis", "azure-managed-rediss"},
+			Adapter: "redis",
+			Defaults: map[string]any{
+				"port": 10000,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database_index",
+			},
+			PathRule: Rule{
+				Type: "none",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"protocol": QueryRule{
+					Type: "number",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "redis",
+				"provider":        "azure",
+				"tls":             true,
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "bigquery",
+			Name:    "BigQuery",
+			Type:    "analytics",
+			Schemes: []string{"bigquery"},
+			Adapter: "generic-uri",
+			Authority: map[string]any{
+				"host":    true,
+				"project": true,
+				"region":  true,
+			},
+			ResourceRule: Rule{
+				Type: "dataset",
+			},
+			PathRule: Rule{
+				Type: "table_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"token":    true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"access_token": QueryRule{
+					Type: "string",
+				},
+				"location": QueryRule{
+					Type: "string",
+				},
+				"region": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "token", "access_token"},
+			},
+		},
+		Definition{
+			ID:      "business-central",
+			Name:    "Dynamics 365 Business Central",
+			Type:    "api",
+			Schemes: []string{"businesscentral", "business-central"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 443,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "environment",
+			},
+			PathRule: Rule{
+				Type: "api_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"token":    true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"auth_method": QueryRule{
+					Type: "string",
+				},
+				"client_id": QueryRule{
+					Type: "string",
+				},
+				"client_secret": QueryRule{
+					Type: "string",
+				},
+				"environment": QueryRule{
+					Type: "string",
+				},
+				"tenant_id": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"provider": "microsoft",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "token", "client_secret"},
+			},
+		},
+		Definition{
+			ID:      "cassandra",
+			Name:    "Cassandra",
+			Type:    "database",
+			Schemes: []string{"cassandra"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 9042,
+			},
+			Authority: map[string]any{
+				"host":       true,
+				"multi_host": true,
+				"port":       true,
+			},
+			ResourceRule: Rule{
+				Type: "keyspace",
+			},
+			PathRule: Rule{
+				Type: "table_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"consistency": QueryRule{
+					Type: "string",
+				},
+				"datacenter": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
 			ID:      "clickhouse",
 			Name:    "ClickHouse",
 			Type:    "database",
@@ -133,6 +767,243 @@ func BuiltInDefinitions() []Definition {
 			},
 		},
 		Definition{
+			ID:      "cratedb",
+			Name:    "CrateDB",
+			Type:    "database",
+			Schemes: []string{"cratedb"},
+			Adapter: "postgres-compatible",
+			Defaults: map[string]any{
+				"port": 5432,
+			},
+			Authority: map[string]any{
+				"host":       true,
+				"multi_host": true,
+				"port":       true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"sslmode": QueryRule{
+					Type:    "string",
+					Allowed: []any{"disable", "allow", "prefer", "require", "verify-ca", "verify-full"},
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "postgres",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "databricks",
+			Name:    "Databricks",
+			Type:    "analytics",
+			Schemes: []string{"databricks"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 443,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "http_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"token":    true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"access_token": QueryRule{
+					Type: "string",
+				},
+				"http_path": QueryRule{
+					Type: "string",
+				},
+				"warehouse": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "token", "access_token"},
+			},
+		},
+		Definition{
+			ID:      "db2",
+			Name:    "IBM Db2",
+			Type:    "database",
+			Schemes: []string{"db2"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 50000,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "documentdb",
+			Name:    "Amazon DocumentDB",
+			Type:    "database",
+			Schemes: []string{"documentdb", "documentdb+srv"},
+			Adapter: "mongodb",
+			Defaults: map[string]any{
+				"port": 27017,
+			},
+			Authority: map[string]any{
+				"host":       true,
+				"multi_host": true,
+				"port":       true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "collection",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"authSource": QueryRule{
+					Type: "string",
+				},
+				"readPreference": QueryRule{
+					Type: "string",
+				},
+				"replicaSet": QueryRule{
+					Type: "string",
+				},
+				"retryWrites": QueryRule{
+					Type: "boolean",
+				},
+				"tls": QueryRule{
+					Type: "boolean",
+				},
+				"tlsCAFile": QueryRule{
+					Type: "string",
+				},
+				"tlsCertificateKeyFile": QueryRule{
+					Type: "string",
+				},
+				"tlsInsecure": QueryRule{
+					Type: "boolean",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "mongodb",
+				"provider":        "aws",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "tlsCAFile", "tlsCertificateKeyFile"},
+			},
+		},
+		Definition{
+			ID:      "dragonfly",
+			Name:    "Dragonfly",
+			Type:    "cache",
+			Schemes: []string{"dragonfly", "dragonflys"},
+			Adapter: "redis",
+			Defaults: map[string]any{
+				"port": 6379,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database_index",
+			},
+			PathRule: Rule{
+				Type: "none",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"protocol": QueryRule{
+					Type: "number",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "redis",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
 			ID:        "duckdb",
 			Name:      "DuckDB",
 			Type:      "database",
@@ -154,6 +1025,134 @@ func BuiltInDefinitions() []Definition {
 				},
 			},
 			Validation: ValidationRule{},
+		},
+		Definition{
+			ID:      "dynamicsnav",
+			Name:    "Dynamics NAV",
+			Type:    "database",
+			Schemes: []string{"dynamicsnav"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 1433,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "company",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"auth_method": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "mssql",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "dynamodb",
+			Name:    "DynamoDB",
+			Type:    "database",
+			Schemes: []string{"dynamodb"},
+			Adapter: "generic-uri",
+			Authority: map[string]any{
+				"host":   true,
+				"region": true,
+			},
+			ResourceRule: Rule{
+				Type: "table",
+			},
+			PathRule: Rule{
+				Type: "item_path",
+			},
+			CredentialsRule: map[string]any{
+				"access_key": true,
+				"password":   true,
+				"secret_key": true,
+				"token":      true,
+				"username":   true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"profile": QueryRule{
+					Type: "string",
+				},
+				"region": QueryRule{
+					Type: "string",
+				},
+				"token": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "access_key", "secret_key", "token"},
+			},
+		},
+		Definition{
+			ID:      "elasticache",
+			Name:    "Amazon ElastiCache",
+			Type:    "cache",
+			Schemes: []string{"elasticache", "elasticaches"},
+			Adapter: "redis",
+			Defaults: map[string]any{
+				"port": 6379,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database_index",
+			},
+			PathRule: Rule{
+				Type: "none",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"protocol": QueryRule{
+					Type: "number",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "redis",
+				"provider":        "aws",
+				"tls":             true,
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
 		},
 		Definition{
 			ID:      "elasticsearch",
@@ -204,6 +1203,65 @@ func BuiltInDefinitions() []Definition {
 			},
 		},
 		Definition{
+			ID:      "ferretdb",
+			Name:    "FerretDB",
+			Type:    "database",
+			Schemes: []string{"ferretdb", "ferretdb+srv"},
+			Adapter: "mongodb",
+			Defaults: map[string]any{
+				"port": 27017,
+			},
+			Authority: map[string]any{
+				"host":       true,
+				"multi_host": true,
+				"port":       true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "collection",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"authSource": QueryRule{
+					Type: "string",
+				},
+				"replicaSet": QueryRule{
+					Type: "string",
+				},
+				"retryWrites": QueryRule{
+					Type: "boolean",
+				},
+				"tls": QueryRule{
+					Type: "boolean",
+				},
+				"tlsCAFile": QueryRule{
+					Type: "string",
+				},
+				"tlsCertificateKeyFile": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "mongodb",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "tlsCAFile", "tlsCertificateKeyFile"},
+			},
+		},
+		Definition{
 			ID:      "file",
 			Name:    "File",
 			Type:    "file",
@@ -222,6 +1280,193 @@ func BuiltInDefinitions() []Definition {
 			CredentialsRule: map[string]any{},
 			QueryParameters: map[string]QueryRule{},
 			Validation:      ValidationRule{},
+		},
+		Definition{
+			ID:      "firestore",
+			Name:    "Firestore",
+			Type:    "database",
+			Schemes: []string{"firestore"},
+			Adapter: "mongodb",
+			Defaults: map[string]any{
+				"port": 443,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "collection",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"token":    true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"database": QueryRule{
+					Type: "string",
+				},
+				"project": QueryRule{
+					Type: "string",
+				},
+				"token": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "mongodb",
+				"provider":        "gcp",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "token"},
+			},
+		},
+		Definition{
+			ID:      "gaussdb",
+			Name:    "GaussDB",
+			Type:    "database",
+			Schemes: []string{"gaussdb"},
+			Adapter: "postgres-compatible",
+			Defaults: map[string]any{
+				"port": 5432,
+			},
+			Authority: map[string]any{
+				"host":       true,
+				"multi_host": true,
+				"port":       true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"application_name": QueryRule{
+					Type: "string",
+				},
+				"sslmode": QueryRule{
+					Type:    "string",
+					Allowed: []any{"disable", "allow", "prefer", "require", "verify-ca", "verify-full"},
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "postgres",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "gcs",
+			Name:    "Google Cloud Storage",
+			Type:    "object_storage",
+			Schemes: []string{"gs", "gcs"},
+			Adapter: "object-storage",
+			Authority: map[string]any{
+				"bucket":  true,
+				"project": true,
+			},
+			ResourceRule: Rule{
+				Type:     "bucket",
+				Required: true,
+			},
+			PathRule: Rule{
+				Type: "object_key",
+			},
+			CredentialsRule: map[string]any{
+				"token": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"access_token": QueryRule{
+					Type: "string",
+				},
+				"generation": QueryRule{
+					Type: "string",
+				},
+				"project": QueryRule{
+					Type: "string",
+				},
+				"projectId": QueryRule{
+					Type: "string",
+				},
+				"project_id": QueryRule{
+					Type: "string",
+				},
+				"service_account_key_path": QueryRule{
+					Type: "string",
+				},
+				"userProject": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{},
+			Options: map[string]any{
+				"provider": "gcp",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{},
+				SensitiveKeys:   []string{"token", "access_token"},
+			},
+		},
+		Definition{
+			ID:      "h2",
+			Name:    "H2 Database",
+			Type:    "database",
+			Schemes: []string{"h2"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 9092,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
 		},
 		Definition{
 			ID:      "mariadb",
@@ -275,6 +1520,51 @@ func BuiltInDefinitions() []Definition {
 			},
 		},
 		Definition{
+			ID:      "materialize",
+			Name:    "Materialize",
+			Type:    "analytics",
+			Schemes: []string{"materialize"},
+			Adapter: "postgres-compatible",
+			Defaults: map[string]any{
+				"port": 5432,
+			},
+			Authority: map[string]any{
+				"host":       true,
+				"multi_host": true,
+				"port":       true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"sslmode": QueryRule{
+					Type:    "string",
+					Allowed: []any{"disable", "allow", "prefer", "require", "verify-ca", "verify-full"},
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "postgres",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
 			ID:      "memcached",
 			Name:    "Memcached",
 			Type:    "cache",
@@ -305,6 +1595,91 @@ func BuiltInDefinitions() []Definition {
 					Min: 1,
 					Max: 65535,
 				},
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "memgraph",
+			Name:    "Memgraph",
+			Type:    "database",
+			Schemes: []string{"memgraph", "memgraph+s"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 7687,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "graph_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "neo4j",
+				"model":           "graph",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "memorydb",
+			Name:    "Amazon MemoryDB",
+			Type:    "cache",
+			Schemes: []string{"memorydb", "memorydbs"},
+			Adapter: "redis",
+			Defaults: map[string]any{
+				"port": 6379,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database_index",
+			},
+			PathRule: Rule{
+				Type: "none",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"protocol": QueryRule{
+					Type: "number",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "redis",
+				"provider":        "aws",
+				"tls":             true,
 			},
 			Redaction: RedactionRule{
 				SafeCredentials: []string{"username"},
@@ -392,6 +1767,49 @@ func BuiltInDefinitions() []Definition {
 			},
 		},
 		Definition{
+			ID:      "mssql",
+			Name:    "Microsoft SQL Server",
+			Type:    "database",
+			Schemes: []string{"mssql", "sqlserver"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 1433,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"encrypt": QueryRule{
+					Type: "boolean",
+				},
+				"trustServerCertificate": QueryRule{
+					Type: "boolean",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
 			ID:      "mysql",
 			Name:    "MySQL",
 			Type:    "database",
@@ -473,6 +1891,228 @@ func BuiltInDefinitions() []Definition {
 			Redaction: RedactionRule{
 				SafeCredentials: []string{"username"},
 				SensitiveKeys:   []string{"password", "ssl-ca", "ssl-capath", "ssl-cert", "ssl-cipher", "ssl-crl", "ssl-crlpath", "ssl-key"},
+			},
+		},
+		Definition{
+			ID:      "neo4j",
+			Name:    "Neo4j",
+			Type:    "database",
+			Schemes: []string{"neo4j", "neo4j+s", "bolt", "bolt+s"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 7687,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "graph_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"model": "graph",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "neptune",
+			Name:    "Neptune",
+			Type:    "database",
+			Schemes: []string{"neptune"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 8182,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "graph",
+			},
+			PathRule: Rule{
+				Type: "graph_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"model":    "graph",
+				"provider": "aws",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "oceanbase",
+			Name:    "OceanBase",
+			Type:    "database",
+			Schemes: []string{"oceanbase"},
+			Adapter: "mysql-compatible",
+			Defaults: map[string]any{
+				"port": 3306,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"charset": QueryRule{
+					Type: "string",
+				},
+				"ssl": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "mysql",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "opensearch",
+			Name:    "OpenSearch",
+			Type:    "api",
+			Schemes: []string{"opensearch", "opensearch+http", "opensearch+https"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 9200,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "index",
+			},
+			PathRule: Rule{
+				Type: "api_path",
+			},
+			CredentialsRule: map[string]any{
+				"api_key":  true,
+				"password": true,
+				"token":    true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"apiKey": QueryRule{
+					Type: "string",
+				},
+				"api_key": QueryRule{
+					Type: "string",
+				},
+				"token": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "elasticsearch",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "api_key", "apiKey", "token"},
+			},
+		},
+		Definition{
+			ID:      "oracle",
+			Name:    "Oracle",
+			Type:    "database",
+			Schemes: []string{"oracle"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 1521,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "service",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"service_name": QueryRule{
+					Type: "string",
+				},
+				"sid": QueryRule{
+					Type: "string",
+				},
+				"wallet": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "wallet"},
 			},
 		},
 		Definition{
@@ -679,6 +2319,97 @@ func BuiltInDefinitions() []Definition {
 			},
 		},
 		Definition{
+			ID:      "redshift",
+			Name:    "Redshift",
+			Type:    "analytics",
+			Schemes: []string{"redshift"},
+			Adapter: "postgres-compatible",
+			Defaults: map[string]any{
+				"port": 5439,
+			},
+			Authority: map[string]any{
+				"host":       true,
+				"multi_host": true,
+				"port":       true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"sslmode": QueryRule{
+					Type:    "string",
+					Allowed: []any{"disable", "allow", "prefer", "require", "verify-ca", "verify-full"},
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "postgres",
+				"provider":        "aws",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "risingwave",
+			Name:    "RisingWave",
+			Type:    "stream",
+			Schemes: []string{"risingwave"},
+			Adapter: "postgres-compatible",
+			Defaults: map[string]any{
+				"port": 5432,
+			},
+			Authority: map[string]any{
+				"host":       true,
+				"multi_host": true,
+				"port":       true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"sslmode": QueryRule{
+					Type:    "string",
+					Allowed: []any{"disable", "allow", "prefer", "require", "verify-ca", "verify-full"},
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "postgres",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
 			ID:      "s3",
 			Name:    "Amazon S3",
 			Type:    "object_storage",
@@ -707,6 +2438,182 @@ func BuiltInDefinitions() []Definition {
 			Validation: ValidationRule{},
 		},
 		Definition{
+			ID:      "saphana",
+			Name:    "SAP HANA",
+			Type:    "database",
+			Schemes: []string{"saphana", "hana"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 30015,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "schema_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"auth_method": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "singlestore",
+			Name:    "SingleStore",
+			Type:    "database",
+			Schemes: []string{"singlestore"},
+			Adapter: "mysql-compatible",
+			Defaults: map[string]any{
+				"port": 3306,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"charset": QueryRule{
+					Type: "string",
+				},
+				"ssl": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "mysql",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "snowflake",
+			Name:    "Snowflake",
+			Type:    "analytics",
+			Schemes: []string{"snowflake"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 443,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "schema_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"token":    true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"role": QueryRule{
+					Type: "string",
+				},
+				"schema": QueryRule{
+					Type: "string",
+				},
+				"token": QueryRule{
+					Type: "string",
+				},
+				"warehouse": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "token"},
+			},
+		},
+		Definition{
+			ID:      "spanner",
+			Name:    "Spanner",
+			Type:    "database",
+			Schemes: []string{"spanner"},
+			Adapter: "generic-uri",
+			Authority: map[string]any{
+				"host":    true,
+				"project": true,
+			},
+			ResourceRule: Rule{
+				Type: "instance",
+			},
+			PathRule: Rule{
+				Type: "database_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"token":    true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"database": QueryRule{
+					Type: "string",
+				},
+				"instance": QueryRule{
+					Type: "string",
+				},
+				"project": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "token"},
+			},
+		},
+		Definition{
 			ID:        "sqlite",
 			Name:      "SQLite",
 			Type:      "database",
@@ -731,6 +2638,258 @@ func BuiltInDefinitions() []Definition {
 				},
 			},
 			Validation: ValidationRule{},
+		},
+		Definition{
+			ID:      "starrocks",
+			Name:    "StarRocks",
+			Type:    "database",
+			Schemes: []string{"starrocks"},
+			Adapter: "mysql-compatible",
+			Defaults: map[string]any{
+				"port": 9030,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"charset": QueryRule{
+					Type: "string",
+				},
+				"ssl": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "mysql",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "tallyprime",
+			Name:    "TallyPrime",
+			Type:    "database",
+			Schemes: []string{"tally", "tallyprime"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 9000,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "company",
+			},
+			PathRule: Rule{
+				Type: "collection_path",
+			},
+			CredentialsRule: map[string]any{},
+			QueryParameters: map[string]QueryRule{},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+		},
+		Definition{
+			ID:      "tidb",
+			Name:    "TiDB",
+			Type:    "database",
+			Schemes: []string{"tidb"},
+			Adapter: "mysql-compatible",
+			Defaults: map[string]any{
+				"port": 4000,
+			},
+			Authority: map[string]any{
+				"host":       true,
+				"multi_host": true,
+				"port":       true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "object_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"charset": QueryRule{
+					Type: "string",
+				},
+				"loc": QueryRule{
+					Type: "string",
+				},
+				"parseTime": QueryRule{
+					Type: "boolean",
+				},
+				"ssl": QueryRule{
+					Type: "string",
+				},
+				"ssl-mode": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "mysql",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
+		},
+		Definition{
+			ID:      "timestream",
+			Name:    "Timestream",
+			Type:    "analytics",
+			Schemes: []string{"timestream"},
+			Adapter: "generic-uri",
+			Authority: map[string]any{
+				"host":   true,
+				"region": true,
+			},
+			ResourceRule: Rule{
+				Type: "database",
+			},
+			PathRule: Rule{
+				Type: "table_path",
+			},
+			CredentialsRule: map[string]any{
+				"access_key": true,
+				"password":   true,
+				"secret_key": true,
+				"token":      true,
+				"username":   true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"region": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "access_key", "secret_key", "token"},
+			},
+		},
+		Definition{
+			ID:      "trino",
+			Name:    "Trino",
+			Type:    "analytics",
+			Schemes: []string{"trino"},
+			Adapter: "generic-uri",
+			Defaults: map[string]any{
+				"port": 8080,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "catalog",
+			},
+			PathRule: Rule{
+				Type: "schema_path",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"token":    true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"SSL": QueryRule{
+					Type: "boolean",
+				},
+				"accessToken": QueryRule{
+					Type: "string",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password", "token", "accessToken"},
+			},
+		},
+		Definition{
+			ID:      "valkey",
+			Name:    "Valkey",
+			Type:    "cache",
+			Schemes: []string{"valkey", "valkeys"},
+			Adapter: "redis",
+			Defaults: map[string]any{
+				"port": 6379,
+			},
+			Authority: map[string]any{
+				"host": true,
+				"port": true,
+			},
+			ResourceRule: Rule{
+				Type: "database_index",
+			},
+			PathRule: Rule{
+				Type: "none",
+			},
+			CredentialsRule: map[string]any{
+				"password": true,
+				"username": true,
+			},
+			QueryParameters: map[string]QueryRule{
+				"protocol": QueryRule{
+					Type: "number",
+				},
+			},
+			Validation: ValidationRule{
+				RequireHost: true,
+				PortRange: PortRange{
+					Min: 1,
+					Max: 65535,
+				},
+			},
+			Options: map[string]any{
+				"compatible_with": "redis",
+			},
+			Redaction: RedactionRule{
+				SafeCredentials: []string{"username"},
+				SensitiveKeys:   []string{"password"},
+			},
 		},
 		Definition{
 			ID:      "yugabytedb",

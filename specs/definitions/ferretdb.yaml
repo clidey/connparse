@@ -1,0 +1,45 @@
+id: ferretdb
+name: FerretDB
+type: database
+schemes:
+  - ferretdb
+  - ferretdb+srv
+adapter: mongodb
+defaults:
+  port: 27017
+authority:
+  host: true
+  port: true
+  multi_host: true
+resource:
+  type: database
+  required: false
+path:
+  type: collection
+  required: false
+credentials:
+  username: true
+  password: true
+query_parameters:
+  authSource:
+    type: string
+  replicaSet:
+    type: string
+  retryWrites:
+    type: boolean
+  tls:
+    type: boolean
+  tlsCAFile:
+    type: string
+  tlsCertificateKeyFile:
+    type: string
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+options:
+  compatible_with: mongodb
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, tlsCAFile, tlsCertificateKeyFile]

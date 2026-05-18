@@ -1,0 +1,32 @@
+id: bigquery
+name: BigQuery
+type: analytics
+schemes:
+  - bigquery
+adapter: generic-uri
+authority:
+  host: true
+  project: true
+  region: true
+resource:
+  type: dataset
+  required: false
+path:
+  type: table_path
+  required: false
+credentials:
+  username: true
+  password: true
+  token: true
+query_parameters:
+  location:
+    type: string
+  region:
+    type: string
+  access_token:
+    type: string
+validation:
+  require_host: true
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, token, access_token]

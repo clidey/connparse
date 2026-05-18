@@ -1,0 +1,39 @@
+id: gcs
+name: Google Cloud Storage
+type: object_storage
+schemes:
+  - gs
+  - gcs
+adapter: object-storage
+authority:
+  bucket: true
+  project: true
+resource:
+  type: bucket
+  required: true
+path:
+  type: object_key
+  required: false
+credentials:
+  token: true
+query_parameters:
+  project:
+    type: string
+  project_id:
+    type: string
+  projectId:
+    type: string
+  generation:
+    type: string
+  userProject:
+    type: string
+  access_token:
+    type: string
+  service_account_key_path:
+    type: string
+validation: {}
+options:
+  provider: gcp
+redaction:
+  safe_credentials: []
+  sensitive_keys: [token, access_token]

@@ -8,6 +8,8 @@ import {
 export function parseRedis(input, definition, context) {
   const parts = parseHierarchical(input);
   const [database = null] = parts.pathSegments;
+  const defaultTls = definition.options?.tls === true;
+  const tls = ['rediss', 'valkeys', 'dragonflys', 'elasticaches', 'memorydbs', 'azure-managed-rediss'].includes(parts.scheme) || defaultTls;
   const authority = applyDefaultPort(
     {
       host: parts.host,
@@ -30,6 +32,6 @@ export function parseRedis(input, definition, context) {
     query: parts.query,
     fragment: parts.fragment,
     credentials: credentialsFromParts(parts),
-    options: { tls: parts.scheme === 'rediss' }
+    options: { tls }
   });
 }

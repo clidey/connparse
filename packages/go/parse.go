@@ -12,6 +12,7 @@ type adapterFunc func(string, Definition, string) (*Address, error)
 var adapters = map[string]adapterFunc{
 	"generic-uri":         parseGenericURI,
 	"mongodb":             parseMongoDB,
+	"object-storage":      parseObjectStorage,
 	"redis":               parseRedis,
 	"file":                parseFile,
 	"sqlite":              parseSQLite,

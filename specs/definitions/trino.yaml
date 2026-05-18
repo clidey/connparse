@@ -1,0 +1,34 @@
+id: trino
+name: Trino
+type: analytics
+schemes:
+  - trino
+adapter: generic-uri
+defaults:
+  port: 8080
+authority:
+  host: true
+  port: true
+resource:
+  type: catalog
+  required: false
+path:
+  type: schema_path
+  required: false
+credentials:
+  username: true
+  password: true
+  token: true
+query_parameters:
+  SSL:
+    type: boolean
+  accessToken:
+    type: string
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, token, accessToken]

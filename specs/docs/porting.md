@@ -4,6 +4,9 @@ Connparse ports must be built against the shared specification assets in
 `specs/`. The goal is for language implementations to differ in API ergonomics,
 not parsing behavior.
 
+CPDS means Connparse Definition Specification. CPDS files are the shared YAML
+provider definitions used by every package.
+
 ## Required Inputs
 
 Every port must treat these files as the source of truth:

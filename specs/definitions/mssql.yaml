@@ -1,0 +1,34 @@
+id: mssql
+name: Microsoft SQL Server
+type: database
+schemes:
+  - mssql
+  - sqlserver
+adapter: generic-uri
+defaults:
+  port: 1433
+authority:
+  host: true
+  port: true
+resource:
+  type: database
+  required: false
+path:
+  type: object_path
+  required: false
+credentials:
+  username: true
+  password: true
+query_parameters:
+  encrypt:
+    type: boolean
+  trustServerCertificate:
+    type: boolean
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password]

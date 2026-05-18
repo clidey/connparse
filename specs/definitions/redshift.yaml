@@ -1,0 +1,36 @@
+id: redshift
+name: Redshift
+type: analytics
+schemes:
+  - redshift
+adapter: postgres-compatible
+defaults:
+  port: 5439
+authority:
+  host: true
+  port: true
+  multi_host: true
+resource:
+  type: database
+  required: false
+path:
+  type: object_path
+  required: false
+credentials:
+  username: true
+  password: true
+query_parameters:
+  sslmode:
+    type: string
+    allowed: [disable, allow, prefer, require, verify-ca, verify-full]
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+options:
+  compatible_with: postgres
+  provider: aws
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password]

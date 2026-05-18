@@ -1,0 +1,38 @@
+id: snowflake
+name: Snowflake
+type: analytics
+schemes:
+  - snowflake
+adapter: generic-uri
+defaults:
+  port: 443
+authority:
+  host: true
+  port: true
+resource:
+  type: database
+  required: false
+path:
+  type: schema_path
+  required: false
+credentials:
+  username: true
+  password: true
+  token: true
+query_parameters:
+  warehouse:
+    type: string
+  role:
+    type: string
+  schema:
+    type: string
+  token:
+    type: string
+validation:
+  require_host: true
+  port_range:
+    min: 1
+    max: 65535
+redaction:
+  safe_credentials: [username]
+  sensitive_keys: [password, token]

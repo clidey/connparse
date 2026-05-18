@@ -360,6 +360,8 @@ def _base_address(
     credentials: dict[str, str] | None = None,
     options: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    merged_options = dict(definition.get("options") or {})
+    merged_options.update(options or {})
     return {
         "scheme": scheme,
         "type": definition.get("type") or "unknown",
@@ -369,7 +371,7 @@ def _base_address(
         "query": query or {},
         "fragment": fragment if fragment is not None else None,
         "credentials": credentials or {},
-        "options": options or {},
+        "options": merged_options,
         "raw": raw,
         "safe": safe,
     }
@@ -542,7 +544,7 @@ def _parse_postgres_compatible(input: str, definition: dict[str, Any], context: 
 def _parse_mongodb(input: str, definition: dict[str, Any], context: dict[str, str]) -> dict[str, Any]:
     parts = _parse_hierarchical(input)
     database = parts.path_segments[0] if parts.path_segments else None
-    srv = parts.scheme == "mongodb+srv"
+    srv = parts.scheme.endswith("+srv")
     return _base_address(
         definition,
         parts.scheme,
@@ -572,7 +574,7 @@ def _parse_redis_uri(input: str, definition: dict[str, Any], context: dict[str, 
         parts.query,
         parts.fragment,
         _credentials_from_parts(parts),
-        {"tls": parts.scheme == "rediss"},
+        {"tls": parts.scheme in {"rediss", "valkeys", "dragonflys", "elasticaches", "memorydbs", "azure-managed-rediss"} or (definition.get("options") or {}).get("tls") is True},
     )
 
 
@@ -606,8 +608,60 @@ def _parse_redis(input: str, definition: dict[str, Any], context: dict[str, str]
         {},
         None,
         credentials,
-        {**options, "tls": str(options.get("ssl") or options.get("tls") or "").lower() == "true"},
+        {**options, "tls": str(options.get("ssl") or options.get("tls") or "").lower() == "true" or (definition.get("options") or {}).get("tls") is True},
     )
+
+
+def _parse_object_storage(input: str, definition: dict[str, Any], context: dict[str, str]) -> dict[str, Any]:
+    parts = _parse_hierarchical(input)
+    segments = list(parts.path_segments)
+    resource_type = (definition.get("resource") or {}).get("type") or "container"
+    authority: dict[str, Any] = {}
+    resource_name = None
+    path = ""
+    credentials = _credentials_from_parts(parts)
+
+    if parts.scheme == "gs" or (parts.scheme == "gcs" and parts.host != "storage.googleapis.com"):
+        resource_name = parts.host
+        path = "/".join(segments)
+        authority["bucket"] = resource_name
+    elif parts.scheme in {"gcs", "https"} and parts.host == "storage.googleapis.com":
+        resource_name = segments.pop(0) if segments else None
+        path = "/".join(segments)
+        authority["bucket"] = resource_name or ""
+    elif parts.scheme in {"abfs", "abfss"}:
+        resource_name = parts.username or None
+        path = "/".join(segments)
+        authority["host"] = parts.host
+        authority["account"] = _account_from_host(parts.host)
+        credentials = {}
+    else:
+        resource_name = segments.pop(0) if segments else None
+        path = "/".join(segments)
+        authority["host"] = parts.host
+        authority["account"] = _account_from_host(parts.host)
+
+    project = parts.query.get("project") or parts.query.get("project_id") or parts.query.get("projectId")
+    if project:
+        authority["project"] = str(project)
+
+    return _base_address(
+        definition,
+        parts.scheme,
+        context["raw"],
+        context["safe"],
+        authority,
+        {"type": resource_type, "name": resource_name},
+        path,
+        parts.query,
+        parts.fragment,
+        credentials,
+        {"source_scheme": parts.scheme, "tls": parts.scheme in {"https", "abfss"}},
+    )
+
+
+def _account_from_host(host: str) -> str:
+    return str(host or "").split(".")[0]
 
 
 def _parse_file(input: str, definition: dict[str, Any], context: dict[str, str]) -> dict[str, Any]:
@@ -836,6 +890,7 @@ _ADAPTERS = {
     "jdbc": _parse_jdbc,
     "memcached": _parse_memcached,
     "mongodb": _parse_mongodb,
+    "object-storage": _parse_object_storage,
     "mysql-compatible": _parse_mysql_compatible,
     "postgres-compatible": _parse_postgres_compatible,
     "questdb": _parse_questdb,
