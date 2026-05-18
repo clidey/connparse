@@ -1,4 +1,4 @@
-module github.com/connparse/connparse/packages/go
+module github.com/clidey/connparse/packages/go
 
 go 1.23
 

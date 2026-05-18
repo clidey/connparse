@@ -35,7 +35,7 @@ Run commands from the repository root unless noted:
 - `pnpm test:js`: run the JS package test suite.
 - `pnpm test:go`: run the Go package test suite.
 - `pnpm run check`: verify generated definitions, syntax-check JS source, and run Go tests.
-- `pnpm --filter connparse test`: run tests from the package scope.
+- `pnpm --filter @clidey/connparse test`: run tests from the package scope.
 
 For CLI smoke tests:
 

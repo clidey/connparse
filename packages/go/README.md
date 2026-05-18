@@ -12,7 +12,7 @@ package main
 import (
 	"fmt"
 
-	connparse "github.com/connparse/connparse/packages/go"
+	connparse "github.com/clidey/connparse/packages/go"
 )
 
 func main() {

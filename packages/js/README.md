@@ -8,7 +8,7 @@ fixtures, CPDS definitions, and reference docs live at the repository root under
 `specs/`.
 
 ```ts
-import { defaultRegistry, mask, parse, parseNormalize, sanitize } from 'connparse';
+import { defaultRegistry, mask, parse, parseNormalize, sanitize } from '@clidey/connparse';
 
 const result = parse('postgres://user:pass@localhost/app');
 
@@ -44,7 +44,7 @@ parseNormalize('postgres://localhost/app?sslmode=require');
 Canonical identity helpers are safe by default:
 
 ```ts
-import { canonicalize, equivalent } from 'connparse';
+import { canonicalize, equivalent } from '@clidey/connparse';
 
 canonicalize('postgresql://user:pass@LOCALHOST:5432/app?sslmode=require');
 // postgres://localhost/app?sslmode=require

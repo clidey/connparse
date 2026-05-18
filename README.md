@@ -28,7 +28,7 @@ definition files. The Go package uses `gopkg.in/yaml.v3` for the same CPDS
 loader API.
 
 ```bash
-npm install connparse
+npm install @clidey/connparse
 ```
 
 For local development in this repo:
@@ -45,7 +45,7 @@ pnpm test:go
 ## Quick Start
 
 ```js
-import { parse } from 'connparse';
+import { parse } from '@clidey/connparse';
 
 const result = parse('postgres://user:pass@localhost:5432/app?sslmode=require');
 
@@ -246,7 +246,7 @@ that arbitrary query keys are secret unless the provider definition says so.
 Loads a CPDS definition from JSON or YAML:
 
 ```js
-import { parse, parseDefinition } from 'connparse';
+import { parse, parseDefinition } from '@clidey/connparse';
 
 const definition = parseDefinition(`
 id: warehouse
