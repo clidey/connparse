@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Map, Value};
+use serde_json::{Map, Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 
 mod builtin_definitions;
@@ -212,7 +212,7 @@ pub fn parse(input: &str, options: Option<ParseOptions>) -> ParseResult {
                 "UNKNOWN_ADAPTER",
                 &format!("{} references missing adapter {}", definition.id, other),
                 "adapter",
-            )
+            );
         }
     };
 
@@ -788,10 +788,12 @@ fn parse_redis(
                 ("host", json!(parsed.0)),
                 (
                     "port",
-                    json!(parsed
-                        .1
-                        .or_else(|| default_port(&definition.defaults))
-                        .unwrap_or(6379)),
+                    json!(
+                        parsed
+                            .1
+                            .or_else(|| default_port(&definition.defaults))
+                            .unwrap_or(6379)
+                    ),
                 ),
             ]));
         }
@@ -1054,10 +1056,12 @@ fn parse_memcached(
                 ("host", json!(parsed.0)),
                 (
                     "port",
-                    json!(parsed
-                        .1
-                        .or_else(|| default_port(&definition.defaults))
-                        .unwrap_or(11211)),
+                    json!(
+                        parsed
+                            .1
+                            .or_else(|| default_port(&definition.defaults))
+                            .unwrap_or(11211)
+                    ),
                 ),
             ]));
         }
@@ -1143,10 +1147,12 @@ fn parse_elasticsearch(
             ("host", json!(parts.host)),
             (
                 "port",
-                json!(parts
-                    .port
-                    .or_else(|| default_port(&definition.defaults))
-                    .unwrap_or(9200)),
+                json!(
+                    parts
+                        .port
+                        .or_else(|| default_port(&definition.defaults))
+                        .unwrap_or(9200)
+                ),
             ),
         ]),
         Resource {
@@ -1263,10 +1269,12 @@ fn parse_questdb(
             ("host", json!(parts.host)),
             (
                 "port",
-                json!(parts
-                    .port
-                    .or_else(|| default_port(&definition.defaults))
-                    .unwrap_or(8812)),
+                json!(
+                    parts
+                        .port
+                        .or_else(|| default_port(&definition.defaults))
+                        .unwrap_or(8812)
+                ),
             ),
         ]),
         Resource {

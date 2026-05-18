@@ -65,7 +65,7 @@ async function testGoPackage() {
     `
 module example.com/connparse-consume
 
-go 1.23
+go 1.26
 
 require (
 	github.com/clidey/connparse/packages/go v0.0.0

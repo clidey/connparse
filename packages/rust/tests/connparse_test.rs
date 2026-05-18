@@ -1,5 +1,5 @@
 use connparse::{
-    built_in_definitions, canonicalize, equivalent, parse, parse_normalize, ParseOptions,
+    ParseOptions, built_in_definitions, canonicalize, equivalent, parse, parse_normalize,
 };
 use serde_json::Value;
 use std::collections::BTreeSet;
@@ -138,12 +138,14 @@ fn normalize_and_canonical_helpers_work() {
         canonicalize("postgresql://localhost:5432/app", None).unwrap(),
         "postgres://localhost/app"
     );
-    assert!(equivalent(
-        "postgresql://localhost:5432/app",
-        "postgres://localhost/app",
-        None
-    )
-    .unwrap());
+    assert!(
+        equivalent(
+            "postgresql://localhost:5432/app",
+            "postgres://localhost/app",
+            None
+        )
+        .unwrap()
+    );
 }
 
 #[test]
