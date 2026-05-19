@@ -91,7 +91,7 @@ It writes:
 
 - `packages/js/src/builtin-definitions.js`
 - `packages/go/builtin_definitions.go`
-- `packages/java/src/main/java/io/github/clidey/connparse/BuiltInDefinitions.java`
+- `packages/java/src/main/java/com/clidey/connparse/BuiltInDefinitions.java`
 - `packages/python/src/connparse/builtin_definitions.py`
 - `packages/rust/src/builtin_definitions.rs`
 

@@ -1,4 +1,4 @@
-package io.github.clidey.connparse;
+package com.clidey.connparse;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

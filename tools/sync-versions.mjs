@@ -29,6 +29,7 @@ if (setVersion) {
 }
 
 const javaArtifactId = pomValue(javaPom, 'artifactId');
+const javaGroupId = pomValue(javaPom, 'groupId');
 const javaVersion = pomValue(javaPom, 'version');
 const pythonName = tomlValue(pythonProject, 'name');
 const pythonVersion = tomlValue(pythonProject, 'version');
@@ -41,6 +42,10 @@ if (pythonName !== 'connparse') {
 
 if (javaArtifactId !== 'connparse') {
   throw new Error(`packages/java/pom.xml artifactId must be "connparse", got "${javaArtifactId}"`);
+}
+
+if (javaGroupId !== 'com.clidey') {
+  throw new Error(`packages/java/pom.xml groupId must be "com.clidey", got "${javaGroupId}"`);
 }
 
 if (rustName !== 'connparse') {

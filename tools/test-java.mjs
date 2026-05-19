@@ -21,12 +21,12 @@ execFileSync('javac', ['--release', '17', '-d', classes, ...sources], {
   stdio: 'pipe'
 });
 
-execFileSync('java', ['-cp', classes, 'io.github.clidey.connparse.ConnparseTestMain'], {
+execFileSync('java', ['-cp', classes, 'com.clidey.connparse.ConnparseTestMain'], {
   cwd: root,
   stdio: 'inherit'
 });
 
-execFileSync('node', ['tools/conformance-runner.mjs', '--skip-coverage', '--', 'java', '-cp', classes, 'io.github.clidey.connparse.ConformanceMain'], {
+execFileSync('node', ['tools/conformance-runner.mjs', '--skip-coverage', '--', 'java', '-cp', classes, 'com.clidey.connparse.ConformanceMain'], {
   cwd: root,
   stdio: 'inherit'
 });

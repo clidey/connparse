@@ -20,7 +20,7 @@ compatibility fixtures.
 - Go: `github.com/clidey/connparse/packages/go`
 - Python: `connparse`
 - Rust: `connparse`
-- Java: `io.github.clidey:connparse`
+- Java: `com.clidey:connparse`
 
 ## Repository Layout
 

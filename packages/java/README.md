@@ -16,10 +16,20 @@ definitions from the shared CPDS YAML files in `specs/definitions`.
 
 ## Usage
 
+Maven:
+
+```xml
+<dependency>
+  <groupId>com.clidey</groupId>
+  <artifactId>connparse</artifactId>
+  <version>0.3.0</version>
+</dependency>
+```
+
 ```java
-import io.github.clidey.connparse.Connparse;
-import io.github.clidey.connparse.ParseOptions;
-import io.github.clidey.connparse.ParseResult;
+import com.clidey.connparse.Connparse;
+import com.clidey.connparse.ParseOptions;
+import com.clidey.connparse.ParseResult;
 
 ParseResult result = Connparse.parse(
     "postgres://user:pass@localhost:5432/app?sslmode=require"

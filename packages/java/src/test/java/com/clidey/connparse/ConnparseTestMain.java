@@ -1,4 +1,4 @@
-package io.github.clidey.connparse;
+package com.clidey.connparse;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;

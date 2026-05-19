@@ -195,8 +195,8 @@ async function testJavaPackage() {
   await writeFile(
     source,
     `
-import io.github.clidey.connparse.Connparse;
-import io.github.clidey.connparse.ParseResult;
+import com.clidey.connparse.Connparse;
+import com.clidey.connparse.ParseResult;
 
 public final class ConsumeConnparse {
   public static void main(String[] args) {

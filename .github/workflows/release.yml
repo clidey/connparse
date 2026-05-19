@@ -99,13 +99,19 @@ jobs:
           node tools/sync-versions.mjs --set "$VERSION"
 
           GO_TAG="packages/go/v$VERSION"
+          JAVA_TAG="packages/java/v$VERSION"
           if git rev-parse "$GO_TAG" >/dev/null 2>&1; then
             echo "Tag $GO_TAG already exists" >&2
+            exit 1
+          fi
+          if git rev-parse "$JAVA_TAG" >/dev/null 2>&1; then
+            echo "Tag $JAVA_TAG already exists" >&2
             exit 1
           fi
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "go_tag=$GO_TAG" >> "$GITHUB_OUTPUT"
+          echo "java_tag=$JAVA_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Check
         run: pnpm run check
@@ -158,10 +164,46 @@ jobs:
           CARGO_REGISTRY_TOKEN: ${{ steps.crates-io-auth.outputs.token }}
         run: cargo publish --manifest-path packages/rust/Cargo.toml --locked
 
+      - name: Configure Maven Central publishing
+        env:
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.m2" "$HOME/.gnupg"
+          chmod 700 "$HOME/.gnupg"
+          cat > "$HOME/.m2/settings.xml" <<EOF
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+            <servers>
+              <server>
+                <id>central</id>
+                <username>${CENTRAL_USERNAME}</username>
+                <password>${CENTRAL_PASSWORD}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+          echo "allow-loopback-pinentry" >> "$HOME/.gnupg/gpg-agent.conf"
+          gpgconf --kill gpg-agent || true
+          printf '%s' "$GPG_PRIVATE_KEY" | gpg --batch --import
+
+      - name: Publish Java package
+        env:
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: mvn -B -f packages/java/pom.xml -P release -Dcentral.autoPublish=true -Dcentral.waitUntil=published deploy
+
       - name: Tag Go module
         run: |
           git tag "${{ steps.version.outputs.go_tag }}"
           git push origin "${{ steps.version.outputs.go_tag }}"
+
+      - name: Tag Java package
+        run: |
+          git tag "${{ steps.version.outputs.java_tag }}"
+          git push origin "${{ steps.version.outputs.java_tag }}"
 
       - name: Create Go GitHub Release
         env:
@@ -170,3 +212,11 @@ jobs:
           gh release create "${{ steps.version.outputs.go_tag }}" \
             --title "Go package v${{ steps.version.outputs.version }}" \
             --notes "Go module release for github.com/clidey/connparse/packages/go v${{ steps.version.outputs.version }}."
+
+      - name: Create Java GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.version.outputs.java_tag }}" \
+            --title "Java package v${{ steps.version.outputs.version }}" \
+            --notes "Java package release for com.clidey:connparse v${{ steps.version.outputs.version }}."
