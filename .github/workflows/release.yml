@@ -125,16 +125,24 @@ jobs:
       - name: npm pack dry-run
         run: pnpm --filter @clidey/connparse pack --dry-run
 
+      - name: npm publish dry-run
+        working-directory: packages/js
+        run: npm publish --access public --dry-run
+
       - name: Rust crate dry-run
-        run: cargo publish --manifest-path packages/rust/Cargo.toml --locked --dry-run
+        run: cargo publish --manifest-path packages/rust/Cargo.toml --locked --dry-run --allow-dirty
 
       - name: Build Java package
         run: mvn -q -f packages/java/pom.xml -DskipTests package
 
+      - name: Java release dry-run
+        run: mvn -q -f packages/java/pom.xml -P release -DskipPublishing=true -Dgpg.skip=true verify
+
       - name: Build Python package
         run: |
-          python -m pip install build==1.5.0
+          python -m pip install build==1.5.0 twine==6.2.0
           python -m build packages/python
+          python -m twine check packages/python/dist/*
 
       - name: Commit version bump
         run: |
