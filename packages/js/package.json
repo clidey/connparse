@@ -1,6 +1,6 @@
 {
   "name": "@clidey/connparse",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Parse database connection strings, DSNs, URLs, file paths, and cloud storage URIs.",
   "type": "module",
   "repository": {
