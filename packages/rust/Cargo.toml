@@ -1,6 +1,6 @@
 [package]
 name = "connparse"
-version = "0.4.0"
+version = "0.5.0"
 edition = "2024"
 description = "Parse database connection strings, DSNs, URLs, file paths, and cloud storage URIs."
 license = "Apache-2.0"
