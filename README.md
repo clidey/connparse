@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/connparse-icon.svg" width="96" height="96" alt="Connparse icon">
+</p>
+
 # Connparse
 
 Connparse parses database connection strings, DSNs, URLs, file paths, and cloud

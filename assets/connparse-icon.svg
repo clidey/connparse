@@ -1,0 +1,10 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Connparse icon</title>
+  <desc id="desc">A connection line entering structured braces.</desc>
+  <path d="M39 36C25 36 16 47 16 64s9 28 23 28" stroke="#2563EB" stroke-width="10" stroke-linecap="round"/>
+  <path d="M89 36c14 0 23 11 23 28s-9 28-23 28" stroke="#2563EB" stroke-width="10" stroke-linecap="round"/>
+  <path d="M39 64h50" stroke="#0F172A" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="39" cy="64" r="6" fill="#2563EB"/>
+  <circle cx="64" cy="64" r="6" fill="#10B981"/>
+  <circle cx="89" cy="64" r="6" fill="#F59E0B"/>
+</svg>
