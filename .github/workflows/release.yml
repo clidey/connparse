@@ -68,6 +68,11 @@ jobs:
           distribution: temurin
           java-version: "25"
           cache: maven
+          server-id: central
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -172,36 +177,23 @@ jobs:
           CARGO_REGISTRY_TOKEN: ${{ steps.crates-io-auth.outputs.token }}
         run: cargo publish --manifest-path packages/rust/Cargo.toml --locked
 
-      - name: Configure Maven Central publishing
+      - name: Publish Java package
         env:
           CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
           CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-        run: |
-          set -euo pipefail
-          mkdir -p "$HOME/.m2" "$HOME/.gnupg"
-          chmod 700 "$HOME/.gnupg"
-          cat > "$HOME/.m2/settings.xml" <<EOF
-          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
-            <servers>
-              <server>
-                <id>central</id>
-                <username>${CENTRAL_USERNAME}</username>
-                <password>${CENTRAL_PASSWORD}</password>
-              </server>
-            </servers>
-          </settings>
-          EOF
-          echo "allow-loopback-pinentry" >> "$HOME/.gnupg/gpg-agent.conf"
-          gpgconf --kill gpg-agent || true
-          printf '%s' "$GPG_PRIVATE_KEY" | gpg --batch --import
-
-      - name: Publish Java package
-        env:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: mvn -B -f packages/java/pom.xml -P release -Dcentral.autoPublish=true -Dcentral.waitUntil=published deploy
+        run: |
+          mask_secret() {
+            local value="$1"
+            value="${value//'%'/'%25'}"
+            value="${value//$'\r'/'%0D'}"
+            value="${value//$'\n'/'%0A'}"
+            echo "::add-mask::$value"
+          }
+          mask_secret "$CENTRAL_USERNAME"
+          mask_secret "$CENTRAL_PASSWORD"
+          mask_secret "$MAVEN_GPG_PASSPHRASE"
+          mvn -B -f packages/java/pom.xml -P release -Dcentral.autoPublish=true -Dcentral.waitUntil=published deploy
 
       - name: Tag Go module
         run: |
