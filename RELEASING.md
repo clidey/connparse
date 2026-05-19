@@ -1,11 +1,12 @@
 # Releasing
 
-Connparse maintains four client libraries from this monorepo:
+Connparse maintains five client libraries from this monorepo:
 
 - npm: `@clidey/connparse`
 - Go: `github.com/clidey/connparse/packages/go`
 - PyPI: `connparse`
 - Rust: `connparse`
+- Maven Central: `com.clidey:connparse`
 
 ## Required Checks
 
@@ -21,9 +22,9 @@ cargo publish --manifest-path packages/rust/Cargo.toml --locked --dry-run
 ```
 
 All packages must use the same version. `pnpm check:versions` verifies that
-`packages/js/package.json`, `packages/python/pyproject.toml`, and
-`packages/rust/Cargo.toml` match. The Go version is the release tag
-`packages/go/vX.Y.Z`.
+`packages/js/package.json`, `packages/python/pyproject.toml`,
+`packages/rust/Cargo.toml`, and `packages/java/pom.xml` match. The Go version
+is published through the nested module tag `packages/go/vX.Y.Z`.
 
 ## npm
 
@@ -76,6 +77,23 @@ Consumers import:
 ```go
 import connparse "github.com/clidey/connparse/packages/go"
 ```
+
+## Java
+
+The Java package is published to Maven Central from `packages/java`:
+
+```xml
+<dependency>
+  <groupId>com.clidey</groupId>
+  <artifactId>connparse</artifactId>
+  <version>0.5.0</version>
+</dependency>
+```
+
+GitHub Actions uses Maven Central credentials and GPG signing secrets. The
+release workflow configures Maven through `actions/setup-java`, so credentials
+are passed through environment variables instead of being written directly into
+`settings.xml`.
 
 ## Rust
 
@@ -130,5 +148,6 @@ The workflow:
 6. publishes `@clidey/connparse` to npm;
 7. publishes `connparse` to PyPI;
 8. publishes `connparse` to crates.io;
-9. creates and pushes `packages/go/vX.Y.Z`;
-10. creates a GitHub Release for the Go module tag.
+9. creates and pushes `packages/go/vX.Y.Z` for Go module discovery;
+10. creates and pushes one repository release tag, `vX.Y.Z`;
+11. creates one GitHub Release for `vX.Y.Z` listing all published packages.

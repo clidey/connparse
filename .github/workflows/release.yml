@@ -103,20 +103,20 @@ jobs:
           fi
           node tools/sync-versions.mjs --set "$VERSION"
 
+          RELEASE_TAG="v$VERSION"
           GO_TAG="packages/go/v$VERSION"
-          JAVA_TAG="packages/java/v$VERSION"
+          if git rev-parse "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Tag $RELEASE_TAG already exists" >&2
+            exit 1
+          fi
           if git rev-parse "$GO_TAG" >/dev/null 2>&1; then
             echo "Tag $GO_TAG already exists" >&2
             exit 1
           fi
-          if git rev-parse "$JAVA_TAG" >/dev/null 2>&1; then
-            echo "Tag $JAVA_TAG already exists" >&2
-            exit 1
-          fi
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "release_tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
           echo "go_tag=$GO_TAG" >> "$GITHUB_OUTPUT"
-          echo "java_tag=$JAVA_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Check
         run: pnpm run check
@@ -200,23 +200,22 @@ jobs:
           git tag "${{ steps.version.outputs.go_tag }}"
           git push origin "${{ steps.version.outputs.go_tag }}"
 
-      - name: Tag Java package
+      - name: Tag repository release
         run: |
-          git tag "${{ steps.version.outputs.java_tag }}"
-          git push origin "${{ steps.version.outputs.java_tag }}"
+          git tag "${{ steps.version.outputs.release_tag }}"
+          git push origin "${{ steps.version.outputs.release_tag }}"
 
-      - name: Create Go GitHub Release
+      - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${{ steps.version.outputs.go_tag }}" \
-            --title "Go package v${{ steps.version.outputs.version }}" \
-            --notes "Go module release for github.com/clidey/connparse/packages/go v${{ steps.version.outputs.version }}."
+          gh release create "${{ steps.version.outputs.release_tag }}" \
+            --title "Connparse v${{ steps.version.outputs.version }}" \
+            --notes "Published Connparse v${{ steps.version.outputs.version }}.
 
-      - name: Create Java GitHub Release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create "${{ steps.version.outputs.java_tag }}" \
-            --title "Java package v${{ steps.version.outputs.version }}" \
-            --notes "Java package release for com.clidey:connparse v${{ steps.version.outputs.version }}."
+          Packages:
+          - npm: @clidey/connparse@${{ steps.version.outputs.version }}
+          - PyPI: connparse==${{ steps.version.outputs.version }}
+          - crates.io: connparse ${{ steps.version.outputs.version }}
+          - Maven Central: com.clidey:connparse:${{ steps.version.outputs.version }}
+          - Go: github.com/clidey/connparse/packages/go v${{ steps.version.outputs.version }} (tag ${{ steps.version.outputs.go_tag }})"
