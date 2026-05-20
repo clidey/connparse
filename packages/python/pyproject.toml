@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "connparse"
-version = "0.6.0"
+version = "0.7.0"
 description = "Parse database connection strings, DSNs, URLs, file paths, and cloud storage URIs."
 readme = "README.md"
 requires-python = ">=3.10"
