@@ -3,6 +3,8 @@ name: SQLite
 type: database
 schemes:
   - sqlite
+provider_aliases:
+  - sqlite3
 adapter: sqlite
 authority: {}
 resource:

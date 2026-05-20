@@ -25,10 +25,18 @@ credentials:
 query_parameters:
   api_key:
     type: string
-  apiKey:
-    type: string
+    aliases: [apiKey]
   token:
     type: string
+semantic_fields:
+  ssl_mode:
+    sources:
+      - from_scheme: true
+        values:
+          https: enabled
+          opensearch+https: enabled
+          http: disabled
+          opensearch+http: disabled
 validation:
   require_host: true
   port_range:

@@ -23,12 +23,46 @@ query_parameters:
   sslMode:
     type: string
     allowed: [disable, trust, verify-ca, verify-full]
+    aliases: [ssl-mode]
+    normalized_values:
+      verify_ca: verify-ca
+      verify_full: verify-full
   ssl:
     type: string
   user:
     type: string
   password:
     type: string
+  parseTime:
+    type: boolean
+  loc:
+    type: string
+  allowCleartextPasswords:
+    type: boolean
+semantic_fields:
+  ssl_mode:
+    sources:
+      - from_query: sslMode
+        values:
+          disable: disabled
+          trust: insecure
+          verify-ca: verify-ca
+          verify-full: verify-identity
+  parse_time:
+    sources:
+      - from_query: parseTime
+        values:
+          true: true
+          false: false
+  loc:
+    sources:
+      - from_query: loc
+  allow_cleartext_passwords:
+    sources:
+      - from_query: allowCleartextPasswords
+        values:
+          true: true
+          false: false
 validation:
   require_host: true
   port_range:

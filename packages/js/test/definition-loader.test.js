@@ -210,6 +210,38 @@ test('generator rejects invalid CPDS inputs before writing outputs', () => {
 
   assertGeneratorFails(
     {
+      'provider-a.yaml': minimalDefinition({
+        id: 'provider-a',
+        provider_aliases: ['shared-provider'],
+        schemes: ['provider-a']
+      }),
+      'provider-b.yaml': minimalDefinition({
+        id: 'shared-provider',
+        schemes: ['provider-b']
+      })
+    },
+    /provider name shared-provider already declared/
+  );
+
+  assertGeneratorFails(
+    {
+      'bad-semantic.yaml': minimalDefinition({
+        id: 'bad-semantic',
+        schemes: ['bad-semantic'],
+        semantic_fields: {
+          ssl_mode: {
+            sources: [
+              { from_query: 'sslmode', from_option: 'tls' }
+            ]
+          }
+        }
+      })
+    },
+    /semantic_fields\.ssl_mode\.sources items must declare exactly one source/
+  );
+
+  assertGeneratorFails(
+    {
       'bad-redaction.yaml': minimalDefinition({
         id: 'bad-redaction',
         schemes: ['bad-redaction'],
@@ -425,5 +457,25 @@ test('rejects invalid CPDS definitions', () => {
         resource: { type: 'database', required: 'yes' }
       }),
     /resource\.required/
+  );
+
+  assert.throws(
+    () =>
+      validateDefinition({
+        id: 'bad-semantic',
+        type: 'database',
+        schemes: ['bad-semantic'],
+        adapter: 'generic-uri',
+        resource: { type: 'database', required: false },
+        path: { type: 'object_path', required: false },
+        query_parameters: {},
+        semantic_fields: {
+          ssl_mode: {
+            sources: [{ from_query: 'sslmode', from_option: 'tls' }]
+          }
+        },
+        validation: {}
+      }),
+    /exactly one source/
   );
 });

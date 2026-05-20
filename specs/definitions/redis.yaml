@@ -22,6 +22,13 @@ credentials:
 query_parameters:
   protocol:
     type: number
+semantic_fields:
+  ssl_mode:
+    sources:
+      - from_option: tls
+        values:
+          true: enabled
+          false: disabled
 validation:
   require_host: true
   port_range:

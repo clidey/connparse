@@ -27,6 +27,7 @@ query_parameters:
     type: boolean
   sslmode:
     type: string
+    allowed: [disable, require, verify-ca, verify-full]
   user:
     type: string
   password:
@@ -37,6 +38,42 @@ query_parameters:
     type: boolean
   createDatabaseIfNotExist:
     type: boolean
+  httpProtocol:
+    type: string
+    allowed: [http, https]
+semantic_fields:
+  ssl_mode:
+    sources:
+      - from_query: sslmode
+        values:
+          disable: disabled
+          require: required
+          verify-ca: verify-ca
+          verify-full: verify-identity
+      - from_query: ssl
+        values:
+          true: enabled
+          false: disabled
+      - from_option: protocol
+        values:
+          https: enabled
+          http: disabled
+  http_protocol:
+    sources:
+      - from_query: httpProtocol
+      - from_option: protocol
+        values:
+          http: http
+          https: https
+  readonly:
+    sources:
+      - from_query: readonly
+  debug:
+    sources:
+      - from_query: debug
+        values:
+          true: true
+          false: false
 validation:
   require_host: true
   port_range:

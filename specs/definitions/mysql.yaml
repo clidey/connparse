@@ -45,14 +45,54 @@ query_parameters:
   ssl-mode:
     type: string
     allowed: [DISABLED, PREFERRED, REQUIRED, VERIFY_CA, VERIFY_IDENTITY]
+    aliases: [sslMode]
+    normalized_values:
+      disabled: DISABLED
+      preferred: PREFERRED
+      required: REQUIRED
+      verify-ca: VERIFY_CA
+      verify_ca: VERIFY_CA
+      verify-identity: VERIFY_IDENTITY
+      verify_identity: VERIFY_IDENTITY
   charset:
     type: string
   schema:
     type: string
+  parseTime:
+    type: boolean
+  loc:
+    type: string
+  allowCleartextPasswords:
+    type: boolean
   tls-version:
     type: string
   tls-versions:
     type: string
+semantic_fields:
+  ssl_mode:
+    sources:
+      - from_query: ssl-mode
+        values:
+          DISABLED: disabled
+          PREFERRED: preferred
+          REQUIRED: required
+          VERIFY_CA: verify-ca
+          VERIFY_IDENTITY: verify-identity
+  parse_time:
+    sources:
+      - from_query: parseTime
+        values:
+          true: true
+          false: false
+  loc:
+    sources:
+      - from_query: loc
+  allow_cleartext_passwords:
+    sources:
+      - from_query: allowCleartextPasswords
+        values:
+          true: true
+          false: false
 validation:
   require_host: true
   port_range:

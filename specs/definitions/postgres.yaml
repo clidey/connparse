@@ -45,6 +45,8 @@ query_parameters:
     type: string
   require_auth:
     type: string
+  search_path:
+    type: string
   service:
     type: string
   sslcert:
@@ -53,6 +55,18 @@ query_parameters:
     type: string
   sslrootcert:
     type: string
+semantic_fields:
+  ssl_mode:
+    sources:
+      - from_query: sslmode
+        values:
+          disable: disabled
+          require: required
+          verify-ca: verify-ca
+          verify-full: verify-identity
+  search_path:
+    sources:
+      - from_query: search_path
 validation:
   require_host: true
   port_range:

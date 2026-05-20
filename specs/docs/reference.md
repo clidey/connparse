@@ -288,8 +288,9 @@ call.
 
 `parseNormalize(input, options?)` returns the normal parse result wrapper, but
 with a normalized `value` designed for stable JSON comparison. The normalized
-value has the same top-level address fields as `parse()`, plus `canonical`.
-Unlike `parse()`, the normalized `raw` field is set to the canonical string.
+value has the same top-level address fields as `parse()`, plus `canonical` and
+an optional `semantic` block. Unlike `parse()`, the normalized `raw` field is
+set to the canonical string.
 
 `canonicalize(input, options?)` returns a stable identity string for a parsed
 address. The JavaScript package accepts either a raw string or a
@@ -355,6 +356,7 @@ Top-level keys:
 | `name` | `string` | no | Human-readable provider name. |
 | `type` | `ConnparseType` | yes | High-level source type assigned to parsed addresses. |
 | `schemes` | `string[]` | yes | URI schemes handled by this definition. |
+| `provider_aliases` | `string[]` | no | Extra provider names accepted via `options.provider`. |
 | `adapter` | `string` | no | Parser adapter. Defaults to `generic-uri`. |
 | `defaults` | `object` | no | Default values applied by adapters, currently mainly `port`. |
 | `authority` | `object` | no | Declares authority fields used by the source. |
@@ -362,6 +364,7 @@ Top-level keys:
 | `path` | `object` | no | Declares path type and whether it is required. |
 | `credentials` | `object` | no | Declares supported credential fields. |
 | `query_parameters` | `object` | no | Declares allowed/typed query parameters. |
+| `semantic_fields` | `object` | no | Declares provider-normalized semantic fields for `parseNormalize()`. |
 | `validation` | `object` | no | Declares validation rules. |
 | `redaction` | `object` | no | Declares provider-specific safe-output redaction rules. |
 
@@ -460,6 +463,42 @@ Rule keys:
 | --- | --- | --- |
 | `type` | `string` | `string`, `boolean`, or `number`. |
 | `allowed` | `string[]` | Optional allowed values. |
+| `aliases` | `string[]` | Extra query key spellings accepted and normalized to the canonical key. |
+| `normalized_values` | `object` | Optional input-value aliases normalized before `allowed` checks and canonicalization. |
+
+### `semantic_fields`
+
+Semantic fields are only emitted by `parseNormalize()`. They let consumers map
+provider-native query keys or adapter options onto stable field names without
+repeating provider-specific logic.
+
+```yaml
+semantic_fields:
+  ssl_mode:
+    sources:
+      - from_query: sslmode
+        values:
+          require: required
+          verify-full: verify-identity
+  dns_enabled:
+    sources:
+      - from_option: srv
+```
+
+Semantic field keys:
+
+| Key | Type | Meaning |
+| --- | --- | --- |
+| `sources` | `object[]` | Ordered sources. The first source that resolves to a value wins. |
+
+Semantic source keys:
+
+| Key | Type | Meaning |
+| --- | --- | --- |
+| `from_query` | `string` | Read from a normalized query parameter key. |
+| `from_option` | `string` | Read from an adapter-emitted option key. |
+| `from_scheme` | `true` | Read from the normalized scheme. |
+| `values` | `object` | Optional value map applied before the semantic field is emitted. |
 
 ### `validation`
 
@@ -532,7 +571,7 @@ Schemas live in `specs/schemas/`.
 | --- | --- |
 | `cpds.schema.json` | CPDS definition object schema. |
 | `address.schema.json` | `parse()` address value schema. |
-| `normalized-address.schema.json` | `parseNormalize()` value schema, including `canonical`. |
+| `normalized-address.schema.json` | `parseNormalize()` value schema, including `canonical` and optional `semantic`. |
 | `parse-result.schema.json` | Parse result wrapper schema. |
 | `fixture.schema.json` | Compatibility fixture file schema. |
 

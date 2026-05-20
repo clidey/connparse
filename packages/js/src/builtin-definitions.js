@@ -822,7 +822,13 @@ export const builtInDefinitions = Object.freeze([
         "type": "boolean"
       },
       "sslmode": {
-        "type": "string"
+        "type": "string",
+        "allowed": [
+          "disable",
+          "require",
+          "verify-ca",
+          "verify-full"
+        ]
       },
       "user": {
         "type": "string"
@@ -838,6 +844,74 @@ export const builtInDefinitions = Object.freeze([
       },
       "createDatabaseIfNotExist": {
         "type": "boolean"
+      },
+      "httpProtocol": {
+        "type": "string",
+        "allowed": [
+          "http",
+          "https"
+        ]
+      }
+    },
+    "semantic_fields": {
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_query": "sslmode",
+            "values": {
+              "disable": "disabled",
+              "require": "required",
+              "verify-ca": "verify-ca",
+              "verify-full": "verify-identity"
+            }
+          },
+          {
+            "from_query": "ssl",
+            "values": {
+              "true": "enabled",
+              "false": "disabled"
+            }
+          },
+          {
+            "from_option": "protocol",
+            "values": {
+              "https": "enabled",
+              "http": "disabled"
+            }
+          }
+        ]
+      },
+      "http_protocol": {
+        "sources": [
+          {
+            "from_query": "httpProtocol"
+          },
+          {
+            "from_option": "protocol",
+            "values": {
+              "http": "http",
+              "https": "https"
+            }
+          }
+        ]
+      },
+      "readonly": {
+        "sources": [
+          {
+            "from_query": "readonly"
+          }
+        ]
+      },
+      "debug": {
+        "sources": [
+          {
+            "from_query": "debug",
+            "values": {
+              "true": true,
+              "false": false
+            }
+          }
+        ]
       }
     },
     "validation": {
@@ -1448,13 +1522,26 @@ export const builtInDefinitions = Object.freeze([
     },
     "query_parameters": {
       "api_key": {
-        "type": "string"
-      },
-      "apiKey": {
-        "type": "string"
+        "type": "string",
+        "aliases": [
+          "apiKey"
+        ]
       },
       "token": {
         "type": "string"
+      }
+    },
+    "semantic_fields": {
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_option": "tls",
+            "values": {
+              "true": "enabled",
+              "false": "disabled"
+            }
+          }
+        ]
       }
     },
     "validation": {
@@ -1831,7 +1918,14 @@ export const builtInDefinitions = Object.freeze([
           "trust",
           "verify-ca",
           "verify-full"
-        ]
+        ],
+        "aliases": [
+          "ssl-mode"
+        ],
+        "normalized_values": {
+          "verify_ca": "verify-ca",
+          "verify_full": "verify-full"
+        }
       },
       "ssl": {
         "type": "string"
@@ -1841,6 +1935,59 @@ export const builtInDefinitions = Object.freeze([
       },
       "password": {
         "type": "string"
+      },
+      "parseTime": {
+        "type": "boolean"
+      },
+      "loc": {
+        "type": "string"
+      },
+      "allowCleartextPasswords": {
+        "type": "boolean"
+      }
+    },
+    "semantic_fields": {
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_query": "sslMode",
+            "values": {
+              "disable": "disabled",
+              "trust": "insecure",
+              "verify-ca": "verify-ca",
+              "verify-full": "verify-identity"
+            }
+          }
+        ]
+      },
+      "parse_time": {
+        "sources": [
+          {
+            "from_query": "parseTime",
+            "values": {
+              "true": true,
+              "false": false
+            }
+          }
+        ]
+      },
+      "loc": {
+        "sources": [
+          {
+            "from_query": "loc"
+          }
+        ]
+      },
+      "allow_cleartext_passwords": {
+        "sources": [
+          {
+            "from_query": "allowCleartextPasswords",
+            "values": {
+              "true": true,
+              "false": false
+            }
+          }
+        ]
       }
     },
     "validation": {
@@ -2141,6 +2288,39 @@ export const builtInDefinitions = Object.freeze([
         "type": "string"
       }
     },
+    "semantic_fields": {
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_query": "tlsInsecure",
+            "values": {
+              "true": "insecure"
+            }
+          },
+          {
+            "from_query": "tls",
+            "values": {
+              "true": "enabled",
+              "false": "disabled"
+            }
+          },
+          {
+            "from_query": "ssl",
+            "values": {
+              "true": "enabled",
+              "false": "disabled"
+            }
+          }
+        ]
+      },
+      "dns_enabled": {
+        "sources": [
+          {
+            "from_option": "srv"
+          }
+        ]
+      }
+    },
     "validation": {
       "require_host": true,
       "port_range": {
@@ -2287,7 +2467,19 @@ export const builtInDefinitions = Object.freeze([
           "REQUIRED",
           "VERIFY_CA",
           "VERIFY_IDENTITY"
-        ]
+        ],
+        "aliases": [
+          "sslMode"
+        ],
+        "normalized_values": {
+          "disabled": "DISABLED",
+          "preferred": "PREFERRED",
+          "required": "REQUIRED",
+          "verify-ca": "VERIFY_CA",
+          "verify_ca": "VERIFY_CA",
+          "verify-identity": "VERIFY_IDENTITY",
+          "verify_identity": "VERIFY_IDENTITY"
+        }
       },
       "charset": {
         "type": "string"
@@ -2295,11 +2487,65 @@ export const builtInDefinitions = Object.freeze([
       "schema": {
         "type": "string"
       },
+      "parseTime": {
+        "type": "boolean"
+      },
+      "loc": {
+        "type": "string"
+      },
+      "allowCleartextPasswords": {
+        "type": "boolean"
+      },
       "tls-version": {
         "type": "string"
       },
       "tls-versions": {
         "type": "string"
+      }
+    },
+    "semantic_fields": {
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_query": "ssl-mode",
+            "values": {
+              "DISABLED": "disabled",
+              "PREFERRED": "preferred",
+              "REQUIRED": "required",
+              "VERIFY_CA": "verify-ca",
+              "VERIFY_IDENTITY": "verify-identity"
+            }
+          }
+        ]
+      },
+      "parse_time": {
+        "sources": [
+          {
+            "from_query": "parseTime",
+            "values": {
+              "true": true,
+              "false": false
+            }
+          }
+        ]
+      },
+      "loc": {
+        "sources": [
+          {
+            "from_query": "loc"
+          }
+        ]
+      },
+      "allow_cleartext_passwords": {
+        "sources": [
+          {
+            "from_query": "allowCleartextPasswords",
+            "values": {
+              "true": true,
+              "false": false
+            }
+          }
+        ]
       }
     },
     "validation": {
@@ -2510,13 +2756,28 @@ export const builtInDefinitions = Object.freeze([
     },
     "query_parameters": {
       "api_key": {
-        "type": "string"
-      },
-      "apiKey": {
-        "type": "string"
+        "type": "string",
+        "aliases": [
+          "apiKey"
+        ]
       },
       "token": {
         "type": "string"
+      }
+    },
+    "semantic_fields": {
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_scheme": true,
+            "values": {
+              "https": "enabled",
+              "opensearch+https": "enabled",
+              "http": "disabled",
+              "opensearch+http": "disabled"
+            }
+          }
+        ]
       }
     },
     "validation": {
@@ -2675,6 +2936,9 @@ export const builtInDefinitions = Object.freeze([
       "require_auth": {
         "type": "string"
       },
+      "search_path": {
+        "type": "string"
+      },
       "service": {
         "type": "string"
       },
@@ -2686,6 +2950,28 @@ export const builtInDefinitions = Object.freeze([
       },
       "sslrootcert": {
         "type": "string"
+      }
+    },
+    "semantic_fields": {
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_query": "sslmode",
+            "values": {
+              "disable": "disabled",
+              "require": "required",
+              "verify-ca": "verify-ca",
+              "verify-full": "verify-identity"
+            }
+          }
+        ]
+      },
+      "search_path": {
+        "sources": [
+          {
+            "from_query": "search_path"
+          }
+        ]
       }
     },
     "validation": {
@@ -2832,6 +3118,19 @@ export const builtInDefinitions = Object.freeze([
     "query_parameters": {
       "protocol": {
         "type": "number"
+      }
+    },
+    "semantic_fields": {
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_option": "tls",
+            "values": {
+              "true": "enabled",
+              "false": "disabled"
+            }
+          }
+        ]
       }
     },
     "validation": {
@@ -3220,6 +3519,9 @@ export const builtInDefinitions = Object.freeze([
     "schemes": [
       "sqlite"
     ],
+    "provider_aliases": [
+      "sqlite3"
+    ],
     "adapter": "sqlite",
     "authority": {},
     "resource": {
@@ -3359,7 +3661,26 @@ export const builtInDefinitions = Object.freeze([
     },
     "query_parameters": {
       "ssl-mode": {
-        "type": "string"
+        "type": "string",
+        "allowed": [
+          "DISABLED",
+          "PREFERRED",
+          "REQUIRED",
+          "VERIFY_CA",
+          "VERIFY_IDENTITY"
+        ],
+        "aliases": [
+          "sslMode"
+        ],
+        "normalized_values": {
+          "disabled": "DISABLED",
+          "preferred": "PREFERRED",
+          "required": "REQUIRED",
+          "verify-ca": "VERIFY_CA",
+          "verify_ca": "VERIFY_CA",
+          "verify-identity": "VERIFY_IDENTITY",
+          "verify_identity": "VERIFY_IDENTITY"
+        }
       },
       "ssl": {
         "type": "string"
@@ -3372,6 +3693,54 @@ export const builtInDefinitions = Object.freeze([
       },
       "loc": {
         "type": "string"
+      },
+      "allowCleartextPasswords": {
+        "type": "boolean"
+      }
+    },
+    "semantic_fields": {
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_query": "ssl-mode",
+            "values": {
+              "DISABLED": "disabled",
+              "PREFERRED": "preferred",
+              "REQUIRED": "required",
+              "VERIFY_CA": "verify-ca",
+              "VERIFY_IDENTITY": "verify-identity"
+            }
+          }
+        ]
+      },
+      "parse_time": {
+        "sources": [
+          {
+            "from_query": "parseTime",
+            "values": {
+              "true": true,
+              "false": false
+            }
+          }
+        ]
+      },
+      "loc": {
+        "sources": [
+          {
+            "from_query": "loc"
+          }
+        ]
+      },
+      "allow_cleartext_passwords": {
+        "sources": [
+          {
+            "from_query": "allowCleartextPasswords",
+            "values": {
+              "true": true,
+              "false": false
+            }
+          }
+        ]
       }
     },
     "validation": {

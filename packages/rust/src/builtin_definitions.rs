@@ -835,6 +835,13 @@ pub fn built_in_definitions() -> Vec<Definition> {
                     },
                 ),
                 (
+                    "httpProtocol",
+                    QueryRule {
+                        kind: "string".to_string(),
+                        allowed: vec![json!("http"), json!("https")],
+                    },
+                ),
+                (
                     "password",
                     QueryRule {
                         kind: "string".to_string(),
@@ -859,7 +866,12 @@ pub fn built_in_definitions() -> Vec<Definition> {
                     "sslmode",
                     QueryRule {
                         kind: "string".to_string(),
-                        allowed: Vec::new(),
+                        allowed: vec![
+                            json!("disable"),
+                            json!("require"),
+                            json!("verify-ca"),
+                            json!("verify-full"),
+                        ],
                     },
                 ),
                 (
@@ -1427,13 +1439,6 @@ pub fn built_in_definitions() -> Vec<Definition> {
                     },
                 ),
                 (
-                    "apiKey",
-                    QueryRule {
-                        kind: "string".to_string(),
-                        allowed: Vec::new(),
-                    },
-                ),
-                (
                     "token",
                     QueryRule {
                         kind: "string".to_string(),
@@ -1793,6 +1798,27 @@ pub fn built_in_definitions() -> Vec<Definition> {
             },
             credentials: object([("password", json!(true)), ("username", json!(true))]),
             query_parameters: query_rules([
+                (
+                    "allowCleartextPasswords",
+                    QueryRule {
+                        kind: "boolean".to_string(),
+                        allowed: Vec::new(),
+                    },
+                ),
+                (
+                    "loc",
+                    QueryRule {
+                        kind: "string".to_string(),
+                        allowed: Vec::new(),
+                    },
+                ),
+                (
+                    "parseTime",
+                    QueryRule {
+                        kind: "boolean".to_string(),
+                        allowed: Vec::new(),
+                    },
+                ),
                 (
                     "password",
                     QueryRule {
@@ -2176,6 +2202,13 @@ pub fn built_in_definitions() -> Vec<Definition> {
             credentials: object([("password", json!(true)), ("username", json!(true))]),
             query_parameters: query_rules([
                 (
+                    "allowCleartextPasswords",
+                    QueryRule {
+                        kind: "boolean".to_string(),
+                        allowed: Vec::new(),
+                    },
+                ),
+                (
                     "auth-method",
                     QueryRule {
                         kind: "string".to_string(),
@@ -2198,6 +2231,20 @@ pub fn built_in_definitions() -> Vec<Definition> {
                 ),
                 (
                     "get-server-public-key",
+                    QueryRule {
+                        kind: "boolean".to_string(),
+                        allowed: Vec::new(),
+                    },
+                ),
+                (
+                    "loc",
+                    QueryRule {
+                        kind: "string".to_string(),
+                        allowed: Vec::new(),
+                    },
+                ),
+                (
+                    "parseTime",
                     QueryRule {
                         kind: "boolean".to_string(),
                         allowed: Vec::new(),
@@ -2443,13 +2490,6 @@ pub fn built_in_definitions() -> Vec<Definition> {
                     },
                 ),
                 (
-                    "apiKey",
-                    QueryRule {
-                        kind: "string".to_string(),
-                        allowed: Vec::new(),
-                    },
-                ),
-                (
                     "token",
                     QueryRule {
                         kind: "string".to_string(),
@@ -2597,6 +2637,13 @@ pub fn built_in_definitions() -> Vec<Definition> {
                 ),
                 (
                     "require_auth",
+                    QueryRule {
+                        kind: "string".to_string(),
+                        allowed: Vec::new(),
+                    },
+                ),
+                (
+                    "search_path",
                     QueryRule {
                         kind: "string".to_string(),
                         allowed: Vec::new(),
@@ -3295,6 +3342,13 @@ pub fn built_in_definitions() -> Vec<Definition> {
             credentials: object([("password", json!(true)), ("username", json!(true))]),
             query_parameters: query_rules([
                 (
+                    "allowCleartextPasswords",
+                    QueryRule {
+                        kind: "boolean".to_string(),
+                        allowed: Vec::new(),
+                    },
+                ),
+                (
                     "charset",
                     QueryRule {
                         kind: "string".to_string(),
@@ -3326,7 +3380,13 @@ pub fn built_in_definitions() -> Vec<Definition> {
                     "ssl-mode",
                     QueryRule {
                         kind: "string".to_string(),
-                        allowed: Vec::new(),
+                        allowed: vec![
+                            json!("DISABLED"),
+                            json!("PREFERRED"),
+                            json!("REQUIRED"),
+                            json!("VERIFY_CA"),
+                            json!("VERIFY_IDENTITY"),
+                        ],
                     },
                 ),
             ]),

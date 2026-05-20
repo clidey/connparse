@@ -4,12 +4,72 @@ function valuesFor(value) {
   return Array.isArray(value) ? value : [value];
 }
 
+function normalizeLookupKey(value) {
+  return String(value ?? '').trim().toLowerCase();
+}
+
 function isBooleanString(value) {
   return ['true', 'false', '1', '0', 'yes', 'no'].includes(String(value).toLowerCase());
 }
 
 function isNumberString(value) {
   return /^-?\d+(\.\d+)?$/.test(String(value));
+}
+
+function normalizeBoolean(value) {
+  const text = String(value).toLowerCase();
+  if (['true', '1', 'yes'].includes(text)) return 'true';
+  if (['false', '0', 'no'].includes(text)) return 'false';
+  return String(value);
+}
+
+function normalizeNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? String(number) : String(value);
+}
+
+function mappedValue(value, map) {
+  if (map == null || typeof map !== 'object') {
+    return undefined;
+  }
+
+  const entries = new Map(
+    Object.entries(map).map(([key, item]) => [normalizeLookupKey(key), item])
+  );
+  return entries.get(normalizeLookupKey(value));
+}
+
+function queryRuleForKey(key, definition) {
+  const normalizedKey = normalizeLookupKey(key);
+
+  for (const [canonicalKey, rule] of Object.entries(definition?.query_parameters || {})) {
+    if (normalizeLookupKey(canonicalKey) === normalizedKey) {
+      return { canonicalKey, rule };
+    }
+
+    for (const alias of rule?.aliases || []) {
+      if (normalizeLookupKey(alias) === normalizedKey) {
+        return { canonicalKey, rule };
+      }
+    }
+  }
+
+  return {
+    canonicalKey: String(key),
+    rule: null
+  };
+}
+
+function normalizeValueForRule(rule, value) {
+  let normalizedValue = String(value);
+  if (rule.type === 'boolean') {
+    normalizedValue = normalizeBoolean(value);
+  } else if (rule.type === 'number') {
+    normalizedValue = normalizeNumber(value);
+  }
+
+  const mapped = mappedValue(normalizedValue, rule.normalized_values);
+  return mapped == null ? normalizedValue : String(mapped);
 }
 
 function validateQueryValue(rule, key, value) {
@@ -21,7 +81,12 @@ function validateQueryValue(rule, key, value) {
     if (rule.type === 'number' && !isNumberString(item)) {
       errors.push(diagnostic('INVALID_QUERY_PARAMETER_TYPE', `${key} must be a number`, `query.${key}`));
     }
-    if (Array.isArray(rule.allowed) && !rule.allowed.includes(item)) {
+
+    const normalizedItem = normalizeValueForRule(rule, item);
+    if (
+      Array.isArray(rule.allowed) &&
+      !rule.allowed.some((allowed) => normalizeValueForRule(rule, allowed) === normalizedItem)
+    ) {
       errors.push(
         diagnostic(
           'INVALID_QUERY_PARAMETER_VALUE',
@@ -72,16 +137,15 @@ export function validateAddress(address, definition, options = {}) {
     }
   }
 
-  const queryRules = definition.query_parameters || {};
   for (const [key, value] of Object.entries(address.query || {})) {
-    const rule = queryRules[key];
+    const { canonicalKey, rule } = queryRuleForKey(key, definition);
     if (!rule) {
       const item = diagnostic('UNKNOWN_QUERY_PARAMETER', `${key} is not declared for ${definition.id}`, `query.${key}`);
       if (options.strict) errors.push(item);
       else warnings.push(item);
       continue;
     }
-    errors.push(...validateQueryValue(rule, key, value));
+    errors.push(...validateQueryValue(rule, canonicalKey, value));
   }
 
   return { errors, warnings };

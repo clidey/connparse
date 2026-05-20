@@ -10,22 +10,31 @@ function normalizeScheme(scheme) {
   return String(scheme || '').toLowerCase();
 }
 
+function normalizeProvider(provider) {
+  return String(provider || '').trim().toLowerCase();
+}
+
 export function createRegistry(definitions = builtInDefinitions) {
   validateDefinitions(definitions, adapters, { allowDuplicateIds: true });
   const byId = new Map();
   const byScheme = new Map();
+  const byProviderAlias = new Map();
 
   for (const definition of definitions) {
     const copy = clone(definition);
-    byId.set(copy.id, copy);
+    byId.set(normalizeProvider(copy.id), copy);
     for (const scheme of copy.schemes || []) {
       byScheme.set(normalizeScheme(scheme), copy);
+    }
+    for (const alias of copy.provider_aliases || []) {
+      byProviderAlias.set(normalizeProvider(alias), copy);
     }
   }
 
   return {
     getById(id) {
-      return byId.get(id) || null;
+      const normalized = normalizeProvider(id);
+      return byId.get(normalized) || byProviderAlias.get(normalized) || null;
     },
     getByScheme(scheme) {
       return byScheme.get(normalizeScheme(scheme)) || null;
@@ -36,9 +45,12 @@ export function createRegistry(definitions = builtInDefinitions) {
     register(definition) {
       validateDefinition(definition, adapters);
       const copy = clone(definition);
-      byId.set(copy.id, copy);
+      byId.set(normalizeProvider(copy.id), copy);
       for (const scheme of copy.schemes || []) {
         byScheme.set(normalizeScheme(scheme), copy);
+      }
+      for (const alias of copy.provider_aliases || []) {
+        byProviderAlias.set(normalizeProvider(alias), copy);
       }
       return copy;
     }

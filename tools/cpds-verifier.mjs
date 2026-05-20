@@ -38,7 +38,8 @@ export async function loadDefinitionFiles(definitionsDir) {
 export async function verifyDefinitionFiles(definitionsDir) {
   const entries = await loadDefinitionFiles(definitionsDir);
   const seenSchemes = new Map();
-  const results = entries.map((entry) => verifyDefinitionEntry(entry, seenSchemes));
+  const seenProviderNames = new Map();
+  const results = entries.map((entry) => verifyDefinitionEntry(entry, seenSchemes, seenProviderNames));
   return {
     entries,
     results,
@@ -62,7 +63,7 @@ export function parseDefinitionFile(text, file = '<input>', path = file) {
   };
 }
 
-export function verifyDefinitionEntry(entry, seenSchemes = new Map()) {
+export function verifyDefinitionEntry(entry, seenSchemes = new Map(), seenProviderNames = new Map()) {
   const errors = [...entry.parseErrors];
   const warnings = [...entry.parseWarnings];
   if (errors.length > 0) return { file: entry.file, errors, warnings };
@@ -79,8 +80,10 @@ export function verifyDefinitionEntry(entry, seenSchemes = new Map()) {
 
   validateScalarFields(definition, entry.file, errors);
   validateSchemes(definition, entry.file, seenSchemes, errors);
+  validateProviderAliases(definition, entry.file, seenProviderNames, errors);
   validateObjectFields(definition, entry.file, errors);
   validateQueryParameters(definition, entry.file, errors);
+  validateSemanticFields(definition, entry.file, errors);
   validateValidation(definition, entry.file, errors);
   validateRedaction(definition, entry.file, errors);
   suggestRedaction(definition, entry.file, warnings);
@@ -118,6 +121,22 @@ function validateSchemes(definition, file, seenSchemes, errors) {
       errors.push(diagnostic(file, `scheme ${scheme} already declared by ${seenSchemes.get(scheme)}`));
     } else {
       seenSchemes.set(scheme, definition.id || file);
+    }
+  }
+}
+
+function validateProviderAliases(definition, file, seenProviderNames, errors) {
+  const providerNames = [definition.id, ...(definition.provider_aliases || [])];
+  for (const providerName of providerNames) {
+    if (!nonEmptyString(providerName)) {
+      errors.push(diagnostic(file, 'provider_aliases must contain non-empty strings'));
+      continue;
+    }
+    const normalized = normalize(providerName);
+    if (seenProviderNames.has(normalized)) {
+      errors.push(diagnostic(file, `provider name ${providerName} already declared by ${seenProviderNames.get(normalized)}`));
+    } else {
+      seenProviderNames.set(normalized, definition.id || file);
     }
   }
 }
@@ -160,8 +179,54 @@ function validateQueryParameters(definition, file, errors) {
     if (!VALID_QUERY_TYPES.has(rule.type)) {
       errors.push(diagnostic(file, `query_parameters.${key}.type must be string, boolean, or number`));
     }
-    if (rule.allowed != null && !Array.isArray(rule.allowed)) {
-      errors.push(diagnostic(file, `query_parameters.${key}.allowed must be an array`));
+    if (rule.allowed != null && !isScalarArray(rule.allowed)) {
+      errors.push(diagnostic(file, `query_parameters.${key}.allowed must be an array of scalar values`));
+    }
+    if (rule.aliases != null && !isStringArray(rule.aliases)) {
+      errors.push(diagnostic(file, `query_parameters.${key}.aliases must be an array of strings`));
+    }
+    if (rule.normalized_values != null && !isScalarObject(rule.normalized_values)) {
+      errors.push(diagnostic(file, `query_parameters.${key}.normalized_values must be an object with scalar values`));
+    }
+  }
+}
+
+function validateSemanticFields(definition, file, errors) {
+  if (definition.semantic_fields == null) return;
+  if (!isPlainObject(definition.semantic_fields)) {
+    errors.push(diagnostic(file, 'semantic_fields must be an object'));
+    return;
+  }
+  for (const [semanticKey, rule] of Object.entries(definition.semantic_fields)) {
+    if (!isPlainObject(rule)) {
+      errors.push(diagnostic(file, `semantic_fields.${semanticKey} must be an object`));
+      continue;
+    }
+    if (!Array.isArray(rule.sources) || rule.sources.length === 0) {
+      errors.push(diagnostic(file, `semantic_fields.${semanticKey}.sources must be a non-empty array`));
+      continue;
+    }
+    for (const source of rule.sources) {
+      if (!isPlainObject(source)) {
+        errors.push(diagnostic(file, `semantic_fields.${semanticKey}.sources items must be objects`));
+        continue;
+      }
+      const sourceKeys = ['from_query', 'from_option', 'from_scheme'].filter((key) => source[key] != null);
+      if (sourceKeys.length !== 1) {
+        errors.push(diagnostic(file, `semantic_fields.${semanticKey}.sources items must declare exactly one source`));
+      }
+      if (source.from_query != null && !nonEmptyString(source.from_query)) {
+        errors.push(diagnostic(file, `semantic_fields.${semanticKey}.sources.from_query must be a non-empty string`));
+      }
+      if (source.from_option != null && !nonEmptyString(source.from_option)) {
+        errors.push(diagnostic(file, `semantic_fields.${semanticKey}.sources.from_option must be a non-empty string`));
+      }
+      if (source.from_scheme != null && source.from_scheme !== true) {
+        errors.push(diagnostic(file, `semantic_fields.${semanticKey}.sources.from_scheme must be true`));
+      }
+      if (source.values != null && !isScalarObject(source.values)) {
+        errors.push(diagnostic(file, `semantic_fields.${semanticKey}.sources.values must be an object with scalar values`));
+      }
     }
   }
 }
@@ -247,6 +312,18 @@ function isPlainObject(value) {
 
 function nonEmptyString(value) {
   return typeof value === 'string' && value.trim().length > 0;
+}
+
+function isStringArray(value) {
+  return Array.isArray(value) && value.every(nonEmptyString);
+}
+
+function isScalarArray(value) {
+  return Array.isArray(value) && value.every((item) => ['string', 'number', 'boolean'].includes(typeof item));
+}
+
+function isScalarObject(value) {
+  return isPlainObject(value) && Object.values(value).every((item) => ['string', 'number', 'boolean'].includes(typeof item));
 }
 
 function normalize(value) {

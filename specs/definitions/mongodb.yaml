@@ -49,6 +49,23 @@ query_parameters:
     type: boolean
   w:
     type: string
+semantic_fields:
+  ssl_mode:
+    sources:
+      - from_query: tlsInsecure
+        values:
+          true: insecure
+      - from_query: tls
+        values:
+          true: enabled
+          false: disabled
+      - from_query: ssl
+        values:
+          true: enabled
+          false: disabled
+  dns_enabled:
+    sources:
+      - from_option: srv
 validation:
   require_host: true
   port_range:

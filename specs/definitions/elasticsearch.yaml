@@ -26,10 +26,16 @@ credentials:
 query_parameters:
   api_key:
     type: string
-  apiKey:
-    type: string
+    aliases: [apiKey]
   token:
     type: string
+semantic_fields:
+  ssl_mode:
+    sources:
+      - from_option: tls
+        values:
+          true: enabled
+          false: disabled
 validation:
   require_host: true
   port_range:

@@ -61,6 +61,10 @@ test('canonicalize handles multi-host defaults and typed query normalization', (
     api.canonicalize('mongodb://LOCALHOST:27017/app?tls=1'),
     'mongodb://localhost/app?tls=true'
   );
+  assert.equal(
+    api.canonicalize('mysql://localhost/app?sslMode=verify_identity&parseTime=1'),
+    'mysql://localhost/app?parseTime=true&ssl-mode=VERIFY_IDENTITY'
+  );
 });
 
 test('equivalent compares canonical identities', () => {
@@ -140,6 +144,84 @@ test('parseNormalize supports provider-hinted inputs and direct address normaliz
     api.normalizeAddress(address),
     api.parseNormalize('postgres://localhost/app?sslmode=require').value
   );
+});
+
+test('provider aliases resolve through the registry', () => {
+  const result = api.parse('/tmp/sample.db', { provider: 'sqlite3' });
+
+  assert.equal(result.ok, true, JSON.stringify(result.errors));
+  assert.equal(result.value.scheme, 'sqlite');
+  assert.equal(result.value.resource.type, 'database');
+});
+
+test('parseNormalize projects semantic fields for provider-specific settings', () => {
+  const postgres = api.parseNormalize(
+    'postgres://user:pass@localhost:5432/app?sslmode=require&search_path=tenant_a'
+  );
+  assert.equal(postgres.ok, true, JSON.stringify(postgres.errors));
+  assert.deepEqual(postgres.value.semantic, {
+    provider: 'postgres',
+    fields: {
+      search_path: 'tenant_a',
+      ssl_mode: 'required'
+    },
+    consumed: {
+      query: ['search_path', 'sslmode']
+    }
+  });
+
+  const mysql = api.parseNormalize(
+    'mysql://user:pass@localhost:3306/app?sslMode=verify_identity&parseTime=1&allowCleartextPasswords=0'
+  );
+  assert.equal(mysql.ok, true, JSON.stringify(mysql.errors));
+  assert.equal(mysql.value.query['ssl-mode'], 'VERIFY_IDENTITY');
+  assert.equal(mysql.value.query.parseTime, 'true');
+  assert.equal(mysql.value.query.allowCleartextPasswords, 'false');
+  assert.deepEqual(mysql.value.semantic, {
+    provider: 'mysql',
+    fields: {
+      ssl_mode: 'verify-identity',
+      parse_time: true,
+      allow_cleartext_passwords: false
+    },
+    consumed: {
+      query: ['allowCleartextPasswords', 'parseTime', 'ssl-mode']
+    }
+  });
+
+  const mongo = api.parseNormalize(
+    'mongodb+srv://user:pass@cluster0.example.mongodb.net/app?authSource=admin&tls=true'
+  );
+  assert.equal(mongo.ok, true, JSON.stringify(mongo.errors));
+  assert.deepEqual(mongo.value.semantic, {
+    provider: 'mongodb',
+    fields: {
+      dns_enabled: true,
+      ssl_mode: 'enabled'
+    },
+    consumed: {
+      query: ['tls'],
+      options: ['srv']
+    }
+  });
+
+  const clickhouse = api.parseNormalize(
+    'clickhouse://user:pass@localhost:9440/default?ssl=true&httpProtocol=https&readonly=1&debug=1'
+  );
+  assert.equal(clickhouse.ok, true, JSON.stringify(clickhouse.errors));
+  assert.deepEqual(clickhouse.value.semantic, {
+    provider: 'clickhouse',
+    fields: {
+      ssl_mode: 'enabled',
+      http_protocol: 'https',
+      readonly: '1',
+      debug: true
+    },
+    consumed: {
+      query: ['debug', 'httpProtocol', 'readonly', 'ssl'],
+      options: ['protocol']
+    }
+  });
 });
 
 test('mask redacts URI credentials, query secrets, and key-value secrets', () => {

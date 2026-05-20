@@ -9,6 +9,7 @@ export type ConnparseType =
   | 'unknown';
 
 export type QueryValue = string | string[];
+export type ConnparseScalar = string | number | boolean;
 
 export type ConnparseAddress = {
   scheme: string;
@@ -25,6 +26,20 @@ export type ConnparseAddress = {
   options: Record<string, unknown>;
   raw: string;
   safe: string;
+};
+
+export type ConnparseSemantic = {
+  provider: string;
+  fields: Record<string, ConnparseScalar>;
+  consumed?: {
+    query?: string[];
+    options?: string[];
+  };
+};
+
+export type NormalizedConnparseAddress = ConnparseAddress & {
+  canonical: string;
+  semantic?: ConnparseSemantic;
 };
 
 export type ConnparseDiagnostic = {
@@ -60,8 +75,8 @@ export function parse(input: string, options?: ParseOptions): ParseResult;
 export function parseOrThrow(input: string, options?: ParseOptions): ConnparseAddress;
 export function canonicalize(input: string | ConnparseAddress, options?: CanonicalizeOptions): string;
 export function equivalent(left: string | ConnparseAddress, right: string | ConnparseAddress, options?: CanonicalizeOptions): boolean;
-export function normalizeAddress(address: ConnparseAddress, options?: CanonicalizeOptions & { canonical?: string }): ConnparseAddress & { canonical: string };
-export function parseNormalize(input: string, options?: CanonicalizeOptions): ParseResult & { value: (ConnparseAddress & { canonical: string }) | null };
+export function normalizeAddress(address: ConnparseAddress, options?: CanonicalizeOptions & { canonical?: string }): NormalizedConnparseAddress;
+export function parseNormalize(input: string, options?: CanonicalizeOptions): ParseResult & { value: NormalizedConnparseAddress | null };
 export function mask(input: string, definition?: ConnparseDefinition): string;
 export function sanitize(address: ConnparseAddress, definition?: ConnparseDefinition): ConnparseAddress;
 export function parseDefinition(input: string, format?: 'json' | 'yaml'): ConnparseDefinition;

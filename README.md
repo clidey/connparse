@@ -174,6 +174,9 @@ Returns a `ConnparseAddress` or throws an `Error`.
 
 Returns a `ParseResult`, but `value` is a stable normalized object instead of a
 faithful raw parse object. Equivalent inputs produce the same normalized JSON.
+It also includes an optional `semantic` block with provider-normalized field
+values that consumers can map onto forms without re-implementing provider
+aliases.
 
 Use `parse()` when you need to preserve the exact original input in `raw`. Use
 `parseNormalize()` when you need dedupe keys, config comparison, cache keys, or
@@ -208,7 +211,16 @@ Both return the same normalized `value`:
   "options": {},
   "raw": "postgres://localhost/app?application_name=myapp&sslmode=require",
   "safe": "postgres://localhost/app?application_name=myapp&sslmode=require",
-  "canonical": "postgres://localhost/app?application_name=myapp&sslmode=require"
+  "canonical": "postgres://localhost/app?application_name=myapp&sslmode=require",
+  "semantic": {
+    "provider": "postgres",
+    "fields": {
+      "ssl_mode": "required"
+    },
+    "consumed": {
+      "query": ["sslmode"]
+    }
+  }
 }
 ```
 

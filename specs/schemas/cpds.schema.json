@@ -44,6 +44,14 @@
       },
       "uniqueItems": true
     },
+    "provider_aliases": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
     "adapter": {
       "type": "string",
       "minLength": 1
@@ -81,6 +89,12 @@
       "type": "object",
       "additionalProperties": {
         "$ref": "#/$defs/queryRule"
+      }
+    },
+    "semantic_fields": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/semanticField"
       }
     },
     "validation": {
@@ -180,9 +194,83 @@
               "boolean"
             ]
           }
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "normalized_values": {
+          "$ref": "#/$defs/scalarMap"
         }
       },
       "additionalProperties": false
+    },
+    "semanticField": {
+      "type": "object",
+      "required": [
+        "sources"
+      ],
+      "properties": {
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/semanticSource"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "semanticSource": {
+      "type": "object",
+      "properties": {
+        "from_query": {
+          "type": "string",
+          "minLength": 1
+        },
+        "from_option": {
+          "type": "string",
+          "minLength": 1
+        },
+        "from_scheme": {
+          "const": true
+        },
+        "values": {
+          "$ref": "#/$defs/scalarMap"
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "from_query"
+          ]
+        },
+        {
+          "required": [
+            "from_option"
+          ]
+        },
+        {
+          "required": [
+            "from_scheme"
+          ]
+        }
+      ],
+      "additionalProperties": false
+    },
+    "scalarMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "number",
+          "boolean"
+        ]
+      }
     }
   }
 }

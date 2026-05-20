@@ -91,13 +91,23 @@ logger.info({ connection: result.value.safe });
 ```
 
 Use `parseNormalize()` when you need a stable identity for dedupe, cache keys,
-or config comparison.
+or config comparison. It also returns provider-normalized semantic fields for
+consumers that want stable form values instead of provider-specific query keys.
 
 ```ts
 import { parseNormalize } from '@clidey/connparse';
 
-parseNormalize('postgresql://LOCALHOST:5432/app?sslmode=require').value.canonical;
-// "postgres://localhost/app?sslmode=require"
+const result = parseNormalize('postgresql://LOCALHOST:5432/app?sslmode=require&search_path=tenant_a');
+
+result.value.canonical;
+// "postgres://localhost/app?search_path=tenant_a&sslmode=require"
+
+result.value.semantic;
+// {
+//   provider: 'postgres',
+//   fields: { ssl_mode: 'required', search_path: 'tenant_a' },
+//   consumed: { query: ['search_path', 'sslmode'] }
+// }
 ```
 
 Use `provider` when the string does not clearly identify the source type.

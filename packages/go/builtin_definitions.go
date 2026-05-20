@@ -672,6 +672,10 @@ func BuiltInDefinitions() []Definition {
 				"debug": QueryRule{
 					Type: "boolean",
 				},
+				"httpProtocol": QueryRule{
+					Type:    "string",
+					Allowed: []any{"http", "https"},
+				},
 				"password": QueryRule{
 					Type: "string",
 				},
@@ -682,7 +686,8 @@ func BuiltInDefinitions() []Definition {
 					Type: "boolean",
 				},
 				"sslmode": QueryRule{
-					Type: "string",
+					Type:    "string",
+					Allowed: []any{"disable", "require", "verify-ca", "verify-full"},
 				},
 				"user": QueryRule{
 					Type: "string",
@@ -1180,9 +1185,6 @@ func BuiltInDefinitions() []Definition {
 				"username": true,
 			},
 			QueryParameters: map[string]QueryRule{
-				"apiKey": QueryRule{
-					Type: "string",
-				},
 				"api_key": QueryRule{
 					Type: "string",
 				},
@@ -1493,6 +1495,15 @@ func BuiltInDefinitions() []Definition {
 				"username": true,
 			},
 			QueryParameters: map[string]QueryRule{
+				"allowCleartextPasswords": QueryRule{
+					Type: "boolean",
+				},
+				"loc": QueryRule{
+					Type: "string",
+				},
+				"parseTime": QueryRule{
+					Type: "boolean",
+				},
 				"password": QueryRule{
 					Type: "string",
 				},
@@ -1833,6 +1844,9 @@ func BuiltInDefinitions() []Definition {
 				"username": true,
 			},
 			QueryParameters: map[string]QueryRule{
+				"allowCleartextPasswords": QueryRule{
+					Type: "boolean",
+				},
 				"auth-method": QueryRule{
 					Type:    "string",
 					Allowed: []any{"AUTO", "MYSQL41", "SHA256_MEMORY", "FROM_CAPABILITIES", "FALLBACK", "PLAIN"},
@@ -1841,6 +1855,12 @@ func BuiltInDefinitions() []Definition {
 					Type: "string",
 				},
 				"get-server-public-key": QueryRule{
+					Type: "boolean",
+				},
+				"loc": QueryRule{
+					Type: "string",
+				},
+				"parseTime": QueryRule{
 					Type: "boolean",
 				},
 				"schema": QueryRule{
@@ -2044,9 +2064,6 @@ func BuiltInDefinitions() []Definition {
 				"username": true,
 			},
 			QueryParameters: map[string]QueryRule{
-				"apiKey": QueryRule{
-					Type: "string",
-				},
 				"api_key": QueryRule{
 					Type: "string",
 				},
@@ -2166,6 +2183,9 @@ func BuiltInDefinitions() []Definition {
 					Type: "string",
 				},
 				"require_auth": QueryRule{
+					Type: "string",
+				},
+				"search_path": QueryRule{
 					Type: "string",
 				},
 				"service": QueryRule{
@@ -2739,6 +2759,9 @@ func BuiltInDefinitions() []Definition {
 				"username": true,
 			},
 			QueryParameters: map[string]QueryRule{
+				"allowCleartextPasswords": QueryRule{
+					Type: "boolean",
+				},
 				"charset": QueryRule{
 					Type: "string",
 				},
@@ -2752,7 +2775,8 @@ func BuiltInDefinitions() []Definition {
 					Type: "string",
 				},
 				"ssl-mode": QueryRule{
-					Type: "string",
+					Type:    "string",
+					Allowed: []any{"DISABLED", "PREFERRED", "REQUIRED", "VERIFY_CA", "VERIFY_IDENTITY"},
 				},
 			},
 			Validation: ValidationRule{

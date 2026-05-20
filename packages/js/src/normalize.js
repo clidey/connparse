@@ -5,10 +5,13 @@ import {
   defaultPort,
   definitionFor,
   normalizeHost,
-  normalizeQueryValue,
-  valuesFor
+  normalizeQueryObject
 } from './canonicalize.js';
 import { parse } from './parse.js';
+
+function normalizeLookupKey(value) {
+  return String(value ?? '').trim().toLowerCase();
+}
 
 function normalizePort(port, definition, options = {}) {
   if (port == null || port === '') return null;
@@ -43,15 +46,6 @@ function normalizeAuthority(address, definition, options = {}) {
   };
 }
 
-function normalizeQuery(address, definition, options = {}) {
-  const output = {};
-  for (const key of Object.keys(address.query || {}).sort()) {
-    const values = valuesFor(address.query[key]).map((value) => normalizeQueryValue(key, value, definition, options));
-    output[key] = values.length === 1 ? values[0] : values;
-  }
-  return output;
-}
-
 function normalizeCredentials(address, options = {}) {
   if (!options.includeCredentials) return {};
   const output = {};
@@ -69,10 +63,110 @@ function normalizeOptions(address) {
   return output;
 }
 
+function semanticSourceValue(source, query, options, scheme) {
+  if (source.from_query) {
+    const value = query[source.from_query];
+    if (value == null) return undefined;
+    return Array.isArray(value) ? value[value.length - 1] : value;
+  }
+
+  if (source.from_option) {
+    return options[source.from_option];
+  }
+
+  if (source.from_scheme) {
+    return scheme;
+  }
+
+  return undefined;
+}
+
+function normalizeSemanticValue(value, source) {
+  if (source.values == null) {
+    return value;
+  }
+
+  const normalizedEntries = new Map(
+    Object.entries(source.values).map(([key, item]) => [normalizeLookupKey(key), item])
+  );
+  return normalizedEntries.get(normalizeLookupKey(value));
+}
+
+function normalizeSemantic(address, definition, query, options) {
+  if (definition?.semantic_fields == null || typeof definition.semantic_fields !== 'object') {
+    return undefined;
+  }
+
+  const fields = {};
+  const consumedQuery = new Set();
+  const consumedOptions = new Set();
+  const scheme = canonicalSchemeForAddress(address, definition);
+
+  for (const [semanticKey, rule] of Object.entries(definition.semantic_fields)) {
+    const sources = Array.isArray(rule?.sources) ? rule.sources : [];
+    if (sources.length === 0) {
+      continue;
+    }
+
+    const presentQueryKeys = sources
+      .map((source) => source.from_query)
+      .filter((key) => typeof key === 'string' && query[key] != null);
+    const presentOptionKeys = sources
+      .map((source) => source.from_option)
+      .filter((key) => typeof key === 'string' && options[key] != null);
+
+    for (const source of sources) {
+      const rawValue = semanticSourceValue(source, query, options, scheme);
+      if (rawValue == null) {
+        continue;
+      }
+
+      const normalizedValue = normalizeSemanticValue(rawValue, source);
+      if (normalizedValue == null) {
+        continue;
+      }
+
+      fields[semanticKey] = normalizedValue;
+      for (const key of presentQueryKeys) {
+        consumedQuery.add(key);
+      }
+      for (const key of presentOptionKeys) {
+        consumedOptions.add(key);
+      }
+      break;
+    }
+  }
+
+  if (Object.keys(fields).length === 0) {
+    return undefined;
+  }
+
+  const semantic = {
+    provider: definition.id,
+    fields
+  };
+
+  if (consumedQuery.size > 0 || consumedOptions.size > 0) {
+    semantic.consumed = {};
+    if (consumedQuery.size > 0) {
+      semantic.consumed.query = Array.from(consumedQuery).sort();
+    }
+    if (consumedOptions.size > 0) {
+      semantic.consumed.options = Array.from(consumedOptions).sort();
+    }
+  }
+
+  return semantic;
+}
+
 export function normalizeAddress(address, options = {}) {
   const definition = definitionFor(address, options);
   const canonical = options.canonical || canonicalize(address, options);
-  return {
+  const normalizedQuery = normalizeQueryObject(address, definition, options);
+  const normalizedOptions = normalizeOptions(address);
+  const semantic = normalizeSemantic(address, definition, normalizedQuery, normalizedOptions);
+
+  const output = {
     scheme: canonicalSchemeForAddress(address, definition),
     type: address.type,
     authority: normalizeAuthority(address, definition, options),
@@ -81,14 +175,20 @@ export function normalizeAddress(address, options = {}) {
       name: address.resource?.name ?? null
     },
     path: address.path || '',
-    query: normalizeQuery(address, definition, options),
+    query: normalizedQuery,
     fragment: options.includeFragment === false ? null : address.fragment ?? null,
     credentials: normalizeCredentials(address, options),
-    options: normalizeOptions(address),
+    options: normalizedOptions,
     raw: canonical,
     safe: canonical,
     canonical
   };
+
+  if (semantic != null) {
+    output.semantic = semantic;
+  }
+
+  return output;
 }
 
 export function parseNormalize(input, options = {}) {

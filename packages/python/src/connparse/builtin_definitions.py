@@ -818,6 +818,13 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
       "debug": {
         "type": "boolean",
       },
+      "httpProtocol": {
+        "allowed": [
+          "http",
+          "https",
+        ],
+        "type": "string",
+      },
       "password": {
         "type": "string",
       },
@@ -828,6 +835,12 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
         "type": "boolean",
       },
       "sslmode": {
+        "allowed": [
+          "disable",
+          "require",
+          "verify-ca",
+          "verify-full",
+        ],
         "type": "string",
       },
       "user": {
@@ -850,6 +863,67 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
       "clickhouse",
       "ch",
     ],
+    "semantic_fields": {
+      "debug": {
+        "sources": [
+          {
+            "from_query": "debug",
+            "values": {
+              "false": False,
+              "true": True,
+            },
+          },
+        ],
+      },
+      "http_protocol": {
+        "sources": [
+          {
+            "from_query": "httpProtocol",
+          },
+          {
+            "from_option": "protocol",
+            "values": {
+              "http": "http",
+              "https": "https",
+            },
+          },
+        ],
+      },
+      "readonly": {
+        "sources": [
+          {
+            "from_query": "readonly",
+          },
+        ],
+      },
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_query": "sslmode",
+            "values": {
+              "disable": "disabled",
+              "require": "required",
+              "verify-ca": "verify-ca",
+              "verify-full": "verify-identity",
+            },
+          },
+          {
+            "from_query": "ssl",
+            "values": {
+              "false": "disabled",
+              "true": "enabled",
+            },
+          },
+          {
+            "from_option": "protocol",
+            "values": {
+              "http": "disabled",
+              "https": "enabled",
+            },
+          },
+        ],
+      },
+    },
     "type": "database",
     "validation": {
       "port_range": {
@@ -1440,9 +1514,9 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
     },
     "query_parameters": {
       "api_key": {
-        "type": "string",
-      },
-      "apiKey": {
+        "aliases": [
+          "apiKey",
+        ],
         "type": "string",
       },
       "token": {
@@ -1470,6 +1544,19 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
       "elasticsearch+http",
       "elasticsearch+https",
     ],
+    "semantic_fields": {
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_option": "tls",
+            "values": {
+              "false": "disabled",
+              "true": "enabled",
+            },
+          },
+        ],
+      },
+    },
     "type": "api",
     "validation": {
       "port_range": {
@@ -1819,6 +1906,15 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
       "type": "object_path",
     },
     "query_parameters": {
+      "allowCleartextPasswords": {
+        "type": "boolean",
+      },
+      "loc": {
+        "type": "string",
+      },
+      "parseTime": {
+        "type": "boolean",
+      },
       "password": {
         "type": "string",
       },
@@ -1826,12 +1922,19 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
         "type": "string",
       },
       "sslMode": {
+        "aliases": [
+          "ssl-mode",
+        ],
         "allowed": [
           "disable",
           "trust",
           "verify-ca",
           "verify-full",
         ],
+        "normalized_values": {
+          "verify_ca": "verify-ca",
+          "verify_full": "verify-full",
+        },
         "type": "string",
       },
       "user": {
@@ -1853,6 +1956,50 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
     "schemes": [
       "mariadb",
     ],
+    "semantic_fields": {
+      "allow_cleartext_passwords": {
+        "sources": [
+          {
+            "from_query": "allowCleartextPasswords",
+            "values": {
+              "false": False,
+              "true": True,
+            },
+          },
+        ],
+      },
+      "loc": {
+        "sources": [
+          {
+            "from_query": "loc",
+          },
+        ],
+      },
+      "parse_time": {
+        "sources": [
+          {
+            "from_query": "parseTime",
+            "values": {
+              "false": False,
+              "true": True,
+            },
+          },
+        ],
+      },
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_query": "sslMode",
+            "values": {
+              "disable": "disabled",
+              "trust": "insecure",
+              "verify-ca": "verify-ca",
+              "verify-full": "verify-identity",
+            },
+          },
+        ],
+      },
+    },
     "type": "database",
     "validation": {
       "port_range": {
@@ -2153,6 +2300,39 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
       "mongodb",
       "mongodb+srv",
     ],
+    "semantic_fields": {
+      "dns_enabled": {
+        "sources": [
+          {
+            "from_option": "srv",
+          },
+        ],
+      },
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_query": "tlsInsecure",
+            "values": {
+              "true": "insecure",
+            },
+          },
+          {
+            "from_query": "tls",
+            "values": {
+              "false": "disabled",
+              "true": "enabled",
+            },
+          },
+          {
+            "from_query": "ssl",
+            "values": {
+              "false": "disabled",
+              "true": "enabled",
+            },
+          },
+        ],
+      },
+    },
     "type": "database",
     "validation": {
       "port_range": {
@@ -2234,6 +2414,9 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
       "type": "object_path",
     },
     "query_parameters": {
+      "allowCleartextPasswords": {
+        "type": "boolean",
+      },
       "auth-method": {
         "allowed": [
           "AUTO",
@@ -2249,6 +2432,12 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
         "type": "string",
       },
       "get-server-public-key": {
+        "type": "boolean",
+      },
+      "loc": {
+        "type": "string",
+      },
+      "parseTime": {
         "type": "boolean",
       },
       "schema": {
@@ -2279,6 +2468,9 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
         "type": "string",
       },
       "ssl-mode": {
+        "aliases": [
+          "sslMode",
+        ],
         "allowed": [
           "DISABLED",
           "PREFERRED",
@@ -2286,6 +2478,15 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
           "VERIFY_CA",
           "VERIFY_IDENTITY",
         ],
+        "normalized_values": {
+          "disabled": "DISABLED",
+          "preferred": "PREFERRED",
+          "required": "REQUIRED",
+          "verify_ca": "VERIFY_CA",
+          "verify_identity": "VERIFY_IDENTITY",
+          "verify-ca": "VERIFY_CA",
+          "verify-identity": "VERIFY_IDENTITY",
+        },
         "type": "string",
       },
       "tls-version": {
@@ -2319,6 +2520,51 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
       "mysqlx",
       "mysqlx+srv",
     ],
+    "semantic_fields": {
+      "allow_cleartext_passwords": {
+        "sources": [
+          {
+            "from_query": "allowCleartextPasswords",
+            "values": {
+              "false": False,
+              "true": True,
+            },
+          },
+        ],
+      },
+      "loc": {
+        "sources": [
+          {
+            "from_query": "loc",
+          },
+        ],
+      },
+      "parse_time": {
+        "sources": [
+          {
+            "from_query": "parseTime",
+            "values": {
+              "false": False,
+              "true": True,
+            },
+          },
+        ],
+      },
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_query": "ssl-mode",
+            "values": {
+              "DISABLED": "disabled",
+              "PREFERRED": "preferred",
+              "REQUIRED": "required",
+              "VERIFY_CA": "verify-ca",
+              "VERIFY_IDENTITY": "verify-identity",
+            },
+          },
+        ],
+      },
+    },
     "type": "database",
     "validation": {
       "port_range": {
@@ -2506,9 +2752,9 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
     },
     "query_parameters": {
       "api_key": {
-        "type": "string",
-      },
-      "apiKey": {
+        "aliases": [
+          "apiKey",
+        ],
         "type": "string",
       },
       "token": {
@@ -2535,6 +2781,21 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
       "opensearch+http",
       "opensearch+https",
     ],
+    "semantic_fields": {
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_scheme": True,
+            "values": {
+              "http": "disabled",
+              "https": "enabled",
+              "opensearch+http": "disabled",
+              "opensearch+https": "enabled",
+            },
+          },
+        ],
+      },
+    },
     "type": "api",
     "validation": {
       "port_range": {
@@ -2647,6 +2908,9 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
       "require_auth": {
         "type": "string",
       },
+      "search_path": {
+        "type": "string",
+      },
       "service": {
         "type": "string",
       },
@@ -2702,6 +2966,28 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
       "postgres",
       "postgresql",
     ],
+    "semantic_fields": {
+      "search_path": {
+        "sources": [
+          {
+            "from_query": "search_path",
+          },
+        ],
+      },
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_query": "sslmode",
+            "values": {
+              "disable": "disabled",
+              "require": "required",
+              "verify-ca": "verify-ca",
+              "verify-full": "verify-identity",
+            },
+          },
+        ],
+      },
+    },
     "type": "database",
     "validation": {
       "port_range": {
@@ -2844,6 +3130,19 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
       "redis",
       "rediss",
     ],
+    "semantic_fields": {
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_option": "tls",
+            "values": {
+              "false": "disabled",
+              "true": "enabled",
+            },
+          },
+        ],
+      },
+    },
     "type": "cache",
     "validation": {
       "port_range": {
@@ -3226,6 +3525,9 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
       "required": True,
       "type": "filesystem_path",
     },
+    "provider_aliases": [
+      "sqlite3",
+    ],
     "query_parameters": {
       "cache": {
         "type": "string",
@@ -3356,6 +3658,9 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
       "type": "object_path",
     },
     "query_parameters": {
+      "allowCleartextPasswords": {
+        "type": "boolean",
+      },
       "charset": {
         "type": "string",
       },
@@ -3369,6 +3674,25 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
         "type": "string",
       },
       "ssl-mode": {
+        "aliases": [
+          "sslMode",
+        ],
+        "allowed": [
+          "DISABLED",
+          "PREFERRED",
+          "REQUIRED",
+          "VERIFY_CA",
+          "VERIFY_IDENTITY",
+        ],
+        "normalized_values": {
+          "disabled": "DISABLED",
+          "preferred": "PREFERRED",
+          "required": "REQUIRED",
+          "verify_ca": "VERIFY_CA",
+          "verify_identity": "VERIFY_IDENTITY",
+          "verify-ca": "VERIFY_CA",
+          "verify-identity": "VERIFY_IDENTITY",
+        },
         "type": "string",
       },
     },
@@ -3387,6 +3711,51 @@ BUILT_IN_DEFINITIONS: list[ConnparseDefinition] = [
     "schemes": [
       "tidb",
     ],
+    "semantic_fields": {
+      "allow_cleartext_passwords": {
+        "sources": [
+          {
+            "from_query": "allowCleartextPasswords",
+            "values": {
+              "false": False,
+              "true": True,
+            },
+          },
+        ],
+      },
+      "loc": {
+        "sources": [
+          {
+            "from_query": "loc",
+          },
+        ],
+      },
+      "parse_time": {
+        "sources": [
+          {
+            "from_query": "parseTime",
+            "values": {
+              "false": False,
+              "true": True,
+            },
+          },
+        ],
+      },
+      "ssl_mode": {
+        "sources": [
+          {
+            "from_query": "ssl-mode",
+            "values": {
+              "DISABLED": "disabled",
+              "PREFERRED": "preferred",
+              "REQUIRED": "required",
+              "VERIFY_CA": "verify-ca",
+              "VERIFY_IDENTITY": "verify-identity",
+            },
+          },
+        ],
+      },
+    },
     "type": "database",
     "validation": {
       "port_range": {

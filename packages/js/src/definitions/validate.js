@@ -9,6 +9,43 @@ function assert(condition, message) {
   if (!condition) throw new Error(`Invalid CPDS definition: ${message}`);
 }
 
+function assertStringArray(value, message) {
+  assert(Array.isArray(value), `${message} must be an array`);
+  for (const item of value) {
+    assert(typeof item === 'string' && item.trim(), `${message} must contain non-empty strings`);
+  }
+}
+
+function assertScalarMap(value, message) {
+  assert(isPlainObject(value), `${message} must be an object`);
+  for (const item of Object.values(value)) {
+    assert(
+      typeof item === 'string' || typeof item === 'number' || typeof item === 'boolean',
+      `${message} must contain scalar values`
+    );
+  }
+}
+
+function validateSemanticSource(definition, semanticKey, source) {
+  assert(isPlainObject(source), `${definition.id}.semantic_fields.${semanticKey}.sources items must be objects`);
+
+  const sourceKeys = ['from_query', 'from_option', 'from_scheme'].filter((key) => source[key] != null);
+  assert(sourceKeys.length === 1, `${definition.id}.semantic_fields.${semanticKey}.sources items must declare exactly one source`);
+
+  if (source.from_query != null) {
+    assert(typeof source.from_query === 'string' && source.from_query.trim(), `${definition.id}.semantic_fields.${semanticKey}.sources.from_query must be a string`);
+  }
+  if (source.from_option != null) {
+    assert(typeof source.from_option === 'string' && source.from_option.trim(), `${definition.id}.semantic_fields.${semanticKey}.sources.from_option must be a string`);
+  }
+  if (source.from_scheme != null) {
+    assert(source.from_scheme === true, `${definition.id}.semantic_fields.${semanticKey}.sources.from_scheme must be true`);
+  }
+  if (source.values != null) {
+    assertScalarMap(source.values, `${definition.id}.semantic_fields.${semanticKey}.sources.values`);
+  }
+}
+
 export function validateDefinition(definition, adapters = {}) {
   assert(isPlainObject(definition), 'definition must be an object');
   assert(typeof definition.id === 'string' && definition.id.trim(), 'id must be a non-empty string');
@@ -17,6 +54,10 @@ export function validateDefinition(definition, adapters = {}) {
 
   for (const scheme of definition.schemes) {
     assert(typeof scheme === 'string' && scheme.trim(), `${definition.id}.schemes must contain non-empty strings`);
+  }
+
+  if (definition.provider_aliases != null) {
+    assertStringArray(definition.provider_aliases, `${definition.id}.provider_aliases`);
   }
 
   if (definition.adapter != null) {
@@ -65,6 +106,23 @@ export function validateDefinition(definition, adapters = {}) {
             `${definition.id}.query_parameters.${name}.allowed must contain scalar values`
           );
         }
+      }
+      if (rule.aliases != null) {
+        assertStringArray(rule.aliases, `${definition.id}.query_parameters.${name}.aliases`);
+      }
+      if (rule.normalized_values != null) {
+        assertScalarMap(rule.normalized_values, `${definition.id}.query_parameters.${name}.normalized_values`);
+      }
+    }
+  }
+
+  if (definition.semantic_fields != null) {
+    assert(isPlainObject(definition.semantic_fields), `${definition.id}.semantic_fields must be an object`);
+    for (const [semanticKey, rule] of Object.entries(definition.semantic_fields)) {
+      assert(isPlainObject(rule), `${definition.id}.semantic_fields.${semanticKey} must be an object`);
+      assert(Array.isArray(rule.sources) && rule.sources.length > 0, `${definition.id}.semantic_fields.${semanticKey}.sources must be a non-empty array`);
+      for (const source of rule.sources) {
+        validateSemanticSource(definition, semanticKey, source);
       }
     }
   }

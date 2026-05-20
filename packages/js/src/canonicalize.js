@@ -11,6 +11,42 @@ function registryFor(options = {}) {
     : defaultRegistry;
 }
 
+function queryParameterEntries(definition) {
+  return Object.entries(definition?.query_parameters || {});
+}
+
+function queryRuleForKey(key, definition) {
+  const normalizedKey = normalizeKey(key);
+
+  for (const [canonicalKey, rule] of queryParameterEntries(definition)) {
+    if (normalizeKey(canonicalKey) === normalizedKey) {
+      return { canonicalKey, rule };
+    }
+
+    for (const alias of rule?.aliases || []) {
+      if (normalizeKey(alias) === normalizedKey) {
+        return { canonicalKey, rule };
+      }
+    }
+  }
+
+  return {
+    canonicalKey: String(key),
+    rule: null
+  };
+}
+
+function mappedValue(value, map) {
+  if (map == null || typeof map !== 'object') {
+    return undefined;
+  }
+
+  const entries = new Map(
+    Object.entries(map).map(([key, item]) => [normalizeKey(key), item])
+  );
+  return entries.get(normalizeKey(value));
+}
+
 export function definitionFor(address, options = {}) {
   if (options.definition) return options.definition;
   const registry = registryFor(options);
@@ -126,20 +162,55 @@ function sensitiveKeys(definition) {
   return new Set((definition?.redaction?.sensitive_keys || []).map(normalizeKey));
 }
 
+export function normalizeQueryKey(key, definition) {
+  return queryRuleForKey(key, definition).canonicalKey;
+}
+
 export function normalizeQueryValue(key, value, definition, options = {}) {
-  if (!options.includeSensitive && sensitiveKeys(definition).has(normalizeKey(key))) return '***';
-  const rule = definition?.query_parameters?.[key];
-  if (rule?.type === 'boolean') return normalizeBoolean(value);
-  if (rule?.type === 'number') return normalizeNumber(value);
-  return String(value);
+  const { canonicalKey, rule } = queryRuleForKey(key, definition);
+  if (!options.includeSensitive && sensitiveKeys(definition).has(normalizeKey(canonicalKey))) {
+    return '***';
+  }
+
+  let normalizedValue = String(value);
+  if (rule?.type === 'boolean') {
+    normalizedValue = normalizeBoolean(value);
+  } else if (rule?.type === 'number') {
+    normalizedValue = normalizeNumber(value);
+  }
+
+  const mapped = mappedValue(normalizedValue, rule?.normalized_values);
+  if (mapped != null) {
+    return String(mapped);
+  }
+
+  return normalizedValue;
+}
+
+export function normalizeQueryObject(address, definition, options = {}) {
+  const grouped = new Map();
+
+  for (const key of Object.keys(address.query || {}).sort()) {
+    const canonicalKey = normalizeQueryKey(key, definition);
+    const normalizedValues = valuesFor(address.query[key]).map((value) =>
+      normalizeQueryValue(canonicalKey, value, definition, options)
+    );
+    grouped.set(canonicalKey, [...(grouped.get(canonicalKey) || []), ...normalizedValues]);
+  }
+
+  return Object.fromEntries(
+    Array.from(grouped.entries())
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, values]) => [key, values.length === 1 ? values[0] : values])
+  );
 }
 
 function queryText(address, definition, options = {}) {
-  const query = address.query || {};
+  const query = normalizeQueryObject(address, definition, options);
   const parts = [];
-  for (const key of Object.keys(query).sort()) {
+  for (const key of Object.keys(query)) {
     for (const value of valuesFor(query[key])) {
-      parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(normalizeQueryValue(key, value, definition, options))}`);
+      parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`);
     }
   }
   return parts.length > 0 ? `?${parts.join('&')}` : '';
