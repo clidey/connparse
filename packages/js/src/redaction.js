@@ -44,7 +44,7 @@ function maskUserInfo(value) {
 }
 
 function maskSensitiveQuery(value, definition) {
-  return value.replace(/([?&])([^=&#]+)=([^&#]*)/g, (match, prefix, rawKey) => {
+  return value.replace(/([?&])([^=&#?]+)=([^&#]*)/g, (match, prefix, rawKey) => {
     const key = safeDecodeKey(rawKey);
     return isSensitiveKey(key, definition) ? `${prefix}${rawKey}=***` : match;
   });

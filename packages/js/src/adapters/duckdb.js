@@ -20,7 +20,10 @@ function stripMeta(value) {
 }
 
 export function looksLikeDuckDbPath(input) {
-  return /\.(duckdb|ddb)([?#].*)?$/i.test(String(input));
+  const value = String(input);
+  const metaIndex = value.search(/[?#]/);
+  const path = metaIndex === -1 ? value : value.slice(0, metaIndex);
+  return /\.(duckdb|ddb)$/i.test(path);
 }
 
 export function parseDuckDb(input, definition, context) {
