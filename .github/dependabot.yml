@@ -1,37 +1,85 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
-
 version: 2
 updates:
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
     cooldown:
       default-days: 7
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/packages/js" # Location of package manifests
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: "npm"
+    directory: "/packages/js"
     schedule:
       interval: "weekly"
+      day: "monday"
     cooldown:
       default-days: 7
-  - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/packages/go" # Location of package manifests
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: "gomod"
+    directory: "/packages/go"
     schedule:
       interval: "weekly"
+      day: "monday"
     cooldown:
       default-days: 7
-  - package-ecosystem: "cargo" # See documentation for possible values
-    directory: "/packages/rust" # Location of package manifests
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: "cargo"
+    directory: "/packages/rust"
     schedule:
       interval: "weekly"
+      day: "monday"
     cooldown:
       default-days: 7
-  - package-ecosystem: "maven" # See documentation for possible values
-    directory: "/packages/java" # Location of package manifests
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: "maven"
+    directory: "/packages/java"
     schedule:
       interval: "weekly"
+      day: "monday"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
