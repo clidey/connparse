@@ -1,6 +1,6 @@
 {
   "name": "@clidey/connparse",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Parse database connection strings, DSNs, URLs, file paths, and cloud storage URIs.",
   "type": "module",
   "repository": {
@@ -118,6 +118,6 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "yaml": "^2.9.0"
+    "yaml": "^2.9.1"
   }
 }
