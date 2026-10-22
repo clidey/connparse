@@ -60,18 +60,18 @@ if (!normalized.ok || normalized.value.canonical !== 'postgres://localhost/app?s
 
 async function testGoPackage() {
   const consumeDir = join(temp, 'go-consume');
+  const packageGoMod = await readFile(join(root, 'packages/go/go.mod'), 'utf8');
+  const goVersion = packageGoMod.match(/^go (\S+)$/m)?.[1];
+  if (!goVersion) throw new Error('Go package go.mod has no go directive');
   await mkdir(consumeDir, { recursive: true });
   await writeFile(
     join(consumeDir, 'go.mod'),
     `
 module example.com/connparse-consume
 
-go 1.26
+go ${goVersion}
 
-require (
-	github.com/clidey/connparse/packages/go v0.0.0
-	github.com/goccy/go-yaml v1.19.2 // indirect
-)
+require github.com/clidey/connparse/packages/go v0.0.0
 
 replace github.com/clidey/connparse/packages/go => ${resolve(root, 'packages/go')}
 `
@@ -107,6 +107,11 @@ func TestConsumeConnparse(t *testing.T) {
     GOMODCACHE: join(root, '.cache/go-mod')
   };
 
+  execFileSync('go', ['mod', 'tidy'], {
+    cwd: consumeDir,
+    stdio: 'pipe',
+    env: goEnv
+  });
   execFileSync('go', ['test', './...'], {
     cwd: consumeDir,
     stdio: 'pipe',
