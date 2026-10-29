@@ -45,8 +45,9 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
-      - name: Enable corepack
-        run: corepack enable
+      - name: Setup pnpm
+        # pnpm/action-setup@v6.1.0
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413
 
       - name: Setup Go
         # actions/setup-go@v6
