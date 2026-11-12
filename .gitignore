@@ -7,3 +7,6 @@ __pycache__/
 *.pyc
 packages/rust/target
 packages/java/target
+
+# Personal Claude Code settings
+.claude/settings.local.json

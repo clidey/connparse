@@ -1,93 +1,38 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
+## Team Rules
 
-This is a monorepo. Shared specification assets live under `specs/`:
+These apply in every clidey repository, for people and agents alike.
 
-- `specs/definitions/`: CPDS YAML definitions.
-- `specs/fixtures/compatibility.json`: cross-implementation compatibility fixtures.
-- `specs/schemas/`: JSON Schemas for CPDS, fixtures, parse results, and addresses.
-- `specs/docs/`: reference and porting documentation.
+- **Commits and pushes:** never commit or push without the user explicitly asking in that turn ("please commit this for me" or unambiguously equivalent). "Implement it" or "merge it into main locally" means change the files, not commit. If a commit seems necessary, stop and ask.
+- **No AI attribution:** commit messages and PR descriptions carry no AI attribution: no `Co-Authored-By:` trailers for Claude, Codex, or any other agent, and no "Generated with" lines.
+- **Untracked files:** never delete untracked or gitignored files without asking first; they often hold secrets or local state.
+- **Agent replies:** lead with the answer or result. No preamble, no restating the question, no recap unless asked. Keep it short and explain only what isn't obvious; if you need something from the user, ask in one line.
+- **Clarify first:** before starting, ask about anything where a different answer would change the work: scope, behaviour, which repo or environment, or anything hard to undo. Ask all your questions at once, then wait. Don't ask what the code or docs already answer; for small choices that are easy to change later, pick one and say which in your reply.
 
-The JavaScript/npm implementation lives in `packages/js/`:
+## Layout
 
-- `packages/js/src/`: parser, adapters, registry, validation, and public exports.
-- `packages/js/bin/`: CLI entrypoint.
-- `packages/js/test/`: Node test suite.
+Shared specification assets live in `specs/` (CPDS YAML definitions, `specs/fixtures/compatibility.json`, JSON Schemas, docs). Implementations live in `packages/js/` (npm `@clidey/connparse`, CLI in `bin/`), `packages/go/`, `packages/python/`, `packages/rust/`, and `packages/java/`. Keep implementation code inside its package and reusable specs and fixtures in `specs/`.
 
-The Go implementation lives in `packages/go/`:
+## Commands
 
-- `packages/go/*.go`: parser, adapters, registry, validation, and Go tests.
-- `packages/go/connparse_test.go`: shared fixture runner.
+Run from the repository root:
 
-The Python implementation lives in `packages/python/`:
+- `pnpm install`
+- `pnpm generate:definitions`: regenerate every package's built-in definitions from `specs/definitions/*.yaml`.
+- `pnpm test`: JS, Go, Python, Rust, and Java suites (`pnpm test:js|go|python|rust|java` for one; Java needs a JDK 17+ `javac`).
+- `pnpm run check`: versions, strict definition verification, schemas, conformance, generated-file drift, and per-language checks (including `cargo fmt --check`).
+- `pnpm check:package`: pack and consume the published packages from temp projects.
+- `node packages/js/bin/connparse.js --provider postgres 'host=db.example.com dbname=app'`: CLI smoke test.
 
-- `packages/python/src/connparse/`: parser, adapters, generated definitions, and public exports.
-- `packages/python/tests/`: unittest suite using the shared fixtures.
+CI runs `pnpm run check`, `pnpm test`, `pnpm check:package`, and `pnpm --filter @clidey/connparse pack --dry-run`. The agent Stop hook runs the suite of each language you changed; run `pnpm run check` before handing off.
 
-The Rust implementation lives in `packages/rust/`:
+## Rules
 
-- `packages/rust/src/`: parser, adapters, generated definitions, and public exports.
-- `packages/rust/tests/`: Cargo integration tests using the shared fixtures.
-
-Keep implementation-specific code inside its package. Keep reusable specs and fixtures in `specs/`.
-
-## Build, Test, and Development Commands
-
-Run commands from the repository root unless noted:
-
-- `pnpm install`: install workspace dependencies.
-- `pnpm generate:definitions`: regenerate JS, Go, Python, and Rust built-in definitions from CPDS YAML.
-- `pnpm check:versions`: verify JS, Python, and Rust package versions match; Go version is the release tag.
-- `pnpm check:generated`: verify generated definitions are current.
-- `pnpm conformance`: run the shared compatibility fixtures through the conformance runner.
-- `pnpm check:package`: pack and consume the npm package and verify Go/Python/Rust imports from temp projects.
-- `pnpm check:schemas`: verify JSON Schema documents are parseable and have required metadata.
-- `pnpm test`: run JS, Go, Python, and Rust test suites.
-- `pnpm test:js`: run the JS package test suite.
-- `pnpm test:go`: run the Go package test suite.
-- `pnpm test:python`: run the Python package test suite.
-- `pnpm test:rust`: run the Rust crate test suite.
-- `pnpm run check`: verify generated definitions, syntax-check JS/Python source, run Go/Rust tests, and run Python conformance.
-- `pnpm --filter @clidey/connparse test`: run tests from the package scope.
-
-For CLI smoke tests:
-
-```bash
-node packages/js/bin/connparse.js --provider postgres 'host=db.example.com dbname=app'
-```
-
-## Coding Style & Naming Conventions
-
-Use ESM JavaScript and explicit `.js` import extensions. Keep indentation to two spaces, match existing semicolon style, and prefer small provider adapters over broad conditional logic. Adapter filenames use kebab case, for example `postgres-compatible.js`.
-
-Use `gofmt` for Go. Keep Go files in package `connparse`, use exported names for public API (`Parse`, `ParseOrThrow`, `BuiltInDefinitions`), and keep provider logic in focused adapter functions.
-
-Use standard-library Python unless a dependency is clearly justified. The Python public API uses snake case (`parse_normalize`) and returns the same JSON-shaped result contract as the other packages.
-
-Use `cargo fmt` for Rust. Keep the Rust public API snake case (`parse_normalize`, `parse_or_throw`) and keep serialized output aligned with the shared JSON-shaped result contract.
-
-CPDS definition IDs and YAML filenames should match provider IDs, such as `postgres.yaml` and `yugabytedb.yaml`.
-
-Do not edit generated built-ins directly. Update `specs/definitions/*.yaml`, then run `pnpm generate:definitions`.
-
-## Testing Guidelines
-
-Tests use Node’s built-in `node:test` and `node:assert/strict` for JS, Go’s standard `testing` package for Go, Python’s `unittest` package for Python, and Cargo integration tests for Rust. Add or update fixtures in `specs/fixtures/compatibility.json` for any behavior that should be stable across implementations. Package tests must consume shared fixtures and definitions from `specs/`, not package-local copies. Generator drift is checked by `pnpm check:generated`, schema metadata by `pnpm check:schemas`, fixture behavior by `pnpm conformance`, Python external-parser parity by `pnpm check:python`, Rust format/tests by `pnpm check:rust`, and package install/import behavior by `pnpm check:package`.
-
-Before finishing changes, run:
-
-```bash
-pnpm test
-pnpm run check
-```
-
-## Commit & Pull Request Guidelines
-
-Current history uses short, imperative commit subjects such as `add more tests` and `validation changes`. Keep commits focused and use concise lower-case summaries where practical.
-
-Pull requests should describe the behavior change, list affected providers/formats, note fixture or CPDS changes, and include the verification commands run. Link related issues when available.
-
-## Security & Configuration Tips
-
-Never log `credentials` by default. Use `safe` output or `mask()` for UI/log display. When adding sensitive query/config keys, update redaction tests as well as provider fixtures.
+- Definition IDs and YAML filenames match provider IDs (`postgres.yaml`).
+- Behavior that must stay stable across implementations gets a fixture in `specs/fixtures/compatibility.json`. Package tests consume shared fixtures and definitions from `specs/`, never package-local copies.
+- Package versions move together (`pnpm sync:versions`, checked by `pnpm check:versions`); the Go version is the release tag.
+- Every implementation returns the same JSON-shaped result contract. Public API naming follows each language: JS/Go `parse`/`Parse`, Python and Rust snake case (`parse_normalize`, `parse_or_throw`), Java `Connparse.parse`.
+- JS is ESM with explicit `.js` import extensions; prefer small provider adapters (kebab-case files such as `postgres-compatible.js`) over broad conditionals. Python uses the standard library unless a dependency is clearly justified.
+- Never log `credentials` by default. Use `safe` output or `mask()` for display. When adding sensitive query or config keys, update redaction tests as well as provider fixtures.
+- Pull requests list affected providers/formats, fixture or CPDS changes, and the verification commands run.

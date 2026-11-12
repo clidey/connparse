@@ -1,0 +1,18 @@
+{
+  "generated": [
+    {
+      "paths": ["packages/js/src/builtin-definitions.js", "packages/go/builtin_definitions.go", "packages/python/src/connparse/builtin_definitions.py", "packages/rust/src/builtin_definitions.rs", "packages/java/src/main/java/com/clidey/connparse/BuiltInDefinitions.java"],
+      "source": "edit specs/definitions/*.yaml; the hook then runs `pnpm generate:definitions`"
+    }
+  ],
+  "after_edit": [
+    {"paths": ["specs/definitions/*.yaml"], "run": "pnpm generate:definitions"}
+  ],
+  "before_finish": [
+    {"paths": ["packages/js/*", "specs/*"], "run": "pnpm test:js"},
+    {"paths": ["packages/go/*", "specs/*"], "run": "pnpm test:go"},
+    {"paths": ["packages/python/*", "specs/*"], "run": "pnpm test:python"},
+    {"paths": ["packages/rust/*", "specs/*"], "run": "pnpm test:rust"},
+    {"paths": ["packages/java/*", "specs/*"], "run": "pnpm test:java"}
+  ]
+}
