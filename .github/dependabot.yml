@@ -1,6 +1,10 @@
+# Version updates come from Renovate. Every entry has
+# open-pull-requests-limit: 0, which stops Dependabot version updates while
+# keeping this file (and its registries) for security updates.
 version: 2
 updates:
   - package-ecosystem: "npm"
+    open-pull-requests-limit: 0
     directory: "/"
     schedule:
       interval: "weekly"
@@ -15,6 +19,7 @@ updates:
         update-types: ["minor", "patch"]
 
   - package-ecosystem: "npm"
+    open-pull-requests-limit: 0
     directory: "/packages/js"
     schedule:
       interval: "weekly"
@@ -29,6 +34,7 @@ updates:
         update-types: ["minor", "patch"]
 
   - package-ecosystem: "gomod"
+    open-pull-requests-limit: 0
     directory: "/packages/go"
     schedule:
       interval: "weekly"
@@ -43,6 +49,7 @@ updates:
         update-types: ["minor", "patch"]
 
   - package-ecosystem: "cargo"
+    open-pull-requests-limit: 0
     directory: "/packages/rust"
     schedule:
       interval: "weekly"
@@ -57,6 +64,7 @@ updates:
         update-types: ["minor", "patch"]
 
   - package-ecosystem: "maven"
+    open-pull-requests-limit: 0
     directory: "/packages/java"
     schedule:
       interval: "weekly"
@@ -71,6 +79,7 @@ updates:
         update-types: ["minor", "patch"]
 
   - package-ecosystem: "github-actions"
+    open-pull-requests-limit: 0
     directory: "/"
     schedule:
       interval: "weekly"
