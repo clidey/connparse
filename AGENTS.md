@@ -6,6 +6,7 @@ These apply in every clidey repository, for people and agents alike.
 
 - **Commits:** ask once before the first commit. Once the user says yes, keep committing that work without asking again; push only when they've asked for it.
 - **No AI attribution, anywhere:** commits, PRs, issues, comments and releases carry no `Co-Authored-By:` for Claude, Codex or any other agent, and no "Generated with" lines.
+- **External posts:** before posting anything outside this machine (GitHub issues, PRs, comments and reviews, advisory comments or edits, chat or email), show the user the exact text and wait for a yes.
 - **Never, whatever the instruction:** publish packages or releases, push images, deploy to UAT or production, or run anything against production. Build images and run build scripts only locally, to test. Prepare the command and hand it to the user.
 - **Cluster and cloud commands:** read-only `kubectl`, `helm` and `gcloud` commands run without asking, and in UAT so do day-to-day operations: restarting a rollout, deleting pods, config maps and jobs, scaling, `exec`, `cp` and port-forwarding. Never anything against production. Anything else that writes, deletes or shows secret values (including `apply`, `patch`, `set` and rollbacks), and anything that writes to a WhoDB organisation: show the exact command and wait for a yes.
 - **Branches and worktrees:** never create a branch or worktree, or switch branches, unless the user asked. If the work seems to need one, ask first; this is a required question.
@@ -37,6 +38,7 @@ CI runs `pnpm run check`, `pnpm test`, `pnpm check:package`, and `pnpm --filter 
 
 - Definition IDs and YAML filenames match provider IDs (`postgres.yaml`).
 - Behavior that must stay stable across implementations gets a fixture in `specs/fixtures/compatibility.json`. Package tests consume shared fixtures and definitions from `specs/`, never package-local copies.
+- The Go consumer fixture in `tools/package-consumption-test.mjs` (a temp module with a local `replace` for `packages/go`) takes its `go` directive and `go.sum` from `packages/go/go.mod`/`go.sum` and runs `go mod tidy`; never pin a toolchain or dependency in the fixture. CI's Go setup also reads `go-version-file: packages/go/go.mod`.
 - Package versions move together (`pnpm sync:versions`, checked by `pnpm check:versions`); the Go version is the release tag.
 - Every implementation returns the same JSON-shaped result contract. Public API naming follows each language: JS/Go `parse`/`Parse`, Python and Rust snake case (`parse_normalize`, `parse_or_throw`), Java `Connparse.parse`.
 - JS is ESM with explicit `.js` import extensions; prefer small provider adapters (kebab-case files such as `postgres-compatible.js`) over broad conditionals. Python uses the standard library unless a dependency is clearly justified.
