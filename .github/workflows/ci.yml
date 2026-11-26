@@ -27,7 +27,7 @@ jobs:
         # actions/setup-node@v6
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
-          node-version: 24
+          node-version: 26
 
       - name: Setup pnpm
         # pnpm/action-setup@v6.1.0
