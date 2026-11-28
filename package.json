@@ -2,7 +2,7 @@
   "name": "connparse-monorepo",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@11.28.13",
+  "packageManager": "pnpm@12.22.0",
   "scripts": {
     "conformance": "node tools/conformance-runner.mjs",
     "generate:definitions": "node tools/generate-definitions.mjs",
